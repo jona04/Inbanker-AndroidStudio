@@ -18,7 +18,7 @@ public class Inicio extends AppCompatActivity {
         btn_cadastro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("Script", "Clicou em techa tela de apresentação");
+                Log.i("Script", "Clicou em tela para cadastrar usuario");
 
                 //quando ele apertar em fechar apresentação voltamos para o splash para mostrar o login novamente
                 Intent it = new Intent(Inicio.this, CadastroUsuario.class);
