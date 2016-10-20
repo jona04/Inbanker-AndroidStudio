@@ -5,11 +5,12 @@ android {
     buildToolsVersion "24.0.3"
     defaultConfig {
         applicationId "br.com.appinbanker.inbanker"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
     }
     buildTypes {
         release {
@@ -19,17 +20,31 @@ android {
     }
 }
 
+//concerta problema de META-INF/LICENSE duplicate
+android {
+    packagingOptions {
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/notice.txt'
+    }
+}
 dependencies {
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'com.android.support:design:24.2.1'
-    testCompile 'junit:junit:4.12'
 
     //para springframework consume api rest
+
+    //sdk facebook
+    compile 'com.android.support:support-v4:24.2.1'
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.android.support:design:24.2.1'
     compile 'org.springframework.android:spring-android-rest-template:2.0.0.M1'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
+    compile 'com.facebook.android:facebook-android-sdk:4.16.1'
+    testCompile 'junit:junit:4.12'
 }

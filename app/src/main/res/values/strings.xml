@@ -1,4 +1,20 @@
 <resources>
     <string name="app_name">InBanker</string>
+
+    <string name="title_activity_navigation_drawer_principal">NavigationDrawerPrincipal</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="app_id">379815145741560</string>
+
+    <!-- TITLES -->
+    <string name="title_activity_inicio">Inicio</string>
+    <string name="title_activity_navigation_drawer">InBanker</string>
     <string name="title_activity_cadastro_usuario">Cadastrar</string>
+    <string name="title_activity_telalogin">Entrar</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

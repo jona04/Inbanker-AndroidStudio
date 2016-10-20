@@ -17,7 +17,7 @@ public class teste extends AsyncTask<String, String, Usuario> {
     protected Usuario doInBackground(String... params) {
 
         try {
-            final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/list";
+            final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/find/teste@teste";
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
             Usuario usu = restTemplate.getForObject(url, Usuario.class);

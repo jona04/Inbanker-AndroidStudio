@@ -15,16 +15,25 @@ public class Inicio extends AppCompatActivity {
         setContentView(R.layout.layout_inicio);
 
         Button btn_cadastro = (Button) findViewById(R.id.btn_cadastro);
+        Button btn_entrar = (Button) findViewById(R.id.btn_entrar);
+
         btn_cadastro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("Script", "Clicou em tela para cadastrar usuario");
 
-                //quando ele apertar em fechar apresentação voltamos para o splash para mostrar o login novamente
                 Intent it = new Intent(Inicio.this, CadastroUsuario.class);
                 startActivity(it);
 
-                finish();
+                //finish();
+            }
+        });
+
+        btn_entrar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(Inicio.this, TelaLogin.class);
+                startActivity(it);
+                //finish();
             }
         });
     }
