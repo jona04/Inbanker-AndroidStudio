@@ -11,18 +11,28 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import br.com.appinbanker.inbanker.entidades.BancoControllerUsuario;
+import com.squareup.picasso.Picasso;
+
+import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.fragments_navigation.HistoricoFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.InicioFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PagamentosFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedidosEnviadosFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedidosRecebidosFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedirEmprestimoFragment;
+import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 
 public class NavigationDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    BancoControllerUsuario crud;
+    Cursor cursor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +40,9 @@ public class NavigationDrawerActivity extends AppCompatActivity
         setContentView(R.layout.activity_navigation_drawer);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_navigation_drawer); //app_bar_navigation_drawer.xml
         setSupportActionBar(toolbar);
+
+        crud = new BancoControllerUsuario(getBaseContext());
+        cursor = crud.carregaDados();
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab); //app_bar_navigation_drawer.xml
         fab.setOnClickListener(new View.OnClickListener() {
@@ -49,7 +62,21 @@ public class NavigationDrawerActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //para iniciar com o primeiro item do menu navigation drawer (Inicio)
+        //usamos para obter a view do header dentro do navigationdrawer e assim poder editar a foto e nome do perfil do usuario
+        View header = navigationView.getHeaderView(0);
+
+        String url = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE));
+        String nome_usu_logado = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME));
+
+        TextView tv_nome_usu = (TextView) header.findViewById(R.id.tv_nome_usu_logado);
+        tv_nome_usu.setText(nome_usu_logado);
+
+        ImageView img_usu_logado = (ImageView) header.findViewById(R.id.img_usu_logado);
+        //Log.i("Facebook","url="+url);
+        if(url != null)
+            Picasso.with(getBaseContext()).load(url).into(img_usu_logado);
+
+       //para iniciar com o primeiro item do menu navigation drawer (Inicio)
         onNavigationItemSelected(navigationView.getMenu().getItem(0).setChecked(true));
     }
 

@@ -2,7 +2,9 @@ package br.com.appinbanker.inbanker.fragments_navigation;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Log;
@@ -20,11 +22,19 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
+import java.util.List;
+
 import br.com.appinbanker.inbanker.R;
+import br.com.appinbanker.inbanker.entidades.Amigos;
+import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 
 
 /**
@@ -185,7 +195,7 @@ public class PedirEmprestimoFragment extends Fragment {
                 HttpMethod.GET,
                 new GraphRequest.Callback() {
                     public void onCompleted(GraphResponse response) {
-                        Log.i("Facebook","dados gerais = "+response);
+                        //Log.i("Facebook","dados gerais = "+response);
 
                         try {
 
@@ -199,20 +209,32 @@ public class PedirEmprestimoFragment extends Fragment {
                             pic = pic.getJSONObject("data");
                             String url_picture = pic.getString("url");
 
-                            //Gson gson = new Gson();
-                            //retorno = gson.fromJson(reader, Usuario.class);
-
-
-
+                            //atualizamos os dados do usuario que esta no sqlite com os dados dele que acabaram de ser logados no facebook
+                            BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
+                            Cursor cursor = crud.carregaDados();
+                            String cpf = cursor.getString(cursor.getColumnIndexOrThrow("cpf"));
+                            crud.alteraRegistroFace(cpf,id,name,url_picture);
 
                             object = object.getJSONObject("friends");
                             JSONArray friends_list = object.getJSONArray("data");
 
-                            Log.i("Facebook","id, email, name ="+ id +"- "+name + " - "+url_picture);
-                            Log.i("Facebook","friends = "+friends_list);
+                            //Log.i("Facebook","id, email, name ="+ id +"- "+name + " - "+url_picture);
+                            //Log.i("Facebook","friends = "+friends_list);
+
+                            ObjectMapper mapper = new ObjectMapper();
+                            List<Amigos> list = mapper.readValue(friends_list.toString(),
+                                    TypeFactory.defaultInstance().constructCollectionType(List.class,
+                                            Amigos.class));
+
+                            //Log.i("Facebook","json ="+teste);
+                            //Log.i("Facebook","amigos = "+list.get(0).getPicture().getData().getUrl());
+
+                            for (Amigos a: list) {
+                                Log.i("Facebook","amigo listado = "+a.getName());
+                            }
                         }
                         catch(Exception e){
-                            Log.i("Facebook",""+e);
+                            Log.i("Facebook","exception = "+e);
                         }
                     }
                 }

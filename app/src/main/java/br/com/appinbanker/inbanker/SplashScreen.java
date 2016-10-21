@@ -4,12 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import br.com.appinbanker.inbanker.entidades.BancoControllerUsuario;
+import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 
 public class SplashScreen extends Activity {
 

@@ -1,4 +1,4 @@
-package br.com.appinbanker.inbanker.entidades;
+package br.com.appinbanker.inbanker.sqlite;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -79,7 +79,7 @@ public class BancoControllerUsuario {
         return cursor;
     }
 
-    public void alteraRegistro(int cpf, String id_face, String nome_face, String url_img_face){
+    public void alteraRegistroFace(String cpf, String id_face, String nome_face, String url_img_face){
         ContentValues valores;
         String where;
 
