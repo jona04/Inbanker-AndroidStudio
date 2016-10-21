@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import br.com.appinbanker.inbanker.entidades.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.webservice.AddUsuario;
 import br.com.appinbanker.inbanker.webservice.SpringFrameworkConfig;
@@ -58,8 +59,13 @@ public class CadastroUsuario extends ActionBarActivity {
                         usu.setNome(et_nome.getText().toString());
                         usu.setSenha(et_senha.getText().toString());
 
+                        //setamos esse valores vazio para nao dar problema na hora de serializacao e posteriormente erro no rest de cadastro no banco
+                        usu.setIdFace("");
+                        usu.setNomeFace("");
+                        usu.setUrlImgFace("");
+
                         //fazemos a chamada a classe responsavel por realizar a tarefa de webservice em doinbackground
-                        new AddUsuario(usu,CadastroUsuario.this,CadastroUsuario.this).execute();
+                        new AddUsuario(usu,CadastroUsuario.this).execute();
                     }
                 }else{
                     mensagemCamposVazio();
@@ -76,6 +82,12 @@ public class CadastroUsuario extends ActionBarActivity {
     public void retornoTask(String msg){
 
         if(msg.equals("sucesso")){
+
+            BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
+            //ordem de parametros - nome,email,cpf,senha,id_face,email_face,nome_face,url_img_face
+            String resultado = crud.insereDado(usu.getNome(),usu.getEmail(),usu.getCpf(),usu.getSenha(),"","","");
+            Log.i("Banco SQLITE","resultado = "+resultado);
+
             Intent it = new Intent(CadastroUsuario.this, NavigationDrawerActivity.class);
             startActivity(it);
 
@@ -105,6 +117,15 @@ public class CadastroUsuario extends ActionBarActivity {
         mensagem.show();
     }
 
+    public void mensagemSenha()
+    {
+        AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
+        mensagem.setTitle("Houve um erro!");
+        mensagem.setMessage("Olá, as senhas digitadas nao sao iguais. Favor tente novamente!");
+        mensagem.setNeutralButton("OK",null);
+        mensagem.show();
+    }
+
     //metodo para validar se campos do cadastro estao vazios
     public boolean isValid(){
 
@@ -113,6 +134,8 @@ public class CadastroUsuario extends ActionBarActivity {
                 et_nome.getText().toString().isEmpty() ||
                 et_senha.getText().toString().isEmpty() ||
                 et_senha_novamente.getText().toString().isEmpty()){
+
+            mensagemSenha();
 
             return false;
         }else{

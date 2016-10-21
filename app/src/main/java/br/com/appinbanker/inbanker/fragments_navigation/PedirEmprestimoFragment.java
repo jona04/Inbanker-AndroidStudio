@@ -199,6 +199,12 @@ public class PedirEmprestimoFragment extends Fragment {
                             pic = pic.getJSONObject("data");
                             String url_picture = pic.getString("url");
 
+                            //Gson gson = new Gson();
+                            //retorno = gson.fromJson(reader, Usuario.class);
+
+
+
+
                             object = object.getJSONObject("friends");
                             JSONArray friends_list = object.getJSONArray("data");
 

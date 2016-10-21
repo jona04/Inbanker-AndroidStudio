@@ -22,12 +22,10 @@ import br.com.appinbanker.inbanker.entidades.Usuario;
 public class AddUsuario extends AsyncTask<String, String, String> {
 
     private Usuario usuario;
-    private Context context;
     private CadastroUsuario cu;
 
-    public AddUsuario(Usuario usu, Context context, CadastroUsuario cu) {
+    public AddUsuario(Usuario usu, CadastroUsuario cu) {
         this.usuario = usu;
-        this.context = context;
         this.cu = cu;
     }
 

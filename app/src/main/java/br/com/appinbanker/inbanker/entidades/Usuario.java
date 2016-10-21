@@ -12,9 +12,8 @@ public class Usuario {
     private String senha;
 
     private String id_face;
-    private String email_face;
     private String nome_face;
-    private String url_img_face;
+    private String url_img;
 
     public void setNome(String nome){
         this.nome = nome;
@@ -31,14 +30,11 @@ public class Usuario {
     public void setIdFace(String id_face){
         this.id_face = id_face;
     }
-    public void setEmailFace(String email_face){
-        this.email_face = email_face;
-    }
     public void setNomeFace(String nome_face){
         this.nome_face = nome_face;
     }
-    public void setUrlImgFace(String url_img_face){
-        this.url_img_face = url_img_face;
+    public void setUrlImgFace(String url_img){
+        this.url_img = url_img;
     }
 
 
@@ -57,12 +53,11 @@ public class Usuario {
     public String getIdFace(){
         return this.id_face;
     }
-    public String getEmailFace(){return this.email_face;}
     public String getNomeFace(){
         return this.nome_face;
     }
     public String getUrlImgFace(){
-        return this.url_img_face;
+        return this.url_img;
     }
 
 }

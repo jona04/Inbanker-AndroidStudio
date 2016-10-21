@@ -3,15 +3,21 @@ package br.com.appinbanker.inbanker;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import br.com.appinbanker.inbanker.entidades.BancoControllerUsuario;
+
 public class SplashScreen extends Activity {
 
     private Thread mSplashThread;
     private boolean mblnClicou = false;
+
+    private Cursor cursor;
+    private boolean usu_logado = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +33,15 @@ public class SplashScreen extends Activity {
                         //Espera por 5 segundos or sai quando
                         //o usuário tocar na tela
                         wait(2000);
+
+                        //verificamos se usuario ja esta logado antes de mostrar a tela de login
+                        BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
+                        cursor = crud.carregaDados();
+                        if (cursor.getCount() > 0) {
+                            usu_logado = true;
+                        }
+                        Log.i("BancoSQLite","resultado banco = "+ cursor.getCount());
+
                         mblnClicou = true;
                     }
                 }
@@ -47,16 +62,23 @@ public class SplashScreen extends Activity {
     }
 
     public void vaiInicio(){
-        //Carrega a Activity Principal
-        Intent i = new Intent();
-        i.setClass(SplashScreen.this, Inicio.class);
-        Bundle b = new Bundle();
-        //usamos esse parametro para informar que usuario esta entrando no app de forma normal, a outra forma eh pelas notificacoes
-        b.putString("notification","0");
-        i.putExtras(b);
-        startActivity(i);
-        //encerra splash e evitar voltar
-        finish();
+
+        //verificamos se usuario ja esta logado antes de mostrar a tela de login
+        if (usu_logado == true) {
+            Intent it = new Intent(SplashScreen.this, NavigationDrawerActivity.class);
+            startActivity(it);
+
+            //encerra splash e evitar voltar
+            finish();
+        }else {
+
+            //Carrega a Activity Principal
+            Intent i = new Intent();
+            i.setClass(SplashScreen.this, Inicio.class);
+            startActivity(i);
+            //encerra splash e evitar voltar
+            finish();
+        }
     }
 
     //serve para pegar o id unico do aparelho e armazenar no banco, para podermos bloquear algum aparelho caso queiramos

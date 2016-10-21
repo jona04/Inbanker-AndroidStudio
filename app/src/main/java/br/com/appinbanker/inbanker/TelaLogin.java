@@ -5,10 +5,12 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import br.com.appinbanker.inbanker.entidades.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioLogin;
 
@@ -36,7 +38,7 @@ public class TelaLogin extends ActionBarActivity {
 
                 if(et_email.getText().toString().equals("") || et_senha.getText().toString().equals(""))
                 {
-                    //mensagem de erro
+                    mensagemCamposVazio();
                 }else{
                     new BuscaUsuarioLogin(et_email.getText().toString(),TelaLogin.this,TelaLogin.this).execute();
                 }
@@ -51,6 +53,11 @@ public class TelaLogin extends ActionBarActivity {
 
         if(usu != null){
             if(usu.getSenha().equals(et_senha.getText().toString())) {
+
+                BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
+                //ordem de parametros - nome,email,cpf,senha,id_face,email_face,nome_face,url_img_face
+                String resultado = crud.insereDado(usu.getNome(),usu.getEmail(),usu.getCpf(),usu.getSenha(),usu.getIdFace(),usu.getNomeFace(),usu.getUrlImgFace());
+                Log.i("Banco SQLITE","resultado = "+resultado);
 
                 Intent it = new Intent(TelaLogin.this, NavigationDrawerActivity.class);
                 startActivity(it);
@@ -79,6 +86,15 @@ public class TelaLogin extends ActionBarActivity {
         AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
         mensagem.setTitle("Houve um erro!");
         mensagem.setMessage("Olá, a senha digita esta incorreta. Favor tente novamente!");
+        mensagem.setNeutralButton("OK",null);
+        mensagem.show();
+    }
+
+    public void mensagemCamposVazio()
+    {
+        AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
+        mensagem.setTitle("Houve um erro!");
+        mensagem.setMessage("Olá, existem campos nao preenchidos. Favor preencha todos e tente novamente!");
         mensagem.setNeutralButton("OK",null);
         mensagem.show();
     }

@@ -1,6 +1,8 @@
 package br.com.appinbanker.inbanker;
 
 import android.app.FragmentManager;
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.NavigationView;
@@ -11,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import br.com.appinbanker.inbanker.entidades.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.fragments_navigation.HistoricoFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.InicioFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PagamentosFragment;
@@ -116,10 +119,24 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 break;
             case R.id.nav_ajuda:
                 //fragmentClass = AjudaFragment.class;
-                break;
-            case R.id.nav_sair:
-                //fragmentClass = SaiFragment.class;
                 break;*/
+            case R.id.nav_sair:
+
+                //aparece aqui para nao dar erro no try
+                fragmentClass = InicioFragment.class;
+
+                BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
+                Cursor cursor = crud.carregaDados();
+                String cpf = cursor.getString(cursor.getColumnIndexOrThrow("cpf"));
+                crud.deletaRegistro(cpf);
+
+                Intent it = new Intent(NavigationDrawerActivity.this, Inicio.class);
+                startActivity(it);
+
+                //para encerrar a activity atual e todos os parent
+                finishAffinity();
+
+                break;
             default:
                 fragmentClass = InicioFragment.class;
         }
