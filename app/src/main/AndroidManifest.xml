@@ -49,11 +49,12 @@
         <activity
             android:name=".TelaLogin"
             android:label="@string/title_activity_telalogin"
-            android:parentActivityName=".Inicio"></activity>
+            android:parentActivityName=".Inicio" />
         <activity
             android:name=".SimuladorPedido"
             android:label="@string/title_activity_simulador_pedido"
-            android:parentActivityName=".NavigationDrawerActivity"></activity>
+            android:parentActivityName=".NavigationDrawerActivity" />
+        <activity android:name=".SimuladorResultado"></activity>
     </application>
 
 </manifest>

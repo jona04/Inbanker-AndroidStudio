@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_simulador_resultado"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="br.com.appinbanker.inbanker.SimuladorResultado">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="">
+
+            <ImageView
+                android:id="@+id/img_amigo"
+                android:layout_width="50sp"
+                android:layout_height="50sp"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/icon"/>
+            <TextView
+                android:id="@+id/nome_amigo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="20px"
+                android:text=""/>
+        </LinearLayout>
+
+        <TableLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:stretchColumns="1"
+            android:layout_marginTop="30px">
+
+            <TableRow>
+                <TextView android:text="Valor solicitado:"/>
+                <TextView android:id="@+id/tv_valor" />
+            </TableRow>
+            <TableRow>
+                <TextView android:text="Data de vencimento:"/>
+                <TextView android:id="@+id/tv_vencimento" />
+            </TableRow>
+            <TableRow>
+                <TextView android:text="Dias para o pagamento:"/>
+                <TextView android:id="@+id/tv_dias_pagamento" />
+            </TableRow>
+            <TableRow>
+                <TextView android:text="Taxa de juros A.M.: 1,99%:"/>
+                <TextView android:id="@+id/tv_juros_mes" />
+            </TableRow>
+           <!-- <TableRow>
+                <TextView android:text="Valor de serviço:"/>
+                <TextView android:id="@+id/tv_valor_servico" />
+            </TableRow>-->
+
+
+            <TableRow>
+                <TextView android:text="Valor total:"/>
+                <TextView android:id="@+id/tv_valor_total" />
+            </TableRow>
+
+
+        </TableLayout>
+
+    </LinearLayout>
+
+
+</ScrollView>
