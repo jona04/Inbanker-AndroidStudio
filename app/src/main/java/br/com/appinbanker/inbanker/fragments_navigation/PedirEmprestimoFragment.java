@@ -7,10 +7,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -29,31 +33,23 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import br.com.appinbanker.inbanker.R;
+import br.com.appinbanker.inbanker.SimuladorPedido;
+import br.com.appinbanker.inbanker.adapters.ListaAmigosAdapter;
 import br.com.appinbanker.inbanker.entidades.Amigos;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 
+public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnClickListenerHack {
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link PedirEmprestimoFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link PedirEmprestimoFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class PedirEmprestimoFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLinearLayoutManager;
+    private ArrayList<Amigos> mList;
+    private ProgressBar pb;
 
     private OnFragmentInteractionListener mListener;
 
@@ -61,35 +57,18 @@ public class PedirEmprestimoFragment extends Fragment {
     private LoginButton loginButton;
     private CallbackManager callbackManager;
 
+    private boolean usuario_logado = false;
+
     public PedirEmprestimoFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment InicioFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static PedirEmprestimoFragment newInstance(String param1, String param2) {
-        PedirEmprestimoFragment fragment = new PedirEmprestimoFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
     }
@@ -104,8 +83,15 @@ public class PedirEmprestimoFragment extends Fragment {
             public void onInitialized() {
                 if(AccessToken.getCurrentAccessToken() == null){
                     Log.i("Facebook","nao logado");
+
+                    //utilizamos para deixar a lista no modo hide
+                    usuario_logado = false;
                 } else {
                     Log.i("Facebook","logando accestoken = "+AccessToken.getCurrentAccessToken());
+
+                    //utilizamos para deixar a lista no modo hide
+                    usuario_logado = true;
+
                     graphFacebook(AccessToken.getCurrentAccessToken());
                 }
             }
@@ -114,6 +100,39 @@ public class PedirEmprestimoFragment extends Fragment {
 
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_pedir_emprestimo, container, false);
+
+        pb = (ProgressBar) view.findViewById(R.id.progress_lista_amigos);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_amigos);
+
+        //se usuario nao estiver logado, escondemos a lista de amigos
+        if(!usuario_logado) {
+            mRecyclerView.setVisibility(View.GONE);
+            pb.setVisibility(View.GONE);
+        }else{
+            //mostramos novamente a barra de carregar e a lista de amigos
+            mRecyclerView.setVisibility(View.VISIBLE);
+            pb.setVisibility(View.VISIBLE);
+        }
+
+        mLinearLayoutManager = new LinearLayoutManager(getActivity());
+        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+
+
+        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                //Log.i("Script", "onScrollStateChanged");
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                //Log.i("Script", "onScrolled");
+            }
+        });
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(mLinearLayoutManager);
 
         loginButton = (LoginButton) view.findViewById(R.id.login_button);
         loginButton.setReadPermissions("email");
@@ -128,6 +147,10 @@ public class PedirEmprestimoFragment extends Fragment {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.i("Facebook", "onSuceess - loingResult= "+loginResult);
+
+                //mostramos novamente a barra de carregar e a lista de amigos
+                mRecyclerView.setVisibility(View.VISIBLE);
+                pb.setVisibility(View.VISIBLE);
 
                 //chamamos o metedo graphFacebook para obter os dados do usuario logado
                 //passando como parametro o accessToken gerado no login
@@ -222,16 +245,18 @@ public class PedirEmprestimoFragment extends Fragment {
                             //Log.i("Facebook","friends = "+friends_list);
 
                             ObjectMapper mapper = new ObjectMapper();
-                            List<Amigos> list = mapper.readValue(friends_list.toString(),
+                            mList = mapper.readValue(friends_list.toString(),
                                     TypeFactory.defaultInstance().constructCollectionType(List.class,
                                             Amigos.class));
 
                             //Log.i("Facebook","json ="+teste);
                             //Log.i("Facebook","amigos = "+list.get(0).getPicture().getData().getUrl());
 
-                            for (Amigos a: list) {
-                                Log.i("Facebook","amigo listado = "+a.getName());
-                            }
+                            //for (Amigos a: mList) {
+                            //    Log.i("Facebook","amigo listado = "+a.getName());
+                            //}
+
+                            listaAmigos();
                         }
                         catch(Exception e){
                             Log.i("Facebook","exception = "+e);
@@ -242,16 +267,16 @@ public class PedirEmprestimoFragment extends Fragment {
 
     }
 
-    /*boolean public boolean isLoggedIn() {
+    public void listaAmigos(){
 
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        Log.i("Facebook","acctoken = "+accessToken);
-        if(accessToken != null)
-            return true;
-        else
-            return false;
+        Log.i("Facebook","metodo Lista amigos");
 
-    }*/
+        pb.setVisibility(View.GONE);
+
+        ListaAmigosAdapter adapter = new ListaAmigosAdapter(getActivity(),mList);
+        adapter.setRecyclerViewOnClickListenerHack(this);
+        mRecyclerView.setAdapter(adapter);
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -284,6 +309,21 @@ public class PedirEmprestimoFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onClickListener(View view, int position) {
+
+        Log.i("Script", "Click tste inicio =" + mList.get(position).getName());
+
+        Intent it = new Intent(getActivity(), SimuladorPedido.class);
+        Bundle b = new Bundle();
+        b.putString("id",mList.get(position).getId());
+        b.putString("nome",mList.get(position).getName());
+        b.putString("url_img",mList.get(position).getPicture().getData().getUrl());
+        it.putExtras(b);
+        startActivity(it);
+
     }
 
     /**

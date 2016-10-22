@@ -28,7 +28,7 @@
             android:title="Historico" />
     </group>
 
-    <item android:title="Ajustes">
+    <item android:title="">
         <menu>
             <item
                 android:id="@+id/nav_configuracoes"

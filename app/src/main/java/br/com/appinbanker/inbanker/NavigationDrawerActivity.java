@@ -17,6 +17,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
 import com.squareup.picasso.Picasso;
 
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
@@ -36,6 +38,10 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //utilizamos para habilitar o logout quando clicar em sair no navigation drawer
+        FacebookSdk.sdkInitialize(getApplicationContext());
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation_drawer);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_navigation_drawer); //app_bar_navigation_drawer.xml
@@ -151,6 +157,9 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
                 //aparece aqui para nao dar erro no try
                 fragmentClass = InicioFragment.class;
+
+                //faz o logout do usuario logado
+                LoginManager.getInstance().logOut();
 
                 BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
                 Cursor cursor = crud.carregaDados();
