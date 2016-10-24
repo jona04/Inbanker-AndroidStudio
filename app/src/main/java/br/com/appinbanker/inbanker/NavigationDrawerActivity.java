@@ -21,6 +21,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.squareup.picasso.Picasso;
 
+import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.fragments_navigation.HistoricoFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.InicioFragment;
@@ -29,12 +30,14 @@ import br.com.appinbanker.inbanker.fragments_navigation.PedidosEnviadosFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedidosRecebidosFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedirEmprestimoFragment;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.webservice.AtualizaUsuario;
 
 public class NavigationDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     BancoControllerUsuario crud;
     Cursor cursor;
+    Usuario usu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +52,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
         crud = new BancoControllerUsuario(getBaseContext());
         cursor = crud.carregaDados();
+        usu = new Usuario();
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab); //app_bar_navigation_drawer.xml
         fab.setOnClickListener(new View.OnClickListener() {
@@ -78,12 +82,14 @@ public class NavigationDrawerActivity extends AppCompatActivity
         tv_nome_usu.setText(nome_usu_logado);
 
         ImageView img_usu_logado = (ImageView) header.findViewById(R.id.img_usu_logado);
-        //Log.i("Facebook","url="+url);
+        Log.i("Facebook","url="+url);
         if(url != null)
-            Picasso.with(getBaseContext()).load(url).into(img_usu_logado);
+            if(url.equals("")){}else{
+                Picasso.with(getBaseContext()).load(url).into(img_usu_logado);}
 
        //para iniciar com o primeiro item do menu navigation drawer (Inicio)
         onNavigationItemSelected(navigationView.getMenu().getItem(0).setChecked(true));
+
     }
 
     @Override
@@ -161,8 +167,6 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 //faz o logout do usuario logado
                 LoginManager.getInstance().logOut();
 
-                BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
-                Cursor cursor = crud.carregaDados();
                 String cpf = cursor.getString(cursor.getColumnIndexOrThrow("cpf"));
                 crud.deletaRegistro(cpf);
 

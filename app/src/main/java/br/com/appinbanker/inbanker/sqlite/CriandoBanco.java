@@ -26,7 +26,7 @@ public class CriandoBanco extends SQLiteOpenHelper {
     public static final String URL_IMG_FACE = "url_img_face";
 
     //Se a estrutura do banco for alterada, a versao deve ser alterada tambem, para surtir efeito
-    private static final int VERSAO = 3;
+    private static final int VERSAO = 4;
 
     public CriandoBanco(Context context){
         super(context, NOME_BANCO,null,VERSAO);

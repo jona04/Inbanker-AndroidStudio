@@ -18,12 +18,8 @@ import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.w3c.dom.Text;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 public class SimuladorPedido extends ActionBarActivity {
 
@@ -51,7 +47,7 @@ public class SimuladorPedido extends ActionBarActivity {
         Picasso.with(getBaseContext()).load(url_img).into(img);
 
         TextView tv = (TextView) findViewById(R.id.nome_amigo);
-        tv.setText(tv.getText()+nome);
+        tv.setText(tv.getText().toString()+nome);
 
         et_calendario = (EditText) findViewById(R.id.et_calendario);
         et_valor = (EditText) findViewById(R.id.et_valor);
@@ -77,7 +73,15 @@ public class SimuladorPedido extends ActionBarActivity {
         btn_verificar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*Intent it = new Intent(SimuladorPedido.this,SimuladorResultado.class);
+
+                DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYYY");
+                DateTime hoje = new DateTime();
+                DateTime vencimento = fmt.parseDateTime(et_calendario.getText().toString());
+
+                Days d = Days.daysBetween(hoje, vencimento);
+                dias_pagamento = d.getDays();
+
+                Intent it = new Intent(SimuladorPedido.this,SimuladorResultado.class);
                 Bundle b = new Bundle();
                 b.putString("id",id);
                 b.putString("nome",nome);
@@ -86,7 +90,7 @@ public class SimuladorPedido extends ActionBarActivity {
                 b.putString("vencimento",et_calendario.getText().toString());
                 b.putInt("dias",dias_pagamento);
                 it.putExtras(b);
-                startActivity(it);*/
+                startActivity(it);
 
                 Log.i("Scrip",""+dias_pagamento);
             }
@@ -100,18 +104,7 @@ public class SimuladorPedido extends ActionBarActivity {
         mMonth = c.get(Calendar.MONTH);
         mDay = c.get(Calendar.DAY_OF_MONTH);
 
-        SimpleDateFormat dataFormatada = new SimpleDateFormat("dd/MM/yyyy");  //HH:mm:ss
-        Date dataVencimento = null;
         String data = mDay + "/" + (mMonth + 1) + "/" + mYear;
-
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd-MM-YYYYY");
-        DateTime hoje = new DateTime();
-
-        DateTime vencimento = fmt.parseDateTime(data);
-
-        Days d = Days.daysBetween(hoje, vencimento);
-
-        DateTime dias_pagamento2 = hoje - dateTime;
 
         // Launch Date Picker Dialog
         DatePickerDialog dpd = new DatePickerDialog(SimuladorPedido.this,

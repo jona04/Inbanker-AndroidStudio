@@ -1,19 +1,47 @@
 package br.com.appinbanker.inbanker.entidades;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import java.util.List;
+
 /**
  * Created by Jonatas on 18/10/2016.
  */
-
+@JsonPropertyOrder({
+        "nome",
+        "email",
+        "cpf",
+        "senha",
+        "id_face",
+        "nome_face",
+        "url_face"
+})
 public class Usuario {
 
+    @JsonProperty("nome")
     private String nome;
+    @JsonProperty("email")
     private String email;
+    @JsonProperty("cpf")
     private String cpf;
+    @JsonProperty("senha")
     private String senha;
 
-    private String id_face;
-    private String nome_face;
-    private String url_img;
+    @JsonProperty("id_face")
+    private String idFace;
+
+    @JsonProperty("nome_face")
+    private String nomeFace;
+
+    @JsonProperty("url_face")
+    private String urlImgFace;
+
+    @JsonProperty("trans")
+    private List<Transacao> transacao;
+
+    public void setTransacao(List<Transacao> trans){this.transacao = trans;}
+    public List<Transacao> setTransacao(){return this.transacao;}
 
     public void setNome(String nome){
         this.nome = nome;
@@ -27,14 +55,14 @@ public class Usuario {
     public void setSenha(String senha){
         this.senha = senha;
     }
-    public void setIdFace(String id_face){
-        this.id_face = id_face;
+    public void setIdFace(String idFace){
+        this.idFace = idFace;
     }
     public void setNomeFace(String nome_face){
-        this.nome_face = nome_face;
+        this.nomeFace = nome_face;
     }
     public void setUrlImgFace(String url_img){
-        this.url_img = url_img;
+        this.urlImgFace = url_img;
     }
 
 
@@ -51,13 +79,13 @@ public class Usuario {
         return this.senha;
     }
     public String getIdFace(){
-        return this.id_face;
+        return this.idFace;
     }
     public String getNomeFace(){
-        return this.nome_face;
+        return this.nomeFace;
     }
     public String getUrlImgFace(){
-        return this.url_img;
+        return this.urlImgFace;
     }
 
 }

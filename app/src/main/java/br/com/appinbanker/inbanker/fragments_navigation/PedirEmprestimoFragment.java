@@ -43,6 +43,8 @@ import br.com.appinbanker.inbanker.entidades.Amigos;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
+import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.webservice.AtualizaUsuario;
 
 public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnClickListenerHack {
 
@@ -59,6 +61,9 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
     private boolean usuario_logado = false;
 
+    //atualizamos os dados do usuario que esta no sqlite com os dados dele que acabaram de ser logados no facebook
+    BancoControllerUsuario crud;
+
     public PedirEmprestimoFragment() {
         // Required empty public constructor
     }
@@ -70,6 +75,8 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
         if (getArguments() != null) {
         }
+
+        crud = new BancoControllerUsuario(getActivity());
 
     }
 
@@ -232,12 +239,6 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                             pic = pic.getJSONObject("data");
                             String url_picture = pic.getString("url");
 
-                            //atualizamos os dados do usuario que esta no sqlite com os dados dele que acabaram de ser logados no facebook
-                            BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
-                            Cursor cursor = crud.carregaDados();
-                            String cpf = cursor.getString(cursor.getColumnIndexOrThrow("cpf"));
-                            crud.alteraRegistroFace(cpf,id,name,url_picture);
-
                             object = object.getJSONObject("friends");
                             JSONArray friends_list = object.getJSONArray("data");
 
@@ -249,14 +250,13 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                                     TypeFactory.defaultInstance().constructCollectionType(List.class,
                                             Amigos.class));
 
-                            //Log.i("Facebook","json ="+teste);
                             //Log.i("Facebook","amigos = "+list.get(0).getPicture().getData().getUrl());
 
                             //for (Amigos a: mList) {
                             //    Log.i("Facebook","amigo listado = "+a.getName());
                             //}
 
-                            listaAmigos();
+                            listaAmigos(id,url_picture,name);
                         }
                         catch(Exception e){
                             Log.i("Facebook","exception = "+e);
@@ -267,7 +267,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
     }
 
-    public void listaAmigos(){
+    public void listaAmigos(String id, String url, String name){
 
         Log.i("Facebook","metodo Lista amigos");
 
@@ -276,6 +276,43 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         ListaAmigosAdapter adapter = new ListaAmigosAdapter(getActivity(),mList);
         adapter.setRecyclerViewOnClickListenerHack(this);
         mRecyclerView.setAdapter(adapter);
+
+        //atualizamos os dados do usuario logado caso seja o primeiro login dele no face
+        Cursor cursor = crud.carregaDados();
+        String id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
+        Log.i("Facebook","id_face = "+id_face);
+        if(id_face == null || id_face.equals(""))
+            atualizaDadosUsuario(id,url,name);
+
+    }
+
+    public void atualizaDadosUsuario(String id, String url_picture,String name){
+
+        //atualizamos os dados do usuario que esta no sqlite com os dados dele que acabaram de ser logados no facebook
+        BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
+        Cursor cursor = crud.carregaDados();
+        String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+        crud.alteraRegistroFace(cpf,id,name,url_picture);
+
+        Usuario usu = new Usuario();
+
+        //para nao da problema
+        usu.setNome("");
+        usu.setEmail("");
+        usu.setSenha("");
+
+        usu.setCpf(cpf);
+        usu.setUrlImgFace(url_picture);
+        usu.setNomeFace(name);
+        usu.setIdFace(id);
+
+        //fazemos a chamada a classe responsavel por realizar a tarefa de webservice em doinbackground
+        new AtualizaUsuario(usu,PedirEmprestimoFragment.this).execute();
+
+    }
+
+    public void retornoAtualizaUsuario(String result){
+        Log.i("Webservice","retorno = "+result);
     }
 
     @Override

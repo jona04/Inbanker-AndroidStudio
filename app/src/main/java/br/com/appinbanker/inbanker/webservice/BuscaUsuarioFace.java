@@ -4,39 +4,35 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import br.com.appinbanker.inbanker.SimuladorResultado;
 import br.com.appinbanker.inbanker.TelaLogin;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 
 /**
- * Created by jonatassilva on 18/10/16.
+ * Created by jonatassilva on 23/10/16.
  */
 
-public class BuscaUsuarioLogin extends AsyncTask<String,String,Usuario> {
+public class BuscaUsuarioFace extends AsyncTask<String,String,Usuario> {
 
-    private Context context;
-    private TelaLogin tl;
-    private String email;
+    private SimuladorResultado sr;
+    private String id_face;
 
-    public BuscaUsuarioLogin(String email, Context context, TelaLogin tl){
-        this.context = context;
-        this.tl = tl;
-        this.email = email;
+    public BuscaUsuarioFace(String id_face, SimuladorResultado sr){
+
+        this.sr = sr;
+        this.id_face = id_face;
 
     }
+
     @Override
     protected Usuario doInBackground(String... params) {
         Usuario usu = null;
         try {
             //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/findEmail/"+email;
-            final String url = "http://10.0.3.2:8080/appinbanker/rest/usuario/findEmail/"+email;
+            final String url = "http://10.0.3.2:8080/appinbanker/rest/usuario/findFace/"+id_face;
 
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
@@ -53,7 +49,8 @@ public class BuscaUsuarioLogin extends AsyncTask<String,String,Usuario> {
         if(result!= null)
             Log.i("Script",result.getNome());
 
-        tl.retornoTask(result);
+        sr.retornoBuscaUsuario(result);
 
     }
+
 }
