@@ -14,8 +14,7 @@
     <string name="title_activity_navigation_drawer">InBanker</string>
     <string name="title_activity_cadastro_usuario">Cadastrar</string>
     <string name="title_activity_telalogin">Entrar</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_simulador_pedido">Simular pedido</string>
+    <string name="title_activity_simulador_resultado">Resultado simulaçao</string>
+
 </resources>

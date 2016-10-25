@@ -39,9 +39,13 @@ public class SimuladorPedido extends ActionBarActivity {
 
         Intent it = getIntent();
         Bundle parametro = it.getExtras();
-        id = parametro.getString("id");
-        nome = parametro.getString("nome");
-        url_img = parametro.getString("url_img");
+        if(parametro!=null){
+            id = parametro.getString("id");
+            nome = parametro.getString("nome");
+            url_img = parametro.getString("url_img");
+        }else{
+            finish();
+        }
 
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
         Picasso.with(getBaseContext()).load(url_img).into(img);

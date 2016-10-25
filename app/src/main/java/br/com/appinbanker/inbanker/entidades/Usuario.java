@@ -15,7 +15,8 @@ import java.util.List;
         "senha",
         "id_face",
         "nome_face",
-        "url_face"
+        "url_face",
+        "transacoes"
 })
 public class Usuario {
 
@@ -37,11 +38,17 @@ public class Usuario {
     @JsonProperty("url_face")
     private String urlImgFace;
 
-    @JsonProperty("trans")
+    @JsonProperty("transacoes")
     private List<Transacao> transacao;
 
+    @JsonProperty("transacaoEnv")
+    private List<Transacao> transacaoEnv;
+
+    public void setTransacaoEnv(List<Transacao> transacoes_enviadas){this.transacaoEnv = transacoes_enviadas;}
+    public List<Transacao> getTransacaoEnv(){return this.transacaoEnv;}
+
     public void setTransacao(List<Transacao> trans){this.transacao = trans;}
-    public List<Transacao> setTransacao(){return this.transacao;}
+    public List<Transacao> getTransacao(){return this.transacao;}
 
     public void setNome(String nome){
         this.nome = nome;

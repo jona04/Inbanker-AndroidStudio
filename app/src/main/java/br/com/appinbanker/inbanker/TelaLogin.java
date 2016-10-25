@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.entidades.Usuario;
@@ -18,6 +19,8 @@ public class TelaLogin extends ActionBarActivity {
     private EditText et_email;
     private EditText et_senha;
     private Button btn_entrar;
+
+    private ProgressBar pg_login;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +34,8 @@ public class TelaLogin extends ActionBarActivity {
         et_senha = (EditText) findViewById(R.id.et_senha);
         btn_entrar = (Button) findViewById(R.id.btn_entrar);
 
+        pg_login = (ProgressBar) findViewById(R.id.pg_login);
+
         btn_entrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -39,7 +44,11 @@ public class TelaLogin extends ActionBarActivity {
                 {
                     mensagemCamposVazio();
                 }else{
+
+                    pg_login.setVisibility(View.VISIBLE);
+                    btn_entrar.setEnabled(false);
                     new BuscaUsuarioLogin(et_email.getText().toString(),TelaLogin.this,TelaLogin.this).execute();
+
                 }
 
             }
@@ -65,9 +74,15 @@ public class TelaLogin extends ActionBarActivity {
                 finishAffinity();
             }else{
                 mensagemSenha();
+
+                btn_entrar.setEnabled(true);
+                pg_login.setVisibility(View.GONE);
             }
         }else{
             mensagem();
+
+            btn_entrar.setEnabled(true);
+            pg_login.setVisibility(View.GONE);
         }
 
     }

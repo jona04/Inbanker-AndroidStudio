@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -40,6 +41,8 @@ public class SimuladorResultado extends AppCompatActivity {
     int dias;
     TextView tv_nome,tv_valor,tv_vencimento,tv_dias_pagamento,tv_juros_mes,tv_valor_total;
     Transacao trans;
+    ProgressBar progress_bar_simulador;
+    Button btn_fazer_pedido;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +52,8 @@ public class SimuladorResultado extends AppCompatActivity {
         crud = new BancoControllerUsuario(getBaseContext());
         cursor = crud.carregaDados();
         trans = new Transacao();
+
+        progress_bar_simulador = (ProgressBar) findViewById(R.id.progress_bar_simulador);
 
         Intent it = getIntent();
         Bundle parametro = it.getExtras();
@@ -77,7 +82,7 @@ public class SimuladorResultado extends AppCompatActivity {
         tv_vencimento = (TextView) findViewById(R.id.tv_vencimento);
         //tv_valor_servico = (TextView) findViewById(R.id.tv_valor_servico);
 
-        Button btn_fazer_pedido = (Button) findViewById(R.id.btn_fazer_pedido);
+        btn_fazer_pedido = (Button) findViewById(R.id.btn_fazer_pedido);
 
         Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
@@ -130,6 +135,8 @@ public class SimuladorResultado extends AppCompatActivity {
 
                             dialog.dismiss();
 
+                            progress_bar_simulador.setVisibility(View.VISIBLE);
+                            btn_fazer_pedido.setEnabled(false);
                         }else{
 
                             msg_dialog.setVisibility(View.VISIBLE);
@@ -147,7 +154,7 @@ public class SimuladorResultado extends AppCompatActivity {
 
         if(usu != null) {
             //data do pedido
-            DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYYY");
+            DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
             DateTime hoje = new DateTime();
             final String hoje_string = fmt.print(hoje);
 
@@ -157,17 +164,28 @@ public class SimuladorResultado extends AppCompatActivity {
             trans.setUsu2(usu.getCpf());
             trans.setValor(String.valueOf(valor));
             trans.setVencimento(vencimento);
+            trans.setNome_usu2(nome);
+            trans.setUrl_img_usu2(url_img);
 
             new AddTransacao(trans,SimuladorResultado.this).execute();
 
         }else{
             mensagem();
+
+            //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
+            progress_bar_simulador.setVisibility(View.GONE);
+            btn_fazer_pedido.setEnabled(true);
+
         }
 
 
     }
 
     public void retornoAddTransacao(String result){
+
+        //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
+        progress_bar_simulador.setVisibility(View.GONE);
+        btn_fazer_pedido.setEnabled(true);
 
     }
 

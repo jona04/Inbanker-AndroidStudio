@@ -10,12 +10,36 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ProgressBar
+        <LinearLayout
             android:id="@+id/progress_lista_amigos"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
-
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20px"
+                android:text="Estamos obtendo sua lista de amigos..."/>
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10px"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/msg_lista_amigos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20px"
+                android:text="Voce ainda nao possui amigos disponiveis para pedir emprestimos. Para poder realizar uma trasaçao basta que seu amigo baixe o aplicativo e faça o login no Facebook."/>
+        </LinearLayout>
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_list_amigos"
             android:scrollbars="horizontal"

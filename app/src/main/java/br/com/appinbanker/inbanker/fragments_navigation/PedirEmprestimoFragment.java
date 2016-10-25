@@ -7,12 +7,14 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
@@ -51,7 +53,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
     private ArrayList<Amigos> mList;
-    private ProgressBar pb;
+    private LinearLayout pb,msg_lista_amigos;
 
     private OnFragmentInteractionListener mListener;
 
@@ -108,7 +110,8 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_pedir_emprestimo, container, false);
 
-        pb = (ProgressBar) view.findViewById(R.id.progress_lista_amigos);
+        msg_lista_amigos = (LinearLayout) view.findViewById(R.id.msg_lista_amigos);
+        pb = (LinearLayout) view.findViewById(R.id.progress_lista_amigos);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_amigos);
 
         //se usuario nao estiver logado, escondemos a lista de amigos
@@ -172,6 +175,10 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
             @Override
             public void onError(FacebookException exception) {
                 Log.i("Facebook", "onError - exception = "+exception);
+
+                pb.setVisibility(View.GONE);
+                mensagem();
+
             }
 
         });
@@ -203,6 +210,11 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                                 //String birthday = object.getString("birthday"); // 01/31/1980 format
                             }catch (Exception e){
                                 Log.i("Facebook","Exception JSON graph facebook = "+e);
+
+                                mensagem();
+                                mRecyclerView.setVisibility(View.GONE);
+                                pb.setVisibility(View.GONE);
+
                             }
                         }
                     });
@@ -260,6 +272,10 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                         }
                         catch(Exception e){
                             Log.i("Facebook","exception = "+e);
+
+                            mensagem();
+                            mRecyclerView.setVisibility(View.GONE);
+                            pb.setVisibility(View.GONE);
                         }
                     }
                 }
@@ -273,10 +289,13 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
         pb.setVisibility(View.GONE);
 
-        ListaAmigosAdapter adapter = new ListaAmigosAdapter(getActivity(),mList);
-        adapter.setRecyclerViewOnClickListenerHack(this);
-        mRecyclerView.setAdapter(adapter);
-
+        if(mList.isEmpty() || mList == null){
+            msg_lista_amigos.setVisibility(View.VISIBLE);
+        }else {
+            ListaAmigosAdapter adapter = new ListaAmigosAdapter(getActivity(), mList);
+            adapter.setRecyclerViewOnClickListenerHack(this);
+            mRecyclerView.setAdapter(adapter);
+        }
         //atualizamos os dados do usuario logado caso seja o primeiro login dele no face
         Cursor cursor = crud.carregaDados();
         String id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
@@ -363,6 +382,14 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
     }
 
+    public void mensagem()
+    {
+        AlertDialog.Builder mensagem = new AlertDialog.Builder(getActivity());
+        mensagem.setTitle("Houve um erro!");
+        mensagem.setMessage("Olá, parece que houve um problema de conexao. Favor tente novamente!");
+        mensagem.setNeutralButton("OK",null);
+        mensagem.show();
+    }
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated

@@ -64,6 +64,14 @@
                 android:layout_marginTop="10px"
 
                 android:layout_gravity="center_horizontal"/>
+            <ProgressBar
+                android:id="@+id/pg_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10px"
+                android:visibility="gone"/>
         </LinearLayout>
+
 
 </RelativeLayout>

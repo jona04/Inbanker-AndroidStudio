@@ -1,0 +1,82 @@
+package br.com.appinbanker.inbanker.adapters;
+
+import android.content.Context;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.util.List;
+
+import br.com.appinbanker.inbanker.R;
+import br.com.appinbanker.inbanker.entidades.Transacao;
+import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
+
+/**
+ * Created by jonatassilva on 24/10/16.
+ */
+
+public class ListaTransacaoAdapter extends RecyclerView.Adapter<ListaTransacaoAdapter.MyViewHolder> {
+
+    private List<Transacao> mList;
+    private LayoutInflater mLayoutInflater;
+    private RecyclerViewOnClickListenerHack mRecyclerViewOnClickListenerHack;
+    private Context c;
+
+    public ListaTransacaoAdapter(Context c, List<Transacao> l){
+        c = c;
+        mList = l;
+        mLayoutInflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    }
+
+    public void setRecyclerViewOnClickListenerHack(RecyclerViewOnClickListenerHack r){
+        mRecyclerViewOnClickListenerHack = r;
+
+    }
+
+    @Override
+    public ListaTransacaoAdapter.MyViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+        Log.i("Script", "Inicio amigos adapter onCreateViewHolder ");
+        View v = mLayoutInflater.inflate(R.layout.adapter_item_transacao, viewGroup,false);
+        ListaTransacaoAdapter.MyViewHolder mvh = new ListaTransacaoAdapter.MyViewHolder(v);
+
+        return mvh;
+    }
+
+    @Override
+    public void onBindViewHolder(ListaTransacaoAdapter.MyViewHolder holder, int position) {
+
+        Log.i("Script", "Inicio amigos adapter onBindViewHolder ");
+        holder.tv_nome_usuario.setText(mList.get(position).getNome_usu2());
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return mList.size();
+    }
+
+    public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        public ImageView imagem;
+        public TextView tv_nome_usuario;
+
+        public MyViewHolder(View itemView){
+            super(itemView);
+
+            imagem = (ImageView) itemView.findViewById(R.id.image);
+            tv_nome_usuario = (TextView) itemView.findViewById(R.id.tv_nome_usuario);
+
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            if(mRecyclerViewOnClickListenerHack != null){
+                mRecyclerViewOnClickListenerHack.onClickListener(v, getPosition());
+            }
+        }
+    }
+}

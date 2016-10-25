@@ -54,7 +54,10 @@
             android:name=".SimuladorPedido"
             android:label="@string/title_activity_simulador_pedido"
             android:parentActivityName=".NavigationDrawerActivity" />
-        <activity android:name=".SimuladorResultado"></activity>
+        <activity
+            android:name=".SimuladorResultado"
+            android:label="@string/title_activity_simulador_resultado"
+            android:parentActivityName=".SimuladorPedido"></activity>
     </application>
 
 </manifest>

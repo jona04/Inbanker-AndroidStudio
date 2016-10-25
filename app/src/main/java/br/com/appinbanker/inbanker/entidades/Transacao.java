@@ -10,12 +10,16 @@ import java.util.Random;
 
 public class Transacao {
 
-    @JsonProperty("id")
-    private int id;
+    @JsonProperty("id_trans")
+    private String id_trans;
     @JsonProperty("cpf_usu1")
     private String cpf_usu1;
     @JsonProperty("cpf_usu2")
     private String cpf_usu2;
+    @JsonProperty("nome_usu2")
+    private String nome_usu2;
+    @JsonProperty("url_img_usu2")
+    private String url_img_usu2;
     @JsonProperty("valor")
     private String valor;
     @JsonProperty("vencimento")
@@ -23,8 +27,8 @@ public class Transacao {
     @JsonProperty("data_pedido")
     private String data_pedido;
 
-    public void setId(int id){
-        this.id = randomInteger(1000000,9999999);
+    public void setId(){
+        this.id_trans = String.valueOf(randomInteger(1000000,9999999));
     }
     public void setUsu1(String usu1){
         this.cpf_usu1 = usu1;
@@ -41,8 +45,20 @@ public class Transacao {
     public void setDataPedido(String data_pedido){
         this.data_pedido = data_pedido;
     }
+    public void setNome_usu2(String nome_usu2){
+        this.nome_usu2 = nome_usu2;
+    }
+    public void setUrl_img_usu2(String url_img_usu2){
+        this.url_img_usu2 = url_img_usu2;
+    }
 
-    public int getId(){return this.id;}
+    public String getUrl_img_usu2(){
+        return this.url_img_usu2;
+    }
+    public String getNome_usu2(){
+        return this.nome_usu2;
+    }
+    public String getId(){return this.id_trans;}
     public String getUsu1(){return this.cpf_usu1;}
     public String getUsu2(){return this.cpf_usu2;}
     public String getValor(){
