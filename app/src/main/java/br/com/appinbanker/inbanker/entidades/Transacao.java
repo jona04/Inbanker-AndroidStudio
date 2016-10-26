@@ -10,6 +10,13 @@ import java.util.Random;
 
 public class Transacao {
 
+    //status da transacao
+    public static final int AGUARDANDO_RESPOSTA = 0;
+    public static final int PEDIDO_ACEITO = 1;
+    public static final int PEDIDO_RECUSADO = 2;
+    public static final int CONFIRMADO_RECEBIMENTO = 3;
+    public static final int QUITACAO_SOLICITADA = 4;
+
     @JsonProperty("id_trans")
     private String id_trans;
     @JsonProperty("cpf_usu1")

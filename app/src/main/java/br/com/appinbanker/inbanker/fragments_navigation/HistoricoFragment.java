@@ -1,71 +1,156 @@
 package br.com.appinbanker.inbanker.fragments_navigation;
 
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+
+import java.util.List;
 
 import br.com.appinbanker.inbanker.R;
+import br.com.appinbanker.inbanker.VerPedidoEnviado;
+import br.com.appinbanker.inbanker.adapters.ListaTransacaoAdapter;
+import br.com.appinbanker.inbanker.entidades.Transacao;
+import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
+import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
+import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link HistoricoFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link HistoricoFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class HistoricoFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class HistoricoFragment extends Fragment implements RecyclerViewOnClickListenerHack {
 
     private OnFragmentInteractionListener mListener;
+
+    private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLinearLayoutManager;
+    private List<Transacao> mList;
+
+    private BancoControllerUsuario crud;
+    private Cursor cursor;
+    private String cpf;
+
+    private LinearLayout progress_lista_historico;
+
+    private RelativeLayout msg_lista_historico;
 
     public HistoricoFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment HistoricoFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static HistoricoFragment newInstance(String param1, String param2) {
-        HistoricoFragment fragment = new HistoricoFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_historico, container, false);
+        View view = inflater.inflate(R.layout.fragment_historico, container, false);
+
+        progress_lista_historico = (LinearLayout) view.findViewById(R.id.progress_lista_historico);
+
+        msg_lista_historico = (RelativeLayout) view.findViewById(R.id.msg_lista_historico);
+
+        crud = new BancoControllerUsuario(getActivity());
+        cursor = crud.carregaDados();
+        cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+
+        //busca pedidos enviados
+        new BuscaUsuarioCPF(cpf,null,null,HistoricoFragment.this).execute();
+
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_historico);
+
+        mLinearLayoutManager = new LinearLayoutManager(getActivity());
+        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+
+        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                //Log.i("Script", "onScrollStateChanged");
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                //Log.i("Script", "onScrolled");
+            }
+        });
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(mLinearLayoutManager);
+
+        return view;
+    }
+
+    public void retornoBuscaUsuario(Usuario usu){
+
+        msg_lista_historico.setVisibility(View.GONE);
+        progress_lista_historico.setVisibility(View.GONE);
+
+        if(usu != null){
+
+            if(usu.getTransacoes_enviadas() != null) {
+                mList = usu.getTransacoes_enviadas();
+
+                Log.i("webservice", "lista trans = " + mList);
+                Log.i("webservice", "lista trans = " + usu.getTransacoes_enviadas().get(0).getUsu1());
+
+                //iremos adicionar a uma nova lista apenas as trasacoes de status 0 ou 1, para posteriormente adicionarmos no adapter
+                List<Transacao> list = null;
+                for(int i = 0; i <= mList.size(); i++){
+                    int status = Integer.parseInt(mList.get(i).getStatus_transacao());
+                    if(status == 2){
+                        list.add(mList.get(i));
+                    }
+                }
+
+                if(list != null) {
+                    mRecyclerView.setVisibility(View.VISIBLE);
+                    ListaTransacaoAdapter adapter = new ListaTransacaoAdapter(getActivity(), mList);
+                    adapter.setRecyclerViewOnClickListenerHack(this);
+                    mRecyclerView.setAdapter(adapter);
+                }else{
+                    msg_lista_historico.setVisibility(View.VISIBLE);
+                }
+
+            }else{
+                msg_lista_historico.setVisibility(View.VISIBLE);
+            }
+        }else{
+            mensagem();
+        }
+
+    }
+
+    public void mensagem()
+    {
+        AlertDialog.Builder mensagem = new AlertDialog.Builder(getActivity());
+        mensagem.setTitle("Houve um erro!");
+        mensagem.setMessage("Olá, parece que houve um problema de conexao. Favor tente novamente!");
+        mensagem.setNeutralButton("OK",null);
+        mensagem.show();
+    }
+
+    @Override
+    public void onClickListener(View view, int position) {
+
+        Log.i("Script", "Click tste inicio =" + mList.get(position));
+
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event

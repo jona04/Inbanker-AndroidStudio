@@ -1,6 +1,7 @@
 package br.com.appinbanker.inbanker;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.app.AlertDialog;
@@ -166,9 +167,9 @@ public class SimuladorResultado extends AppCompatActivity {
             trans.setVencimento(vencimento);
             trans.setNome_usu2(nome);
             trans.setUrl_img_usu2(url_img);
-            trans.setNome_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME)));
+            trans.setNome_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME_FACE)));
             trans.setUrl_img_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE)));
-            trans.setStatus_transacao(String.valueOf(VerPedidoEnviado.AGUARDANDO_RESPOSTA));
+            trans.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
             trans.setId_trans(null);
 
             new AddTransacao(trans,SimuladorResultado.this).execute();
@@ -191,12 +192,24 @@ public class SimuladorResultado extends AppCompatActivity {
         progress_bar_simulador.setVisibility(View.GONE);
         btn_fazer_pedido.setEnabled(true);
 
-        mensagem("InBanker", "Pedido enviado, aguarde a resposta de seu amigo(a) "+nome, "Ok");
 
-        Intent it = new Intent(SimuladorResultado.this,NavigationDrawerActivity.class);
-        startActivity(it);
-        //para encerrar a activity atual e todos os parent
-        finishAffinity();
+        mensagemIntent("InBanker", "Pedido enviado, aguarde a resposta de seu amigo(a) "+nome, "Ok");
+    }
+
+    public void mensagemIntent(String titulo,String corpo,String botao)
+    {
+        AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
+        mensagem.setTitle(titulo);
+        mensagem.setMessage(corpo);
+        mensagem.setPositiveButton(botao,new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                Intent it = new Intent(SimuladorResultado.this,NavigationDrawerActivity.class);
+                startActivity(it);
+                //para encerrar a activity atual e todos os parent
+                finishAffinity();
+            }
+        });
+        mensagem.show();
     }
 
     public void mensagem(String titulo,String corpo,String botao)

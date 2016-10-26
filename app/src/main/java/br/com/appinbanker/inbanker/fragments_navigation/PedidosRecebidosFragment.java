@@ -72,7 +72,7 @@ public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOn
         cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
 
         //busca pedidos enviados
-        new BuscaUsuarioCPF(cpf,null,PedidosRecebidosFragment.this).execute();
+        new BuscaUsuarioCPF(cpf,null,PedidosRecebidosFragment.this,null).execute();
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_pedidos_rec);
 

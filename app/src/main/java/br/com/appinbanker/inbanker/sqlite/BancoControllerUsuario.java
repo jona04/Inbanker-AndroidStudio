@@ -40,6 +40,7 @@ public class BancoControllerUsuario {
         valores.put(CriandoBanco.CPF, cpf);
         valores.put(CriandoBanco.SENHA, senha);
         valores.put(CriandoBanco.ID_FACE, id_face);
+        valores.put(CriandoBanco.NOME_FACE, nome_face);
         valores.put(CriandoBanco.URL_IMG_FACE, url_img_face);
 
         resultado = db.insert(CriandoBanco.TABELA, null, valores);

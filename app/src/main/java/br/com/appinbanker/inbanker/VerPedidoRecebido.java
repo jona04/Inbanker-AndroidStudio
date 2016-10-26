@@ -1,5 +1,6 @@
 package br.com.appinbanker.inbanker;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -28,11 +29,6 @@ import br.com.appinbanker.inbanker.webservice.EditaTransacao;
 
 public class VerPedidoRecebido extends AppCompatActivity {
 
-    //status da transacao
-    public static final int AGUARDANDO_RESPOSTA = 0;
-    public static final int PEDIDO_RECUSADO = 1;
-    public static final int PEDIDO_ACEITO = 2;
-
     private boolean aceitou_pedido = false;
 
     private String id,nome2,cpf1,cpf2,data_pedido = null,nome1,valor,vencimento,img1,img2;
@@ -41,7 +37,7 @@ public class VerPedidoRecebido extends AppCompatActivity {
 
     private int status_transacao;
 
-    private LinearLayout ll_resposta_pedido;
+    private LinearLayout ll_resposta_pedido,ll_confirma_recebimento_valor_emprestado;
 
     private Button btn_aceita_pedido,btn_recusa_pedido;
 
@@ -81,6 +77,7 @@ public class VerPedidoRecebido extends AppCompatActivity {
         tv.setText(tv.getText().toString()+nome1);*/
 
         ll_resposta_pedido = (LinearLayout) findViewById(R.id.ll_resposta_pedido);
+        ll_confirma_recebimento_valor_emprestado = (LinearLayout) findViewById(R.id.ll_confirma_recebimento_valor_emprestado);
 
         tr_dias_corridos = (TableRow) findViewById(R.id.tr_dias_corridos);
         btn_aceita_pedido = (Button) findViewById(R.id.btn_aceita_pedido);
@@ -107,21 +104,34 @@ public class VerPedidoRecebido extends AppCompatActivity {
         int dias_corridos = d_corridos.getDays();
 
         //isso é para discontar 1 dia de juros, pois é dado prazo maximo de 1 dia para o usuario-2 aceitar o pedido
-        if(dias_corridos >0)
-            dias_corridos = dias_corridos -1;
+        //if(dias_corridos >0)
+        //    dias_corridos = dias_corridos -1;
 
         DecimalFormat decimal = new DecimalFormat( "0.00" );
 
         //verificamos se o usuario ja aceitou ou nao o pedido recebido para calcularmos o juros correto
         double juros_mensal = 0;
         switch (status_transacao){
-            case AGUARDANDO_RESPOSTA:
+            case Transacao.AGUARDANDO_RESPOSTA:
                 juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias)));
                 msg_ver_pedido.setText(nome1+" esta lhe pedindo um emprestimo. Para aceitar ou recusar utilize os botoes abaixo.");
                 break;
-            case PEDIDO_ACEITO:
+            case Transacao.PEDIDO_ACEITO:
+                ll_resposta_pedido.setVisibility(View.GONE);
+                msg_ver_pedido.setText("Voce esta aguardando que seu amigo(a) " + nome1 + " confirme o recebimento do valor.");
+                break;
+            case Transacao.CONFIRMADO_RECEBIMENTO:
+                ll_resposta_pedido.setVisibility(View.GONE);
                 juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias_corridos)));
                 tr_dias_corridos.setVisibility(View.VISIBLE);
+                msg_ver_pedido.setText("Voce esta aguardando que seu amigo(a) " + nome1 + " faça a quitaçao do emprestimo.");
+                break;
+            case Transacao.QUITACAO_SOLICITADA:
+                ll_resposta_pedido.setVisibility(View.GONE);
+                juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias_corridos)));
+                tr_dias_corridos.setVisibility(View.VISIBLE);
+                msg_ver_pedido.setText("Seu amigo(a) "+ nome1 +" esta solicitando que voce confirme a quitaçao do valor que ele solicitou em emprestimo.");
+                ll_confirma_recebimento_valor_emprestado.setVisibility(View.VISIBLE);
                 break;
            /* case PEDIDO_RECUSADO: //esse pedido recusado deve estar somente no historico
                 break;*/
@@ -149,7 +159,7 @@ public class VerPedidoRecebido extends AppCompatActivity {
                 trans.setId_trans(id);
                 trans.setStatus_transacao("1");
 
-                new EditaTransacao(trans,cpf1,cpf2,VerPedidoRecebido.this).execute();
+                new EditaTransacao(trans,cpf1,cpf2,VerPedidoRecebido.this,null).execute();
 
 
 
@@ -166,7 +176,7 @@ public class VerPedidoRecebido extends AppCompatActivity {
                 trans.setId_trans(id);
                 trans.setStatus_transacao("2");
 
-                new EditaTransacao(trans,cpf1,cpf2,VerPedidoRecebido.this).execute();
+                new EditaTransacao(trans,cpf1,cpf2,VerPedidoRecebido.this,null).execute();
 
 
 
@@ -182,19 +192,10 @@ public class VerPedidoRecebido extends AppCompatActivity {
 
         if(result.equals("sucesso_edit")){
             if(aceitou_pedido){
-                mensagem("InBanker","Parabéns, voce aceitou o pedido. Ao efetuar o pagamento, peça que seu amigo(a) "+nome1+" confirme o recebimento do valor","Ok");
-
-                Intent it = new Intent(VerPedidoRecebido.this,NavigationDrawerActivity.class);
-                startActivity(it);
-                //para encerrar a activity atual e todos os parent
-                finishAffinity();
+                mensagemIntent("InBanker","Parabéns, voce aceitou o pedido. Ao efetuar o pagamento, peça que seu amigo(a) "+nome1+" confirme o recebimento do valor","Ok");
             }else{
-                mensagem("InBanker","Voce recusou esse pedido de emprestimo de " + nome1, "Ok");
+                mensagemIntent("InBanker","Voce recusou esse pedido de emprestimo de " + nome1, "Ok");
 
-                Intent it = new Intent(VerPedidoRecebido.this,NavigationDrawerActivity.class);
-                startActivity(it);
-                //para encerrar a activity atual e todos os parent
-                finishAffinity();
             }
         }else{
             mensagem("Houve um erro!","Ola, parece que tivemos algum problema de conexao, por favor tente novamente.","Ok");
@@ -208,6 +209,22 @@ public class VerPedidoRecebido extends AppCompatActivity {
         mensagem.setTitle(titulo);
         mensagem.setMessage(corpo);
         mensagem.setNeutralButton(botao,null);
+        mensagem.show();
+    }
+
+    public void mensagemIntent(String titulo,String corpo,String botao)
+    {
+        AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
+        mensagem.setTitle(titulo);
+        mensagem.setMessage(corpo);
+        mensagem.setPositiveButton(botao,new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                Intent it = new Intent(VerPedidoRecebido.this,NavigationDrawerActivity.class);
+                startActivity(it);
+                //para encerrar a activity atual e todos os parent
+                finishAffinity();
+            }
+        });
         mensagem.show();
     }
 }

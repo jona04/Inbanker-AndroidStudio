@@ -65,7 +65,7 @@ public class AddUsuario extends AsyncTask<String, String, String> {
     }
     @Override
     protected void onPostExecute(String result) {
-        Log.i("Script",result);
+        Log.i("Script","resultado = "+result);
 
         cu.retornoTask(result);
 

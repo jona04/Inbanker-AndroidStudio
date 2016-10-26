@@ -24,7 +24,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="Voce ainda nao enviou nenhum pedido de emprestimo."/>
+                android:text="Voce não possui pedidos enviados."/>
         </RelativeLayout>
 
         <LinearLayout

@@ -30,14 +30,21 @@ import br.com.appinbanker.inbanker.fragments_navigation.PedidosEnviadosFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedidosRecebidosFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedirEmprestimoFragment;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
-import br.com.appinbanker.inbanker.webservice.AtualizaUsuario;
 
 public class NavigationDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    public static final int MENU_INICIO = 0;
+    public static final int MENU_PEDIR_EMPRESTIMO = 1;
+    public static final int MENU_PEDIDOS_ENVIADOS = 2;
+    public static final int MENU_PAGAMENTOS_ABERTO = 3;
+    public static final int MENU_PEDIDOS_RECEBIDOS = 4;
+
     BancoControllerUsuario crud;
     Cursor cursor;
     Usuario usu;
+
+    int menu = MENU_INICIO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +60,12 @@ public class NavigationDrawerActivity extends AppCompatActivity
         crud = new BancoControllerUsuario(getBaseContext());
         cursor = crud.carregaDados();
         usu = new Usuario();
+
+        Intent it = getIntent();
+        Bundle parametro = it.getExtras();
+        if(parametro!=null){
+            menu = parametro.getInt("menu_item");
+        }
 
         /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab); //app_bar_navigation_drawer.xml
         fab.setOnClickListener(new View.OnClickListener() {
@@ -88,7 +101,8 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 Picasso.with(getBaseContext()).load(url).into(img_usu_logado);}
 
        //para iniciar com o primeiro item do menu navigation drawer (Inicio)
-        onNavigationItemSelected(navigationView.getMenu().getItem(0).setChecked(true));
+        //se tiver tiver algum parametro o menu é alterado
+        onNavigationItemSelected(navigationView.getMenu().getItem(menu).setChecked(true));
 
     }
 
@@ -138,7 +152,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
             case R.id.nav_inicio:
                 fragmentClass = InicioFragment.class;
                 break;
-            case R.id.nav_emprestimo:
+            case R.id.nav_pedir_emprestimo:
                 fragmentClass = PedirEmprestimoFragment.class;
                 break;
             case R.id.nav_pedidos_enviados:

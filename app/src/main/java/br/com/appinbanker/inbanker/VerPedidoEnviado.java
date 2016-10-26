@@ -1,11 +1,16 @@
 package br.com.appinbanker.inbanker;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -19,12 +24,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-public class VerPedidoEnviado extends AppCompatActivity {
+import br.com.appinbanker.inbanker.entidades.Transacao;
+import br.com.appinbanker.inbanker.webservice.EditaTransacao;
 
-    //status da transacao
-    public static final int AGUARDANDO_RESPOSTA = 0;
-    public static final int PEDIDO_ACEITO = 1;
-    public static final int PEDIDO_RECUSADO = 2;
+public class VerPedidoEnviado extends AppCompatActivity {
 
     private String id,nome2,cpf1,cpf2,data_pedido = null,nome1,valor,vencimento,img1,img2;
 
@@ -33,6 +36,10 @@ public class VerPedidoEnviado extends AppCompatActivity {
     private int status_transacao;
 
     private LinearLayout ll_confirma_recebimento;
+
+    private TableRow tr_dias_corridos;
+
+    private Button btn_confirma_recebimento;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +76,8 @@ public class VerPedidoEnviado extends AppCompatActivity {
 
         ll_confirma_recebimento = (LinearLayout) findViewById(R.id.ll_confirma_recebimento);
 
+        btn_confirma_recebimento = (Button) findViewById(R.id.btn_confirma_recebimento);
+        tr_dias_corridos = (TableRow) findViewById(R.id.tr_dias_corridos);
         msg_ver_pedido = (TextView) findViewById(R.id.msg_ver_pedido);
         tv_valor = (TextView) findViewById(R.id.tv_valor);
         tv_data_pagamento = (TextView) findViewById(R.id.tv_data_pagamento);
@@ -76,34 +85,44 @@ public class VerPedidoEnviado extends AppCompatActivity {
         tv_valor_total = (TextView) findViewById(R.id.tv_valor_total);
         tv_dias_corridos = (TextView) findViewById(R.id.tv_dias_corridos);
 
-
-        switch (status_transacao){
-            case AGUARDANDO_RESPOSTA:
-                msg_ver_pedido.setText("Voce esta aguardando o seu pedido de emprestimo ser respondido");
-                break;
-            case PEDIDO_ACEITO:
-                msg_ver_pedido.setText("Seu pedido de emprestimo foi aceito! Quando o valor solicitado estiver em suas maos, voce deve confirmar o recebimento do mesmo no botao abaixo, para dar continuidade a transaçao.");
-                ll_confirma_recebimento.setVisibility(View.VISIBLE);
-                break;
-           /* case PEDIDO_RECUSADO: //esse pedido recusado deve estar somente no historico
-                break;*/
-        }
-
         //calculamos a diferença de dias entre a data atual ate a data do pedido para calcularmos o juros
         DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
         DateTime hoje = new DateTime();
         DateTime data_pedido_parse = fmt.parseDateTime(data_pedido);
-        Days d = Days.daysBetween(data_pedido_parse, hoje);
+        DateTime vencimento_parse = fmt.parseDateTime(vencimento);
+
+        //calculamos o total de dias para mostramos na tela inicial antes do usuario-2 aceitar ou recusar o pedido recebido
+        Days d = Days.daysBetween(hoje, vencimento_parse);
         int dias = d.getDays();
 
+        //calculamos os dias corridos para calcularmos o juros do redimento atual
+        Days d_corridos = Days.daysBetween(data_pedido_parse, hoje);
+        int dias_corridos = d_corridos.getDays();
+
         //isso é para discontar 1 dia de juros, pois é dado prazo maximo de 1 dia para o usuario-2 aceitar o pedido
-        if(dias >0)
-            dias = dias -1;
+       //if(dias_corridos >0)
+       //     dias_corridos = dias_corridos -1;
 
         DecimalFormat decimal = new DecimalFormat( "0.00" );
 
-        double juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias)));
-        //double taxa_fixa = Double.parseDouble(decimal.format(valor * 0.0099));
+        //verificamos se o usuario ja aceitou ou nao o pedido recebido para calcularmos o juros correto
+        double juros_mensal = 0;
+        switch (status_transacao){
+            case Transacao.AGUARDANDO_RESPOSTA:
+                juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias)));
+                msg_ver_pedido.setText("Voce esta aguardando o seu pedido de emprestimo ser respondido");
+                break;
+            case Transacao.PEDIDO_ACEITO:
+                msg_ver_pedido.setText("Seu pedido de emprestimo foi aceito! Quando o valor solicitado estiver em suas maos, voce deve confirmar o recebimento do mesmo no botao abaixo, para dar continuidade a transaçao.");
+                ll_confirma_recebimento.setVisibility(View.VISIBLE);
+                break;
+            /*case CONFIRMADO_RECEBIMENTO: //esse pedido confirmado deve estar em pagamentos pendentes
+                juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias_corridos)));
+                tr_dias_corridos.setVisibility(View.VISIBLE);
+                break;*/
+           /* case PEDIDO_RECUSADO: //esse pedido recusado deve estar somente no historico
+                break;*/
+        }
 
         double valor_total = juros_mensal +  Double.parseDouble(valor);
 
@@ -115,8 +134,58 @@ public class VerPedidoEnviado extends AppCompatActivity {
 
         tv_valor.setText(valor_formatado);
         tv_data_pagamento.setText(vencimento);
-        tv_dias_corridos.setText(String.valueOf(dias));
+        tv_dias_corridos.setText(String.valueOf(dias_corridos));
         tv_juros_mes.setText(juros_mensal_formatado);
         tv_valor_total.setText(valor_total_formatado);
+
+        btn_confirma_recebimento.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Transacao trans = new Transacao();
+                trans.setId_trans(id);
+                trans.setStatus_transacao("3");
+
+                new EditaTransacao(trans,cpf1,cpf2,null,VerPedidoEnviado.this).execute();
+
+            }
+        });
+    }
+
+    public void retornoEditaTransacao(String result){
+        Log.i("webservice","resultado edita transao = "+result);
+
+        if(result.equals("sucesso_edit")){
+            mensagemIntent("InBanker","Parabéns, você confirmou o recebimento do valor solicitado. Ao efetuar o pagamento de quitação, peça que seu amigo(a) " + nome2 + " confirme o recebimento do valor.", "Ok");
+
+        }else{
+            mensagem("Houve um erro!","Ola, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
+        }
+
+    }
+
+    public void mensagem(String titulo,String corpo,String botao)
+    {
+        AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
+        mensagem.setTitle(titulo);
+        mensagem.setMessage(corpo);
+        mensagem.setNeutralButton(botao,null);
+        mensagem.show();
+    }
+
+    public void mensagemIntent(String titulo,String corpo,String botao)
+    {
+        AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
+        mensagem.setTitle(titulo);
+        mensagem.setMessage(corpo);
+        mensagem.setPositiveButton(botao,new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                Intent it = new Intent(VerPedidoEnviado.this,NavigationDrawerActivity.class);
+                startActivity(it);
+                //para encerrar a activity atual e todos os parent
+                finishAffinity();
+            }
+        });
+        mensagem.show();
     }
 }

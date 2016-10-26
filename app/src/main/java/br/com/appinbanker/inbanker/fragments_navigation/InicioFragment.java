@@ -1,23 +1,18 @@
 package br.com.appinbanker.inbanker.fragments_navigation;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
+import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link InicioFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link InicioFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class InicioFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -27,6 +22,9 @@ public class InicioFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    Button btn_pedir_emprestimo, btn_pedidos_recebidos, btn_pedidos_enviados, btn_pagamentos_pendentes;
+
 
     private OnFragmentInteractionListener mListener;
 
@@ -65,7 +63,67 @@ public class InicioFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_inicio, container, false);
+        View view = inflater.inflate(R.layout.fragment_inicio, container, false);
+
+        btn_pedir_emprestimo = (Button) view.findViewById(R.id.btn_pedir_emprestimo);
+        btn_pedidos_enviados = (Button) view.findViewById(R.id.btn_pedidos_enviados);
+        btn_pedidos_recebidos = (Button) view.findViewById(R.id.btn_pedidos_recebidos);
+        btn_pagamentos_pendentes = (Button) view.findViewById(R.id.btn_pagamentos_pedentes);
+
+        btn_pedir_emprestimo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(getActivity(),NavigationDrawerActivity.class);
+                Bundle b = new Bundle();
+                b.putInt("menu_item", NavigationDrawerActivity.MENU_PEDIR_EMPRESTIMO);
+                it.putExtras(b);
+                startActivity(it);
+
+                getActivity().finish();
+
+            }
+        });
+        btn_pedidos_enviados.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent it = new Intent(getActivity(),NavigationDrawerActivity.class);
+                Bundle b = new Bundle();
+                b.putInt("menu_item", NavigationDrawerActivity.MENU_PEDIDOS_ENVIADOS);
+                it.putExtras(b);
+                startActivity(it);
+
+                getActivity().finish();
+            }
+        });
+        btn_pedidos_recebidos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent it = new Intent(getActivity(),NavigationDrawerActivity.class);
+                Bundle b = new Bundle();
+                b.putInt("menu_item", NavigationDrawerActivity.MENU_PEDIDOS_RECEBIDOS);
+                it.putExtras(b);
+                startActivity(it);
+
+                getActivity().finish();
+            }
+        });
+        btn_pagamentos_pendentes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent it = new Intent(getActivity(),NavigationDrawerActivity.class);
+                Bundle b = new Bundle();
+                b.putInt("menu_item", NavigationDrawerActivity.MENU_PAGAMENTOS_ABERTO);
+                it.putExtras(b);
+                startActivity(it);
+
+                getActivity().finish();
+            }
+        });
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

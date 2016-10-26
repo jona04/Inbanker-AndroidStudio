@@ -80,7 +80,7 @@ public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnC
         cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
 
         //busca pedidos enviados
-        new BuscaUsuarioCPF(cpf,PedidosEnviadosFragment.this,null).execute();
+        new BuscaUsuarioCPF(cpf,PedidosEnviadosFragment.this,null,null).execute();
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_pedidos_env);
 
@@ -120,11 +120,23 @@ public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnC
                 Log.i("webservice", "lista trans = " + mList);
                 Log.i("webservice", "lista trans = " + usu.getTransacoes_enviadas().get(0).getUsu1());
 
-                mRecyclerView.setVisibility(View.VISIBLE);
-                ListaTransacaoAdapter adapter = new ListaTransacaoAdapter(getActivity(), mList);
-                adapter.setRecyclerViewOnClickListenerHack(this);
-                mRecyclerView.setAdapter(adapter);
+                //iremos adicionar a uma nova lista apenas as trasacoes de status 0 ou 1, para posteriormente adicionarmos no adapter
+                List<Transacao> list = null;
+                for(int i = 0; i <= mList.size(); i++){
+                    int status = Integer.parseInt(mList.get(i).getStatus_transacao());
+                    if(status <= 1){
+                        list.add(mList.get(i));
+                    }
+                }
 
+                if(list != null) {
+                    mRecyclerView.setVisibility(View.VISIBLE);
+                    ListaTransacaoAdapter adapter = new ListaTransacaoAdapter(getActivity(), mList);
+                    adapter.setRecyclerViewOnClickListenerHack(this);
+                    mRecyclerView.setAdapter(adapter);
+                }else{
+                    msg_lista_pedidos.setVisibility(View.VISIBLE);
+                }
 
             }else{
                 msg_lista_pedidos.setVisibility(View.VISIBLE);

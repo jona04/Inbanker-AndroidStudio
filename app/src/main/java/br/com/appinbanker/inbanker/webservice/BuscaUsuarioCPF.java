@@ -8,6 +8,7 @@ import org.springframework.web.client.RestTemplate;
 
 import br.com.appinbanker.inbanker.SimuladorResultado;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.fragments_navigation.HistoricoFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedidosEnviadosFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedidosRecebidosFragment;
 
@@ -19,13 +20,15 @@ public class BuscaUsuarioCPF extends AsyncTask<String,String,Usuario> {
 
     private PedidosEnviadosFragment pef;
     private PedidosRecebidosFragment prf;
+    private HistoricoFragment hf;
     private String cpf;
 
-    public BuscaUsuarioCPF(String cpf, PedidosEnviadosFragment pef, PedidosRecebidosFragment prf){
+    public BuscaUsuarioCPF(String cpf, PedidosEnviadosFragment pef, PedidosRecebidosFragment prf, HistoricoFragment hf){
 
         this.prf = prf;
         this.pef = pef;
         this.cpf = cpf;
+        this.hf = hf;
 
     }
 
@@ -59,8 +62,10 @@ public class BuscaUsuarioCPF extends AsyncTask<String,String,Usuario> {
         //verificamos de onde esta sendo chamado a api, para utilizamos o retorno especifico
         if(pef != null)
             pef.retornoBuscaUsuario(result);
-        else
+        else if(prf != null)
             prf.retornoBuscaUsuario(result);
+        else if (hf != null)
+            hf.retornoBuscaUsuario(result);
     }
 
 }
