@@ -16,5 +16,7 @@
     <string name="title_activity_telalogin">Entrar</string>
     <string name="title_activity_simulador_pedido">Simular pedido</string>
     <string name="title_activity_simulador_resultado">Resultado simulaçao</string>
+    <string name="title_activity_ver_pedido_recebido">Pedido Recebido</string>
+    <string name="title_activity_ver_pedido_enviado">Pedido Enviado</string>
 
 </resources>

@@ -57,7 +57,15 @@
         <activity
             android:name=".SimuladorResultado"
             android:label="@string/title_activity_simulador_resultado"
-            android:parentActivityName=".SimuladorPedido"></activity>
+            android:parentActivityName=".SimuladorPedido" />
+        <activity
+            android:name=".VerPedidoEnviado"
+            android:label="@string/title_activity_ver_pedido_enviado"
+            android:parentActivityName=".NavigationDrawerActivity"/>
+        <activity
+            android:name=".VerPedidoRecebido"
+            android:label="@string/title_activity_ver_pedido_recebido"
+            android:parentActivityName=".NavigationDrawerActivity"/>
     </application>
 
 </manifest>

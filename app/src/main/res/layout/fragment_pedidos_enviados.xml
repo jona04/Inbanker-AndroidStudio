@@ -14,7 +14,7 @@
         android:layout_height="match_parent">
 
         <RelativeLayout
-            android:id="@+id/msg_lista_amigos"
+            android:id="@+id/msg_lista_pedidos"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
@@ -24,7 +24,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="Voce ainda nao realizou nenhuma transacao."/>
+                android:text="Voce ainda nao enviou nenhum pedido de emprestimo."/>
         </RelativeLayout>
 
         <LinearLayout
@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="20px"
-                android:text="Estamos verificando seus pedidos..."/>
+                android:text="Estamos verificando suas transaçoes..."/>
             <ProgressBar
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

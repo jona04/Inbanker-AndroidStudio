@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 import br.com.appinbanker.inbanker.SimuladorResultado;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.fragments_navigation.PedidosEnviadosFragment;
+import br.com.appinbanker.inbanker.fragments_navigation.PedidosRecebidosFragment;
 
 /**
  * Created by jonatassilva on 24/10/16.
@@ -17,10 +18,12 @@ import br.com.appinbanker.inbanker.fragments_navigation.PedidosEnviadosFragment;
 public class BuscaUsuarioCPF extends AsyncTask<String,String,Usuario> {
 
     private PedidosEnviadosFragment pef;
+    private PedidosRecebidosFragment prf;
     private String cpf;
 
-    public BuscaUsuarioCPF(String cpf, PedidosEnviadosFragment pef){
+    public BuscaUsuarioCPF(String cpf, PedidosEnviadosFragment pef, PedidosRecebidosFragment prf){
 
+        this.prf = prf;
         this.pef = pef;
         this.cpf = cpf;
 
@@ -29,9 +32,15 @@ public class BuscaUsuarioCPF extends AsyncTask<String,String,Usuario> {
     @Override
     protected Usuario doInBackground(String... params) {
         Usuario usu = null;
+        String url;
         try {
             //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/findEmail/"+email;
-            final String url = "http://10.0.3.2:8080/appinbanker/rest/usuario/findCpf/"+cpf;
+            //verificamos de onde esta sendo chamado a api, para utilizamos a url especifico
+            if(pef != null)
+                url = "http://10.0.3.2:8080/appinbanker/rest/usuario/findCpfTransEnv/"+cpf;
+            else
+                url = "http://10.0.3.2:8080/appinbanker/rest/usuario/findCpfTransRec/"+cpf;
+
 
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
@@ -47,8 +56,11 @@ public class BuscaUsuarioCPF extends AsyncTask<String,String,Usuario> {
 
         Log.w("webservice", "resesult busca pedido env = "+result);
 
-        pef.retornoBuscaUsuario(result);
-
+        //verificamos de onde esta sendo chamado a api, para utilizamos o retorno especifico
+        if(pef != null)
+            pef.retornoBuscaUsuario(result);
+        else
+            prf.retornoBuscaUsuario(result);
     }
 
 }

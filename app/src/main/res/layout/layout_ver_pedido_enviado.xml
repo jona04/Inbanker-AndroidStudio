@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_ver_pedido_enviado"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="br.com.appinbanker.inbanker.VerPedidoEnviado">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="">
+
+            <ImageView
+                android:id="@+id/img_amigo"
+                android:layout_width="50sp"
+                android:layout_height="50sp"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/icon"/>
+            <TextView
+                android:id="@+id/nome_amigo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="20px"
+                android:text=""/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/msg_ver_pedido"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30px"/>
+
+        <LinearLayout
+            android:id="@+id/ll_confirma_recebimento"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:layout_marginTop="20px"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btn_confirma_recebimento"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Confirmo recebimento"/>
+
+        </LinearLayout>
+        <TableLayout
+            android:id="@+id/tb_info_pedido"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:stretchColumns="1"
+            android:layout_marginTop="50px">
+
+            <TableRow>
+                <TextView android:text="Valor solicitado:"/>
+                <TextView android:id="@+id/tv_valor" />
+            </TableRow>
+            <TableRow>
+                <TextView android:text="Data do pagamento:"/>
+                <TextView android:id="@+id/tv_data_pagamento" />
+            </TableRow>
+            <TableRow>
+                <TextView android:text="Valor do juros:"/>
+                <TextView android:id="@+id/tv_juros_mes" />
+            </TableRow>
+            <TableRow>
+                <TextView android:text="Dias corridos:"/>
+                <TextView android:id="@+id/tv_dias_corridos" />
+            </TableRow>
+
+
+            <TableRow>
+                <TextView android:text="Valor total para ser pago:"/>
+                <TextView android:id="@+id/tv_valor_total" />
+            </TableRow>
+
+
+        </TableLayout>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,78 +1,138 @@
 package br.com.appinbanker.inbanker.fragments_navigation;
 
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+
+import java.util.List;
 
 import br.com.appinbanker.inbanker.R;
+import br.com.appinbanker.inbanker.VerPedidoEnviado;
+import br.com.appinbanker.inbanker.VerPedidoRecebido;
+import br.com.appinbanker.inbanker.adapters.ListaTransacaoAdapter;
+import br.com.appinbanker.inbanker.adapters.ListaTransacaoRecAdapter;
+import br.com.appinbanker.inbanker.entidades.Transacao;
+import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
+import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
+import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link PedidosRecebidosFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link PedidosRecebidosFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class PedidosRecebidosFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOnClickListenerHack {
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private PedidosRecebidosFragment.OnFragmentInteractionListener mListener;
 
-    private OnFragmentInteractionListener mListener;
+    private RecyclerView mRecyclerView;
+    private LinearLayoutManager mLinearLayoutManager;
+    private List<Transacao> mList;
+
+    private BancoControllerUsuario crud;
+    private Cursor cursor;
+    private String cpf;
+
+    private LinearLayout progress_lista_pedidos_recebidos;
+
+    private RelativeLayout msg_lista_pedidos;
+
 
     public PedidosRecebidosFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment PedidosRecebidosFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static PedidosRecebidosFragment newInstance(String param1, String param2) {
-        PedidosRecebidosFragment fragment = new PedidosRecebidosFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_pedidos_recebidos, container, false);
+        View view =  inflater.inflate(R.layout.fragment_pedidos_recebidos, container, false);
+
+        progress_lista_pedidos_recebidos = (LinearLayout) view.findViewById(R.id.progress_lista_pedidos_recebidos);
+
+        msg_lista_pedidos = (RelativeLayout) view.findViewById(R.id.msg_lista_pedidos);
+
+        crud = new BancoControllerUsuario(getActivity());
+        cursor = crud.carregaDados();
+        cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+
+        //busca pedidos enviados
+        new BuscaUsuarioCPF(cpf,null,PedidosRecebidosFragment.this).execute();
+
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_pedidos_rec);
+
+        mLinearLayoutManager = new LinearLayoutManager(getActivity());
+        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+
+        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                //Log.i("Script", "onScrollStateChanged");
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                //Log.i("Script", "onScrolled");
+            }
+        });
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setLayoutManager(mLinearLayoutManager);
+
+        return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+    public void retornoBuscaUsuario(Usuario usu){
+
+        msg_lista_pedidos.setVisibility(View.GONE);
+        progress_lista_pedidos_recebidos.setVisibility(View.GONE);
+
+        if(usu != null){
+
+            if(usu.getTransacoes_recebidas() != null) {
+                mList = usu.getTransacoes_recebidas();
+
+                Log.i("webservice", "lista trans = " + mList);
+                Log.i("webservice", "lista trans = " + usu.getTransacoes_recebidas().get(0).getUsu2());
+
+                mRecyclerView.setVisibility(View.VISIBLE);
+                ListaTransacaoRecAdapter adapter = new ListaTransacaoRecAdapter(getActivity(), mList);
+                adapter.setRecyclerViewOnClickListenerHack(this);
+                mRecyclerView.setAdapter(adapter);
+
+
+            }else{
+                msg_lista_pedidos.setVisibility(View.VISIBLE);
+            }
+        }else{
+            mensagem();
         }
+
+    }
+
+    public void mensagem()
+    {
+        AlertDialog.Builder mensagem = new AlertDialog.Builder(getActivity());
+        mensagem.setTitle("Houve um erro!");
+        mensagem.setMessage("Olá, parece que houve um problema de conexao. Favor tente novamente!");
+        mensagem.setNeutralButton("OK",null);
+        mensagem.show();
     }
 
     @Override
@@ -90,6 +150,29 @@ public class PedidosRecebidosFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onClickListener(View view, int position) {
+
+        Log.i("Script", "Click tste inicio =" + mList.get(position));
+
+        Intent it = new Intent(getActivity(), VerPedidoRecebido.class);
+        Bundle b = new Bundle();
+        b.putString("id",mList.get(position).getId_trans());
+        b.putString("nome2",mList.get(position).getNome_usu2());
+        b.putString("cpf1",mList.get(position).getUsu1());
+        b.putString("cpf2",mList.get(position).getUsu2());
+        b.putString("data_pedido",mList.get(position).getDataPedido());
+        b.putString("nome1", mList.get(position).getNome_usu1());
+        b.putString("valor",mList.get(position).getValor());
+        b.putString("vencimento", mList.get(position).getVencimento());
+        b.putString("img1", mList.get(position).getUrl_img_usu1());
+        b.putString("img2", mList.get(position).getUrl_img_usu2());
+        b.putString("status_transacao", mList.get(position).getStatus_transacao());
+        it.putExtras(b);
+        startActivity(it);
+
     }
 
     /**

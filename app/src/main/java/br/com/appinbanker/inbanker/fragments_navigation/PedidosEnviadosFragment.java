@@ -23,6 +23,7 @@ import java.util.List;
 
 import br.com.appinbanker.inbanker.R;
 import br.com.appinbanker.inbanker.SimuladorPedido;
+import br.com.appinbanker.inbanker.VerPedidoEnviado;
 import br.com.appinbanker.inbanker.adapters.ListaAmigosAdapter;
 import br.com.appinbanker.inbanker.adapters.ListaTransacaoAdapter;
 import br.com.appinbanker.inbanker.entidades.Amigos;
@@ -50,7 +51,7 @@ public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnC
 
     private LinearLayout progress_lista_pedidos_enviados;
 
-    private RelativeLayout msg_lista_amigos;
+    private RelativeLayout msg_lista_pedidos;
 
     public PedidosEnviadosFragment() {
         // Required empty public constructor
@@ -72,14 +73,14 @@ public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnC
 
         progress_lista_pedidos_enviados = (LinearLayout) view.findViewById(R.id.progress_lista_pedidos_enviados);
 
-        msg_lista_amigos = (RelativeLayout) view.findViewById(R.id.msg_lista_amigos);
+        msg_lista_pedidos = (RelativeLayout) view.findViewById(R.id.msg_lista_pedidos);
 
         crud = new BancoControllerUsuario(getActivity());
         cursor = crud.carregaDados();
         cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
 
         //busca pedidos enviados
-        new BuscaUsuarioCPF(cpf,PedidosEnviadosFragment.this).execute();
+        new BuscaUsuarioCPF(cpf,PedidosEnviadosFragment.this,null).execute();
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_pedidos_env);
 
@@ -108,16 +109,16 @@ public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnC
 
     public void retornoBuscaUsuario(Usuario usu){
 
-        msg_lista_amigos.setVisibility(View.GONE);
+        msg_lista_pedidos.setVisibility(View.GONE);
         progress_lista_pedidos_enviados.setVisibility(View.GONE);
 
         if(usu != null){
 
-            if(usu.getTransacaoEnv() != null) {
-                mList = usu.getTransacaoEnv();
+            if(usu.getTransacoes_enviadas() != null) {
+                mList = usu.getTransacoes_enviadas();
 
                 Log.i("webservice", "lista trans = " + mList);
-                Log.i("webservice", "lista trans = " + usu.getTransacaoEnv().get(0).getUsu1());
+                Log.i("webservice", "lista trans = " + usu.getTransacoes_enviadas().get(0).getUsu1());
 
                 mRecyclerView.setVisibility(View.VISIBLE);
                 ListaTransacaoAdapter adapter = new ListaTransacaoAdapter(getActivity(), mList);
@@ -126,7 +127,7 @@ public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnC
 
 
             }else{
-                msg_lista_amigos.setVisibility(View.VISIBLE);
+                msg_lista_pedidos.setVisibility(View.VISIBLE);
             }
         }else{
             mensagem();
@@ -158,6 +159,22 @@ public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnC
     public void onClickListener(View view, int position) {
 
         Log.i("Script", "Click tste inicio =" + mList.get(position));
+
+        Intent it = new Intent(getActivity(), VerPedidoEnviado.class);
+        Bundle b = new Bundle();
+        b.putString("id",mList.get(position).getId_trans());
+        b.putString("nome2",mList.get(position).getNome_usu2());
+        b.putString("cpf1",mList.get(position).getUsu1());
+        b.putString("cpf2",mList.get(position).getUsu2());
+        b.putString("data_pedido",mList.get(position).getDataPedido());
+        b.putString("nome1", mList.get(position).getNome_usu1());
+        b.putString("valor",mList.get(position).getValor());
+        b.putString("vencimento", mList.get(position).getVencimento());
+        b.putString("img1", mList.get(position).getUrl_img_usu1());
+        b.putString("img2", mList.get(position).getUrl_img_usu2());
+        b.putString("status_transacao", mList.get(position).getStatus_transacao());
+        it.putExtras(b);
+        startActivity(it);
 
 
     }

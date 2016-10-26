@@ -166,11 +166,15 @@ public class SimuladorResultado extends AppCompatActivity {
             trans.setVencimento(vencimento);
             trans.setNome_usu2(nome);
             trans.setUrl_img_usu2(url_img);
+            trans.setNome_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME)));
+            trans.setUrl_img_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE)));
+            trans.setStatus_transacao(String.valueOf(VerPedidoEnviado.AGUARDANDO_RESPOSTA));
+            trans.setId_trans(null);
 
             new AddTransacao(trans,SimuladorResultado.this).execute();
 
         }else{
-            mensagem();
+            mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","OK");
 
             //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
             progress_bar_simulador.setVisibility(View.GONE);
@@ -187,14 +191,20 @@ public class SimuladorResultado extends AppCompatActivity {
         progress_bar_simulador.setVisibility(View.GONE);
         btn_fazer_pedido.setEnabled(true);
 
+        mensagem("InBanker", "Pedido enviado, aguarde a resposta de seu amigo(a) "+nome, "Ok");
+
+        Intent it = new Intent(SimuladorResultado.this,NavigationDrawerActivity.class);
+        startActivity(it);
+        //para encerrar a activity atual e todos os parent
+        finishAffinity();
     }
 
-    public void mensagem()
+    public void mensagem(String titulo,String corpo,String botao)
     {
         AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
-        mensagem.setTitle("Houve um erro!");
-        mensagem.setMessage("Olá, parece que houve um problema de conexao. Favor tente novamente!");
-        mensagem.setNeutralButton("OK",null);
+        mensagem.setTitle(titulo);
+        mensagem.setMessage(corpo);
+        mensagem.setNeutralButton(botao,null);
         mensagem.show();
     }
 }

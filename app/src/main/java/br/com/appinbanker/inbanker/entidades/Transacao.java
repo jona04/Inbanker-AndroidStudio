@@ -26,9 +26,27 @@ public class Transacao {
     private String vencimento;
     @JsonProperty("data_pedido")
     private String data_pedido;
+    @JsonProperty("nome_usu1")
+    private String nome_usu1;
+    @JsonProperty("url_img_usu1")
+    private String url_img_usu1;
+    @JsonProperty("status_transacao")
+    private String status_transacao;
 
-    public void setId(){
-        this.id_trans = String.valueOf(randomInteger(1000000,9999999));
+    public String getId_trans() {
+        return id_trans;
+    }
+    public void setId_trans(String id) {
+        id_trans = (id == null) ? String.valueOf(randomInteger(1000000,9999999)) : id;
+    }
+    public String getStatus_transacao() {
+        return status_transacao;
+    }
+    public void setNome_usu1(String nome_usu1) {
+        this.nome_usu1 = nome_usu1;
+    }
+    public void setUrl_img_usu1(String url_img_usu1) {
+        this.url_img_usu1 = url_img_usu1;
     }
     public void setUsu1(String usu1){
         this.cpf_usu1 = usu1;
@@ -52,13 +70,21 @@ public class Transacao {
         this.url_img_usu2 = url_img_usu2;
     }
 
+    public void setStatus_transacao(String status_transacao) {
+        this.status_transacao = status_transacao;
+    }
+    public String getUrl_img_usu1() {
+        return url_img_usu1;
+    }
+    public String getNome_usu1() {
+        return nome_usu1;
+    }
     public String getUrl_img_usu2(){
         return this.url_img_usu2;
     }
     public String getNome_usu2(){
         return this.nome_usu2;
     }
-    public String getId(){return this.id_trans;}
     public String getUsu1(){return this.cpf_usu1;}
     public String getUsu2(){return this.cpf_usu2;}
     public String getValor(){

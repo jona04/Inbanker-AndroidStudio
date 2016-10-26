@@ -8,16 +8,6 @@ import java.util.List;
 /**
  * Created by Jonatas on 18/10/2016.
  */
-@JsonPropertyOrder({
-        "nome",
-        "email",
-        "cpf",
-        "senha",
-        "id_face",
-        "nome_face",
-        "url_face",
-        "transacoes"
-})
 public class Usuario {
 
     @JsonProperty("nome")
@@ -41,11 +31,25 @@ public class Usuario {
     @JsonProperty("transacoes")
     private List<Transacao> transacao;
 
-    @JsonProperty("transacaoEnv")
-    private List<Transacao> transacaoEnv;
+    @JsonProperty("transacoes_enviadas")
+    private List<Transacao> transacoes_enviadas;
 
-    public void setTransacaoEnv(List<Transacao> transacoes_enviadas){this.transacaoEnv = transacoes_enviadas;}
-    public List<Transacao> getTransacaoEnv(){return this.transacaoEnv;}
+    @JsonProperty("transacoes_recebidas")
+    private List<Transacao> transacoes_recebidas;
+
+    public List<Transacao> getTransacoes_recebidas() {
+        return transacoes_recebidas;
+    }
+    public void setTransacoes_recebidas(List<Transacao> transacoes_recebidas) {
+        this.transacoes_recebidas = transacoes_recebidas;
+    }
+
+    public List<Transacao> getTransacoes_enviadas() {
+        return transacoes_enviadas;
+    }
+    public void setTransacoes_enviadas(List<Transacao> transacoes_enviadas) {
+        this.transacoes_enviadas = transacoes_enviadas;
+    }
 
     public void setTransacao(List<Transacao> trans){this.transacao = trans;}
     public List<Transacao> getTransacao(){return this.transacao;}
