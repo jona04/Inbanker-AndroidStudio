@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import br.com.appinbanker.inbanker.VerPagamentoPendente;
 import br.com.appinbanker.inbanker.VerPedidoEnviado;
 import br.com.appinbanker.inbanker.VerPedidoRecebido;
 import br.com.appinbanker.inbanker.entidades.Transacao;
@@ -20,21 +19,19 @@ import br.com.appinbanker.inbanker.entidades.Transacao;
  * Created by jonatassilva on 25/10/16.
  */
 
-public class EditaTransacao extends AsyncTask<String, String, String> {
+public class EditaTransacaoRecusada extends AsyncTask<String, String, String> {
 
     private Transacao trans;
     private VerPedidoRecebido vpr;
     private VerPedidoEnviado vpe;
-    private VerPagamentoPendente vpp;
     private String cpf_user2,cpf_user1;
 
-    public EditaTransacao(Transacao trans, String cpf_user1, String cpf_user2, VerPedidoRecebido vpr, VerPedidoEnviado vpe, VerPagamentoPendente vpp){
+    public EditaTransacaoRecusada(Transacao trans, String cpf_user1, String cpf_user2, VerPedidoRecebido vpr, VerPedidoEnviado vpe){
         this.cpf_user2 = cpf_user2;
         this.cpf_user1 = cpf_user1;
         this.trans = trans;
         this.vpr = vpr;
         this.vpe = vpe;
-        this.vpp = vpp;
 
     }
 
@@ -44,7 +41,7 @@ public class EditaTransacao extends AsyncTask<String, String, String> {
         try {
 
             //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/edit/"+ usuario.getCpf();
-            final String url = "http://10.0.3.2:8080/appinbanker/rest/usuario/editTransacao/" + cpf_user1+"/"+cpf_user2;
+            final String url = "http://10.0.3.2:8080/appinbanker/rest/usuario/editTransacaoRecusada/" + cpf_user1+"/"+cpf_user2;
 
             // Set the Content-Type header
             HttpHeaders requestHeaders = new HttpHeaders();
@@ -75,9 +72,7 @@ public class EditaTransacao extends AsyncTask<String, String, String> {
 
         if(vpr != null)
             vpr.retornoEditaTransacao(result);
-        else if(vpe != null)
+        else
             vpe.retornoEditaTransacao(result);
-        else if(vpp != null)
-            vpp.retornoEditaTransacao(result);
     }
 }

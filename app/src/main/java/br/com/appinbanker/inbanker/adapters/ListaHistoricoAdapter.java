@@ -13,6 +13,7 @@ import java.util.List;
 
 import br.com.appinbanker.inbanker.R;
 import br.com.appinbanker.inbanker.entidades.Amigos;
+import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
 
 /**
@@ -21,12 +22,12 @@ import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
 
 public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAdapter.MyViewHolder>{
 
-    private List<Amigos> mList;
+    private List<Transacao> mList;
     private LayoutInflater mLayoutInflater;
     private RecyclerViewOnClickListenerHack mRecyclerViewOnClickListenerHack;
     private Context c;
 
-    public ListaHistoricoAdapter(Context c, List<Amigos> l){
+    public ListaHistoricoAdapter(Context c, List<Transacao> l){
         c = c;
         mList = l;
         mLayoutInflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -55,7 +56,7 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
     @Override
     public void onBindViewHolder(ListaHistoricoAdapter.MyViewHolder holder, int position) {
         Log.i("Script", "Inicio historico adapter onBindViewHolder ");
-        holder.tv_nome_usuario.setText(mList.get(position).getName());
+        holder.tv_nome_usuario.setText(mList.get(position).getNome_usu1());
 
         //String url = mList.get(position).getPicture().getData().getUrl();
         //Uri uri = Uri.parse(mList.get(position).getPicture().getData().getUrl());

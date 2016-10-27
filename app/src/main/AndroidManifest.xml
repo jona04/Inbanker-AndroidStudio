@@ -61,11 +61,16 @@
         <activity
             android:name=".VerPedidoEnviado"
             android:label="@string/title_activity_ver_pedido_enviado"
-            android:parentActivityName=".NavigationDrawerActivity"/>
+            android:parentActivityName=".NavigationDrawerActivity" />
         <activity
             android:name=".VerPedidoRecebido"
             android:label="@string/title_activity_ver_pedido_recebido"
-            android:parentActivityName=".NavigationDrawerActivity"/>
+            android:parentActivityName=".NavigationDrawerActivity" />
+        <activity
+            android:name=".VerHistorico"
+            android:label="@string/title_activity_historico"
+            android:parentActivityName=".NavigationDrawerActivity" />
+        <activity android:name=".VerPagamentoPendente"></activity>
     </application>
 
 </manifest>

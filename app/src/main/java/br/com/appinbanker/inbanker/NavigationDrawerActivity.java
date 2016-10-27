@@ -25,7 +25,7 @@ import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.fragments_navigation.HistoricoFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.InicioFragment;
-import br.com.appinbanker.inbanker.fragments_navigation.PagamentosFragment;
+import br.com.appinbanker.inbanker.fragments_navigation.PagamentosPendentesFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedidosEnviadosFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedidosRecebidosFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedirEmprestimoFragment;
@@ -159,7 +159,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 fragmentClass = PedidosEnviadosFragment.class;
                 break;
             case R.id.nav_pagamento:
-                fragmentClass = PagamentosFragment.class;
+                fragmentClass = PagamentosPendentesFragment.class;
                 break;
             case R.id.nav_pedidos_recebidos:
                 fragmentClass = PedidosRecebidosFragment.class;

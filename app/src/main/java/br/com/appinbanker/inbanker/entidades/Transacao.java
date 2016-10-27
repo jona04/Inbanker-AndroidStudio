@@ -16,6 +16,9 @@ public class Transacao {
     public static final int PEDIDO_RECUSADO = 2;
     public static final int CONFIRMADO_RECEBIMENTO = 3;
     public static final int QUITACAO_SOLICITADA = 4;
+    public static final int RESP_QUITACAO_SOLICITADA_RECUSADA = 5;
+    public static final int RESP_QUITACAO_SOLICITADA_CONFIRMADA = 6;
+
 
     @JsonProperty("id_trans")
     private String id_trans;
@@ -39,6 +42,8 @@ public class Transacao {
     private String url_img_usu1;
     @JsonProperty("status_transacao")
     private String status_transacao;
+    @JsonProperty("data_recusada")
+    private String data_recusada;
 
     public String getId_trans() {
         return id_trans;
@@ -46,8 +51,9 @@ public class Transacao {
     public void setId_trans(String id) {
         id_trans = (id == null) ? String.valueOf(randomInteger(1000000,9999999)) : id;
     }
-    public String getStatus_transacao() {
-        return status_transacao;
+
+    public void setData_recusada(String data_recusada) {
+        this.data_recusada = data_recusada;
     }
     public void setNome_usu1(String nome_usu1) {
         this.nome_usu1 = nome_usu1;
@@ -79,6 +85,12 @@ public class Transacao {
 
     public void setStatus_transacao(String status_transacao) {
         this.status_transacao = status_transacao;
+    }
+    public String getStatus_transacao() {
+        return status_transacao;
+    }
+    public String getData_recusada() {
+        return data_recusada;
     }
     public String getUrl_img_usu1() {
         return url_img_usu1;

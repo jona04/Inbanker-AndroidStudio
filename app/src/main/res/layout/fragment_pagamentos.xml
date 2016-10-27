@@ -6,29 +6,52 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="br.com.appinbanker.inbanker.fragments_navigation.PagamentosFragment">
+    tools:context="br.com.appinbanker.inbanker.fragments_navigation.PagamentosPendentesFragment">
 
 
     <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        >
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical">
+            android:id="@+id/msg_lista_pagamentos"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"
+            android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="10px"
-                android:textSize="18sp"
-                android:textAlignment="center"
-                android:text="Voce nao possui nengum pagamento pendente."
-                />
+                android:layout_centerVertical="true"
+                android:text="Voce ainda possui nenhum pagamento pendente."/>
         </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/progress_lista_pagamentos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20px"
+                android:text="Estamos verificando suas transaçoes..."/>
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10px"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_list_pagamentos"
+            android:scrollbars="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible"/>
 
     </LinearLayout>
 

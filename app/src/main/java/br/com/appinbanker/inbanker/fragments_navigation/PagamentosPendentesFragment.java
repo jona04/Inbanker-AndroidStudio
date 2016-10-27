@@ -9,7 +9,6 @@ import android.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.com.appinbanker.inbanker.R;
-import br.com.appinbanker.inbanker.VerHistorico;
-import br.com.appinbanker.inbanker.VerPedidoEnviado;
-import br.com.appinbanker.inbanker.adapters.ListaHistoricoAdapter;
+import br.com.appinbanker.inbanker.VerPagamentoPendente;
 import br.com.appinbanker.inbanker.adapters.ListaTransacaoAdapter;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
@@ -31,7 +28,7 @@ import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 
-public class HistoricoFragment extends Fragment implements RecyclerViewOnClickListenerHack {
+public class PagamentosPendentesFragment extends Fragment implements RecyclerViewOnClickListenerHack {
 
     private OnFragmentInteractionListener mListener;
 
@@ -43,14 +40,13 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
     private Cursor cursor;
     private String cpf;
 
-    private LinearLayout progress_lista_historico;
+    private LinearLayout progress_lista_pagamentos;
 
-    private RelativeLayout msg_lista_historico;
+    private RelativeLayout msg_lista_pagamentos;
 
-    public HistoricoFragment() {
+    public PagamentosPendentesFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,20 +58,20 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_historico, container, false);
+        View view = inflater.inflate(R.layout.fragment_pagamentos, container, false);
 
-        progress_lista_historico = (LinearLayout) view.findViewById(R.id.progress_lista_historico);
+        progress_lista_pagamentos = (LinearLayout) view.findViewById(R.id.progress_lista_pagamentos);
 
-        msg_lista_historico = (RelativeLayout) view.findViewById(R.id.msg_lista_historico);
+        msg_lista_pagamentos = (RelativeLayout) view.findViewById(R.id.msg_lista_pagamentos);
 
         crud = new BancoControllerUsuario(getActivity());
         cursor = crud.carregaDados();
         cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
 
         //busca pedidos enviados
-        new BuscaUsuarioCPF(cpf,null,null,HistoricoFragment.this,null).execute();
+        new BuscaUsuarioCPF(cpf,null,null,null,PagamentosPendentesFragment.this).execute();
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_historico);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_pagamentos);
 
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -101,51 +97,34 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
 
     public void retornoBuscaUsuario(Usuario usu){
 
-        progress_lista_historico.setVisibility(View.GONE);
+        progress_lista_pagamentos.setVisibility(View.GONE);
 
         if(usu != null){
 
-            //iremos adicionar a uma nova lista apenas as trasacoes de status 2 (historico), para posteriormente adicionarmos no adapter
+            //iremos adicionar a uma nova lista apenas as trasacoes de status maior igual a 3 e menor igual a 5, para posteriormente adicionarmos no adapter
             ArrayList<Transacao> list = new ArrayList<Transacao>();
 
             if(usu.getTransacoes_enviadas() != null) {
                 mList = usu.getTransacoes_enviadas();
 
-
                 for(int i = 0; i < mList.size(); i++){
                     int status = Integer.parseInt(mList.get(i).getStatus_transacao());
-                    if(status == 2){
+                    if(status >= 3 && status <= 5 ){
                         list.add(mList.get(i));
                     }
                 }
-
-            }
-
-            if(usu.getTransacoes_recebidas() != null) {
-                mList = usu.getTransacoes_recebidas();
-
-                //Log.i("webservice", "lista hist rec = " + mList);
-
-
-                for(int i = 0; i < mList.size(); i++){
-                    //Log.i("webservice", "lista list = " + i+" - "+mList.get(i).getStatus_transacao());
-                    int status = Integer.parseInt(mList.get(i).getStatus_transacao());
-                    if(status == 2){
-                        list.add(mList.get(i));
-                    }
-                }
-
             }
 
             if(list.size() > 0) {
                 mList = list;
                 mRecyclerView.setVisibility(View.VISIBLE);
-                ListaHistoricoAdapter adapter = new ListaHistoricoAdapter(getActivity(), list);
+                ListaTransacaoAdapter adapter = new ListaTransacaoAdapter(getActivity(), list);
                 adapter.setRecyclerViewOnClickListenerHack(this);
                 mRecyclerView.setAdapter(adapter);
             }else{
-                msg_lista_historico.setVisibility(View.VISIBLE);
+                msg_lista_pagamentos.setVisibility(View.VISIBLE);
             }
+
         }else{
             mensagem();
         }
@@ -166,7 +145,7 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
 
         //Log.i("Script", "Click tste inicio =" + mList.get(position));
 
-        Intent it = new Intent(getActivity(), VerHistorico.class);
+        Intent it = new Intent(getActivity(), VerPagamentoPendente.class);
         Bundle b = new Bundle();
         b.putString("id",mList.get(position).getId_trans());
         b.putString("nome2",mList.get(position).getNome_usu2());
@@ -178,7 +157,6 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
         b.putString("vencimento", mList.get(position).getVencimento());
         b.putString("img1", mList.get(position).getUrl_img_usu1());
         b.putString("img2", mList.get(position).getUrl_img_usu2());
-        b.putString("data_cancelamento",mList.get(position).getData_recusada());
         b.putString("status_transacao", mList.get(position).getStatus_transacao());
         it.putExtras(b);
         startActivity(it);

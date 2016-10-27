@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -26,6 +27,7 @@ import java.util.Locale;
 
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.webservice.EditaTransacao;
+import br.com.appinbanker.inbanker.webservice.EditaTransacaoRecusada;
 
 public class VerPedidoRecebido extends AppCompatActivity {
 
@@ -42,6 +44,8 @@ public class VerPedidoRecebido extends AppCompatActivity {
     private Button btn_aceita_pedido,btn_recusa_pedido;
 
     private TableRow tr_dias_corridos;
+
+    private ProgressBar progress_bar_btn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +83,7 @@ public class VerPedidoRecebido extends AppCompatActivity {
         ll_resposta_pedido = (LinearLayout) findViewById(R.id.ll_resposta_pedido);
         ll_confirma_recebimento_valor_emprestado = (LinearLayout) findViewById(R.id.ll_confirma_recebimento_valor_emprestado);
 
+        progress_bar_btn = (ProgressBar) findViewById(R.id.progress_bar_btn);
         tr_dias_corridos = (TableRow) findViewById(R.id.tr_dias_corridos);
         btn_aceita_pedido = (Button) findViewById(R.id.btn_aceita_pedido);
         btn_recusa_pedido = (Button) findViewById(R.id.btn_recusa_pedido);
@@ -155,13 +160,21 @@ public class VerPedidoRecebido extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                //data do pedido
+                DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
+                DateTime hoje = new DateTime();
+                final String hoje_string = fmt.print(hoje);
+
                 Transacao trans = new Transacao();
                 trans.setId_trans(id);
-                trans.setStatus_transacao("1");
+                trans.setStatus_transacao(String.valueOf(Transacao.PEDIDO_RECUSADO));
+                trans.setData_recusada(hoje_string);
 
-                new EditaTransacao(trans,cpf1,cpf2,VerPedidoRecebido.this,null).execute();
+                new EditaTransacaoRecusada(trans,cpf1,cpf2,VerPedidoRecebido.this,null).execute();
 
-
+                progress_bar_btn.setVisibility(View.VISIBLE);
+                btn_recusa_pedido.setEnabled(false);
+                btn_aceita_pedido.setEnabled(false);
 
             }
         });
@@ -174,11 +187,13 @@ public class VerPedidoRecebido extends AppCompatActivity {
 
                 Transacao trans = new Transacao();
                 trans.setId_trans(id);
-                trans.setStatus_transacao("2");
+                trans.setStatus_transacao(String.valueOf(Transacao.PEDIDO_ACEITO));
 
-                new EditaTransacao(trans,cpf1,cpf2,VerPedidoRecebido.this,null).execute();
+                new EditaTransacao(trans,cpf1,cpf2,VerPedidoRecebido.this,null,null).execute();
 
-
+                progress_bar_btn.setVisibility(View.VISIBLE);
+                btn_recusa_pedido.setEnabled(false);
+                btn_aceita_pedido.setEnabled(false);
 
             }
         });
@@ -189,6 +204,10 @@ public class VerPedidoRecebido extends AppCompatActivity {
 
     public void retornoEditaTransacao(String result){
         Log.i("webservice","resultado edita transao = "+result);
+
+        progress_bar_btn.setVisibility(View.GONE);
+        btn_recusa_pedido.setEnabled(true);
+        btn_aceita_pedido.setEnabled(true);
 
         if(result.equals("sucesso_edit")){
             if(aceitou_pedido){

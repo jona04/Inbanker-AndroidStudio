@@ -17,7 +17,7 @@
         <item
             android:id="@+id/nav_pagamento"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Pagamentos em aberto" />
+            android:title="Pagamentos pendentes" />
         <item
             android:id="@+id/nav_pedidos_recebidos"
             android:icon="@drawable/ic_menu_slideshow"

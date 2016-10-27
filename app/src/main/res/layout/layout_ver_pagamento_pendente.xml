@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layout_ver_pedido_enviado"
+    android:id="@+id/layout_ver_pagamentos_pendentes"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="br.com.appinbanker.inbanker.VerPedidoEnviado">
+    tools:context="br.com.appinbanker.inbanker.VerPagamentoPendente">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -59,10 +58,10 @@
                 <TextView android:text="Data do pagamento:"/>
                 <TextView android:id="@+id/tv_data_pagamento" />
             </TableRow>
-            <!--<TableRow android:id="@+id/tr_dias_corridos" android:visibility="gone">
+            <TableRow android:id="@+id/tr_dias_corridos">
                 <TextView android:text="Dias corridos:"/>
                 <TextView android:id="@+id/tv_dias_corridos" />
-            </TableRow>-->
+            </TableRow>
             <TableRow>
                 <TextView android:text="Valor do juros:"/>
                 <TextView android:id="@+id/tv_juros_mes" />
@@ -76,19 +75,18 @@
         </TableLayout>
 
         <LinearLayout
-            android:id="@+id/ll_confirma_recebimento"
+            android:id="@+id/ll_confirma_quitacao"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:orientation="horizontal"
-            android:layout_marginTop="20px"
-            android:visibility="gone">
+            android:layout_marginTop="20px">
 
             <Button
-                android:id="@+id/btn_confirma_recebimento"
+                android:id="@+id/btn_confirma_quitacao"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Confirmo recebimento"/>
+                android:text="Confirmar quitaçao"/>
 
         </LinearLayout>
         <ProgressBar
@@ -99,5 +97,6 @@
             android:visibility="gone"
             android:layout_gravity="center"/>
     </LinearLayout>
+
 
 </LinearLayout>
