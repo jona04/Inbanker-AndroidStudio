@@ -44,6 +44,8 @@ public class Transacao {
     private String status_transacao;
     @JsonProperty("data_recusada")
     private String data_recusada;
+    @JsonProperty("data_pagamento")
+    private String data_pagamento;
 
     public String getId_trans() {
         return id_trans;
@@ -52,6 +54,9 @@ public class Transacao {
         id_trans = (id == null) ? String.valueOf(randomInteger(1000000,9999999)) : id;
     }
 
+    public void setData_pagamento(String data_pagamento) {
+        this.data_pagamento = data_pagamento;
+    }
     public void setData_recusada(String data_recusada) {
         this.data_recusada = data_recusada;
     }
@@ -85,6 +90,9 @@ public class Transacao {
 
     public void setStatus_transacao(String status_transacao) {
         this.status_transacao = status_transacao;
+    }
+    public String getData_pagamento() {
+        return data_pagamento;
     }
     public String getStatus_transacao() {
         return status_transacao;

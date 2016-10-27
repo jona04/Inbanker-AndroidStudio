@@ -70,10 +70,14 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
 
         crud = new BancoControllerUsuario(getActivity());
         cursor = crud.carregaDados();
-        cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+        try{
+            cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+            //busca pedidos enviados
+            new BuscaUsuarioCPF(cpf,null,null,HistoricoFragment.this,null,null).execute();
+        }catch (Exception e){
+            Log.i("Webservice","-"+e);
+        }
 
-        //busca pedidos enviados
-        new BuscaUsuarioCPF(cpf,null,null,HistoricoFragment.this,null).execute();
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_historico);
 
@@ -114,7 +118,7 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
 
                 for(int i = 0; i < mList.size(); i++){
                     int status = Integer.parseInt(mList.get(i).getStatus_transacao());
-                    if(status == 2){
+                    if(status == 2 || status == 6){
                         list.add(mList.get(i));
                     }
                 }
@@ -130,7 +134,7 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
                 for(int i = 0; i < mList.size(); i++){
                     //Log.i("webservice", "lista list = " + i+" - "+mList.get(i).getStatus_transacao());
                     int status = Integer.parseInt(mList.get(i).getStatus_transacao());
-                    if(status == 2){
+                    if(status == 2 || status == 6){
                         list.add(mList.get(i));
                     }
                 }
@@ -140,7 +144,7 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
             if(list.size() > 0) {
                 mList = list;
                 mRecyclerView.setVisibility(View.VISIBLE);
-                ListaHistoricoAdapter adapter = new ListaHistoricoAdapter(getActivity(), list);
+                ListaHistoricoAdapter adapter = new ListaHistoricoAdapter(getActivity(), list,cpf);
                 adapter.setRecyclerViewOnClickListenerHack(this);
                 mRecyclerView.setAdapter(adapter);
             }else{
@@ -180,9 +184,9 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
         b.putString("img2", mList.get(position).getUrl_img_usu2());
         b.putString("data_cancelamento",mList.get(position).getData_recusada());
         b.putString("status_transacao", mList.get(position).getStatus_transacao());
+        b.putString("data_pagamento", mList.get(position).getData_pagamento());
         it.putExtras(b);
         startActivity(it);
-
 
     }
 

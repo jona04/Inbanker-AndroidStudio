@@ -19,4 +19,6 @@
     <string name="title_activity_ver_pedido_recebido">Pedido Recebido</string>
     <string name="title_activity_ver_pedido_enviado">Pedido Enviado</string>
     <string name="title_activity_historico">Historico</string>
+    <string name="title_activity_ver_pagamento">Pagamento pendente</string>
+
 </resources>

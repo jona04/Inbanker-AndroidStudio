@@ -8,10 +8,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.webservice.AddUsuario;
+import br.com.appinbanker.inbanker.webservice.VerificaUsuarioCadastro;
 
 public class CadastroUsuario extends ActionBarActivity {
 
@@ -21,7 +23,9 @@ public class CadastroUsuario extends ActionBarActivity {
     EditText et_cpf;
     EditText et_senha;
     EditText et_senha_novamente;
+    Button btn_cadastro;
 
+    ProgressBar progress_bar_cadastro;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,37 +38,33 @@ public class CadastroUsuario extends ActionBarActivity {
         //inicializa usuariu
         usu = new Usuario();
 
-        Button btn_cadastro = (Button) findViewById(R.id.btn_cadastrar_usuario);
+        progress_bar_cadastro = (ProgressBar) findViewById(R.id.progress_bar_cadastro);
+        et_nome = (EditText) findViewById(R.id.et_nome);
+        et_email = (EditText) findViewById(R.id.et_email);
+        et_cpf = (EditText) findViewById(R.id.et_cpf);
+        et_senha = (EditText) findViewById(R.id.et_senha);
+        et_senha_novamente = (EditText) findViewById(R.id.et_senha_novamente);
+
+        btn_cadastro = (Button) findViewById(R.id.btn_cadastrar_usuario);
         btn_cadastro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i("Script", "Clicou em cadastrar");
 
-                et_nome = (EditText) findViewById(R.id.et_nome);
-                et_email = (EditText) findViewById(R.id.et_email);
-                et_cpf = (EditText) findViewById(R.id.et_cpf);
-                et_senha = (EditText) findViewById(R.id.et_senha);
-                et_senha_novamente = (EditText) findViewById(R.id.et_senha_novamente);
-
                 if(isValid()){
 
                     if(et_senha.getText().toString().equals(et_senha_novamente.getText().toString())){
 
-                        usu.setCpf(et_cpf.getText().toString());
-                        usu.setEmail(et_email.getText().toString());
-                        usu.setNome(et_nome.getText().toString());
-                        usu.setSenha(et_senha.getText().toString());
+                        btn_cadastro.setEnabled(false);
+                        progress_bar_cadastro.setVisibility(View.GONE);
 
-                        //setamos esse valores vazio para nao dar problema na hora de serializacao e posteriormente erro no rest de cadastro no banco
-                        usu.setIdFace("");
-                        usu.setNomeFace("");
-                        usu.setUrlImgFace("");
+                        new VerificaUsuarioCadastro(et_email.getText().toString(),et_cpf.getText().toString(),CadastroUsuario.this,CadastroUsuario.this).execute();
 
-                        //fazemos a chamada a classe responsavel por realizar a tarefa de webservice em doinbackground
-                        new AddUsuario(usu,CadastroUsuario.this).execute();
+                    }else{
+                        mensagem("Houve um erro!","Olá, as senhas digitadas não são iguais. Favor tente novamente!","Ok");
                     }
                 }else{
-                    mensagemCamposVazio();
+                    mensagem("Houve um erro!","Olá, existem campos não preenchidos. Favor preencha-os e tente novamente!","OK");
                 }
             }
 
@@ -74,8 +74,39 @@ public class CadastroUsuario extends ActionBarActivity {
 
     }
 
+    public void retornoTaskVerifica(String result){
+
+        if(result == null){
+            usu.setCpf(et_cpf.getText().toString());
+            usu.setEmail(et_email.getText().toString());
+            usu.setNome(et_nome.getText().toString());
+            usu.setSenha(et_senha.getText().toString());
+
+            //setamos esse valores vazio para nao dar problema na hora de serializacao e posteriormente erro no rest de cadastro no banco
+            usu.setIdFace("");
+            usu.setNomeFace("");
+            usu.setUrlImgFace("");
+
+            //fazemos a chamada a classe responsavel por realizar a tarefa de webservice em doinbackground
+            new AddUsuario(usu, CadastroUsuario.this).execute();
+        }else {
+
+            btn_cadastro.setEnabled(true);
+            progress_bar_cadastro.setVisibility(View.GONE);
+
+            //verificamos o resultado da verificação e continuamos o cadastro
+            if (result.equals("email"))
+                mensagem("Houve um erro!", "Olá, o EMAIL informado já existe, se você esqueceu sua senha tente recupará-la na sessão anterior.", "Ok");
+            else if (result.equals("cpf"))
+                mensagem("Houve um erro!", "Olá, o CPF informado já existe, por favor informe outro, ou tente recuperar sua senha", "Ok");
+        }
+    }
+
     //metodo que sera invoca na classe de webserve
-    public void retornoTask(String msg){
+    public void retornoTaskAdd(String msg){
+
+        btn_cadastro.setEnabled(true);
+        progress_bar_cadastro.setVisibility(View.GONE);
 
         if(msg.equals("sucesso")){
 
@@ -90,35 +121,17 @@ public class CadastroUsuario extends ActionBarActivity {
             //para encerrar a activity atual e todos os parent
             finishAffinity();
         }else{
-            mensagem();
+            mensagem("Houve um erro!","Olá, parece que houve um problema de conexão. Favor tente novamente!","Ok");
         }
 
     }
 
-    public void mensagem()
+    public void mensagem(String titulo,String corpo,String botao)
     {
         AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
-        mensagem.setTitle("Houve um erro!");
-        mensagem.setMessage("Olá, parece que houve um problema de conexão. Favor tente novamente!");
-        mensagem.setNeutralButton("OK",null);
-        mensagem.show();
-    }
-
-    public void mensagemCamposVazio()
-    {
-        AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
-        mensagem.setTitle("Houve um erro!");
-        mensagem.setMessage("Olá, existem campos nao preenchidos. Favor preencha todos e tente novamente!");
-        mensagem.setNeutralButton("OK",null);
-        mensagem.show();
-    }
-
-    public void mensagemSenha()
-    {
-        AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
-        mensagem.setTitle("Houve um erro!");
-        mensagem.setMessage("Olá, as senhas digitadas nao sao iguais. Favor tente novamente!");
-        mensagem.setNeutralButton("OK",null);
+        mensagem.setTitle(titulo);
+        mensagem.setMessage(corpo);
+        mensagem.setNeutralButton(botao,null);
         mensagem.show();
     }
 
@@ -130,8 +143,6 @@ public class CadastroUsuario extends ActionBarActivity {
                 et_nome.getText().toString().isEmpty() ||
                 et_senha.getText().toString().isEmpty() ||
                 et_senha_novamente.getText().toString().isEmpty()){
-
-            mensagemSenha();
 
             return false;
         }else{

@@ -27,11 +27,11 @@ import java.util.Locale;
 
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.webservice.EditaTransacao;
-import br.com.appinbanker.inbanker.webservice.EditaTransacaoRecusada;
+import br.com.appinbanker.inbanker.webservice.EditaTransacaoResposta;
 
 public class VerPedidoRecebido extends AppCompatActivity {
 
-    private boolean aceitou_pedido = false;
+    private boolean aceitou_pedido = false,resp_quitacao = false,confirmou_recebimento = false;
 
     private String id,nome2,cpf1,cpf2,data_pedido = null,nome1,valor,vencimento,img1,img2;
 
@@ -41,7 +41,7 @@ public class VerPedidoRecebido extends AppCompatActivity {
 
     private LinearLayout ll_resposta_pedido,ll_confirma_recebimento_valor_emprestado;
 
-    private Button btn_aceita_pedido,btn_recusa_pedido;
+    private Button btn_aceita_pedido,btn_recusa_pedido,btn_confirma_quitacao,btn_recusa_quitacao;
 
     private TableRow tr_dias_corridos;
 
@@ -83,6 +83,8 @@ public class VerPedidoRecebido extends AppCompatActivity {
         ll_resposta_pedido = (LinearLayout) findViewById(R.id.ll_resposta_pedido);
         ll_confirma_recebimento_valor_emprestado = (LinearLayout) findViewById(R.id.ll_confirma_recebimento_valor_emprestado);
 
+        btn_confirma_quitacao = (Button) findViewById(R.id.btn_confirma_quitacao);
+        btn_recusa_quitacao = (Button) findViewById(R.id.btn_recusa_quitacao);
         progress_bar_btn = (ProgressBar) findViewById(R.id.progress_bar_btn);
         tr_dias_corridos = (TableRow) findViewById(R.id.tr_dias_corridos);
         btn_aceita_pedido = (Button) findViewById(R.id.btn_aceita_pedido);
@@ -119,27 +121,31 @@ public class VerPedidoRecebido extends AppCompatActivity {
         switch (status_transacao){
             case Transacao.AGUARDANDO_RESPOSTA:
                 juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias)));
-                msg_ver_pedido.setText(nome1+" esta lhe pedindo um emprestimo. Para aceitar ou recusar utilize os botoes abaixo.");
+                msg_ver_pedido.setText(nome1+" esta lhe pedindo um empréstimo. Para aceitar ou recusar utilize os botões abaixo.");
                 break;
             case Transacao.PEDIDO_ACEITO:
                 ll_resposta_pedido.setVisibility(View.GONE);
-                msg_ver_pedido.setText("Voce esta aguardando que seu amigo(a) " + nome1 + " confirme o recebimento do valor.");
+                msg_ver_pedido.setText("Você esta aguardando que seu amigo(a) " + nome1 + " confirme o recebimento do valor.");
                 break;
             case Transacao.CONFIRMADO_RECEBIMENTO:
                 ll_resposta_pedido.setVisibility(View.GONE);
                 juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias_corridos)));
                 tr_dias_corridos.setVisibility(View.VISIBLE);
-                msg_ver_pedido.setText("Voce esta aguardando que seu amigo(a) " + nome1 + " faça a quitaçao do emprestimo.");
+                msg_ver_pedido.setText("Você esta aguardando que seu amigo(a) " + nome1 + " solicite a confirmação de quitação do empréstimo.");
                 break;
             case Transacao.QUITACAO_SOLICITADA:
                 ll_resposta_pedido.setVisibility(View.GONE);
                 juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias_corridos)));
                 tr_dias_corridos.setVisibility(View.VISIBLE);
-                msg_ver_pedido.setText("Seu amigo(a) "+ nome1 +" esta solicitando que voce confirme a quitaçao do valor que ele solicitou em emprestimo.");
+                msg_ver_pedido.setText("Seu amigo(a) "+ nome1 +" esta solicitando que você confirme a quitação do valor que ele solicitou em empréstimo.");
                 ll_confirma_recebimento_valor_emprestado.setVisibility(View.VISIBLE);
                 break;
-           /* case PEDIDO_RECUSADO: //esse pedido recusado deve estar somente no historico
-                break;*/
+            case Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA:
+                ll_resposta_pedido.setVisibility(View.GONE);
+                juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias_corridos)));
+                tr_dias_corridos.setVisibility(View.VISIBLE);
+                msg_ver_pedido.setText("Você já recusou uma confirmação de quitação dessa dívida com "+ nome1+". Agora está aguardando por outra solicitação de quitação.");
+                break;
         }
 
         double valor_total = juros_mensal +  Double.parseDouble(valor);
@@ -160,7 +166,7 @@ public class VerPedidoRecebido extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                //data do pedido
+                //data do cancelamento
                 DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
                 DateTime hoje = new DateTime();
                 final String hoje_string = fmt.print(hoje);
@@ -169,8 +175,9 @@ public class VerPedidoRecebido extends AppCompatActivity {
                 trans.setId_trans(id);
                 trans.setStatus_transacao(String.valueOf(Transacao.PEDIDO_RECUSADO));
                 trans.setData_recusada(hoje_string);
+                trans.setData_pagamento("");
 
-                new EditaTransacaoRecusada(trans,cpf1,cpf2,VerPedidoRecebido.this,null).execute();
+                new EditaTransacaoResposta(trans,cpf1,cpf2,VerPedidoRecebido.this).execute();
 
                 progress_bar_btn.setVisibility(View.VISIBLE);
                 btn_recusa_pedido.setEnabled(false);
@@ -198,6 +205,49 @@ public class VerPedidoRecebido extends AppCompatActivity {
             }
         });
 
+        btn_confirma_quitacao.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //data de confirmacao de pagamento
+                DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
+                DateTime hoje = new DateTime();
+                final String hoje_string = fmt.print(hoje);
+
+                resp_quitacao = true;
+                confirmou_recebimento = true;
+
+                Transacao trans2 = new Transacao();
+                trans2.setId_trans(id);
+                trans2.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA));
+                trans2.setData_recusada("");
+                trans2.setData_pagamento(hoje_string);
+
+                new EditaTransacaoResposta(trans2,cpf1,cpf2,VerPedidoRecebido.this).execute();
+
+                progress_bar_btn.setVisibility(View.VISIBLE);
+                btn_recusa_pedido.setEnabled(false);
+                btn_aceita_pedido.setEnabled(false);
+            }
+        });
+
+        btn_recusa_quitacao.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                resp_quitacao = true;
+
+                Transacao trans = new Transacao();
+                trans.setId_trans(id);
+                trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA));
+
+                new EditaTransacao(trans,cpf1,cpf2,VerPedidoRecebido.this,null,null).execute();
+
+                progress_bar_btn.setVisibility(View.VISIBLE);
+                btn_recusa_pedido.setEnabled(false);
+                btn_aceita_pedido.setEnabled(false);
+            }
+        });
 
 
     }
@@ -210,14 +260,26 @@ public class VerPedidoRecebido extends AppCompatActivity {
         btn_aceita_pedido.setEnabled(true);
 
         if(result.equals("sucesso_edit")){
-            if(aceitou_pedido){
-                mensagemIntent("InBanker","Parabéns, voce aceitou o pedido. Ao efetuar o pagamento, peça que seu amigo(a) "+nome1+" confirme o recebimento do valor","Ok");
-            }else{
-                mensagemIntent("InBanker","Voce recusou esse pedido de emprestimo de " + nome1, "Ok");
 
+            //verificamos qual foi o tipo de resposta - aceita pedidou ou confirma quitacao
+            if(resp_quitacao) {
+
+                if (confirmou_recebimento) {
+                    mensagemIntent("InBanker", "Você confirmou o recebimento do valor para quitação do empréstimo solicitado por "+ nome1+". Parabéns, essa transacão foi finalizada com sucesso.", "Ok");
+                } else {
+                    mensagemIntent("InBanker", "Você recusou uma solicitação de quitação da dívida. Entre em contato com "+nome1+" e aguarde por uma nova solicitação.","Ok");
+
+                }
+            }else{
+                if (aceitou_pedido) {
+                    mensagemIntent("InBanker", "Parabéns, você aceitou o pedido. Ao efetuar o pagamento, peça que seu amigo(a) " + nome1 + " confirme o recebimento do valor.", "Ok");
+                } else {
+                    mensagemIntent("InBanker", "Você recusou esse pedido de empréstimo de " + nome1+".", "Ok");
+
+                }
             }
         }else{
-            mensagem("Houve um erro!","Ola, parece que tivemos algum problema de conexao, por favor tente novamente.","Ok");
+            mensagem("Houve um erro!","Olá, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
         }
 
     }

@@ -175,12 +175,13 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 break;*/
             case R.id.nav_sair:
 
-                //aparece aqui para nao dar erro no try
+                //fragment qualquer para nao dar erro do try
                 fragmentClass = InicioFragment.class;
 
                 //faz o logout do usuario logado
                 LoginManager.getInstance().logOut();
 
+                //deleta registro do usuario no sqlite
                 String cpf = cursor.getString(cursor.getColumnIndexOrThrow("cpf"));
                 crud.deletaRegistro(cpf);
 
@@ -192,6 +193,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
                 break;
             default:
+                //colocamos o historico para nao dar erro no inicio quando apertamos em sair
                 fragmentClass = InicioFragment.class;
         }
 

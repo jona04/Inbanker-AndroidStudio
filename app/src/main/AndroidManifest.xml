@@ -70,7 +70,10 @@
             android:name=".VerHistorico"
             android:label="@string/title_activity_historico"
             android:parentActivityName=".NavigationDrawerActivity" />
-        <activity android:name=".VerPagamentoPendente"></activity>
+        <activity
+            android:name=".VerPagamentoPendente"
+            android:label="@string/title_activity_ver_pagamento"
+            android:parentActivityName=".NavigationDrawerActivity" />
     </application>
 
 </manifest>

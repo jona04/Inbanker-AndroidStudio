@@ -1,6 +1,7 @@
 package br.com.appinbanker.inbanker.adapters;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -50,8 +53,13 @@ public class ListaTransacaoAdapter extends RecyclerView.Adapter<ListaTransacaoAd
     public void onBindViewHolder(ListaTransacaoAdapter.MyViewHolder holder, int position) {
 
         Log.i("Script", "Inicio amigos adapter onBindViewHolder ");
-        holder.tv_nome_usuario.setText(mList.get(position).getNome_usu2());
 
+        Context context = holder.imagem.getContext();
+        Uri uri;
+
+        holder.tv_nome_usuario.setText(mList.get(position).getNome_usu2());
+        uri = Uri.parse(mList.get(position).getUrl_img_usu2());
+        Picasso.with(context).load(uri).into(holder.imagem);
     }
 
     @Override
@@ -66,7 +74,7 @@ public class ListaTransacaoAdapter extends RecyclerView.Adapter<ListaTransacaoAd
         public MyViewHolder(View itemView){
             super(itemView);
 
-            imagem = (ImageView) itemView.findViewById(R.id.image);
+            imagem = (ImageView) itemView.findViewById(R.id.icon);
             tv_nome_usuario = (TextView) itemView.findViewById(R.id.tv_nome_usuario);
 
             itemView.setOnClickListener(this);

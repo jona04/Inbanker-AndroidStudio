@@ -60,7 +60,7 @@
                 <TextView android:id="@+id/tv_data_cancelamento" />
             </TableRow>
             <TableRow android:id="@+id/tr_pagamento" android:visibility="gone">
-                <TextView android:text="Data cancelamento:"/>
+                <TextView android:text="Data confirmação quitação:"/>
                 <TextView android:id="@+id/tv_data_pagamento" />
             </TableRow>
             <TableRow android:id="@+id/tr_juros_total" android:visibility="gone">

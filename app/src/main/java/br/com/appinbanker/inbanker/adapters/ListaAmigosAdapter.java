@@ -62,9 +62,9 @@ public class ListaAmigosAdapter extends RecyclerView.Adapter<ListaAmigosAdapter.
         Log.i("Script", "Inicio amigos adapter onBindViewHolder ");
         holder.tv_nome_usuario.setText(mList.get(position).getName());
 
-        //String url = mList.get(position).getPicture().getData().getUrl();
-        //Uri uri = Uri.parse(mList.get(position).getPicture().getData().getUrl());
-        //Picasso.with((c)).load(url).into(imagem);
+        Context context = holder.imagem.getContext();
+        Uri uri = Uri.parse(mList.get(position).getPicture().getData().getUrl());
+        Picasso.with(context).load(uri).into(holder.imagem);
         //holder.imagem.setImageURI(uri);
     }
 
@@ -80,7 +80,7 @@ public class ListaAmigosAdapter extends RecyclerView.Adapter<ListaAmigosAdapter.
         public MyViewHolder(View itemView){
             super(itemView);
 
-            imagem = (ImageView) itemView.findViewById(R.id.image);
+            imagem = (ImageView) itemView.findViewById(R.id.icon);
             tv_nome_usuario = (TextView) itemView.findViewById(R.id.tv_nome_usuario);
 
             itemView.setOnClickListener(this);

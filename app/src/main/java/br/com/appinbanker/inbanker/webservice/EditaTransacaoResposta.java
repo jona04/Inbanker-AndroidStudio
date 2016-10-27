@@ -19,19 +19,19 @@ import br.com.appinbanker.inbanker.entidades.Transacao;
  * Created by jonatassilva on 25/10/16.
  */
 
-public class EditaTransacaoRecusada extends AsyncTask<String, String, String> {
+public class EditaTransacaoResposta extends AsyncTask<String, String, String> {
 
     private Transacao trans;
     private VerPedidoRecebido vpr;
-    private VerPedidoEnviado vpe;
+    //private VerPedidoEnviado vpe;
     private String cpf_user2,cpf_user1;
 
-    public EditaTransacaoRecusada(Transacao trans, String cpf_user1, String cpf_user2, VerPedidoRecebido vpr, VerPedidoEnviado vpe){
+    public EditaTransacaoResposta(Transacao trans, String cpf_user1, String cpf_user2, VerPedidoRecebido vpr){
         this.cpf_user2 = cpf_user2;
         this.cpf_user1 = cpf_user1;
         this.trans = trans;
         this.vpr = vpr;
-        this.vpe = vpe;
+        //this.vpe = vpe;
 
     }
 
@@ -41,7 +41,7 @@ public class EditaTransacaoRecusada extends AsyncTask<String, String, String> {
         try {
 
             //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/edit/"+ usuario.getCpf();
-            final String url = "http://10.0.3.2:8080/appinbanker/rest/usuario/editTransacaoRecusada/" + cpf_user1+"/"+cpf_user2;
+            final String url = "http://10.0.3.2:8080/appinbanker/rest/usuario/editTransacaoResposta/" + cpf_user1+"/"+cpf_user2;
 
             // Set the Content-Type header
             HttpHeaders requestHeaders = new HttpHeaders();
@@ -72,7 +72,7 @@ public class EditaTransacaoRecusada extends AsyncTask<String, String, String> {
 
         if(vpr != null)
             vpr.retornoEditaTransacao(result);
-        else
-            vpe.retornoEditaTransacao(result);
+       // else
+       //     vpe.retornoEditaTransacao(result);
     }
 }

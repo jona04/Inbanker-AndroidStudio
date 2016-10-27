@@ -15,11 +15,11 @@ import java.util.Locale;
 
 public class VerHistorico extends AppCompatActivity {
 
-    private String id,nome2,cpf1,cpf2,data_pedido = null,nome1,valor,vencimento,img1,img2,data_cancelamento;
+    private String id,nome2,cpf1,cpf2,data_pedido = null,nome1,valor,vencimento,img1,img2,data_cancelamento,data_pagamento;
 
     private TextView tv_valor,tv_data_vencimento,tv_data_cancelamento,tv_data_pagamento,tv_juros_mes,tv_valor_total,tv_data_pedido;
 
-    private TableRow tr_cancelado;
+    private TableRow tr_cancelado,tr_pagamento;
 
     private int status_transacao;
 
@@ -45,6 +45,7 @@ public class VerHistorico extends AppCompatActivity {
             img1 = parametro.getString("img1");
             img2 = parametro.getString("img2");
             data_cancelamento = parametro.getString("data_cancelamento");
+            data_pagamento = parametro.getString("data_pagamento");
             status_transacao = Integer.parseInt(parametro.getString("status_transacao"));
             ///statusss
         }else{
@@ -57,6 +58,7 @@ public class VerHistorico extends AppCompatActivity {
         TextView tv = (TextView) findViewById(R.id.nome_amigo);
         tv.setText(tv.getText().toString()+nome2);
 
+        tr_pagamento = (TableRow) findViewById(R.id.tr_pagamento);
         tr_cancelado = (TableRow) findViewById(R.id.tr_cancelado);
         tv_valor = (TextView) findViewById(R.id.tv_valor);
         tv_data_vencimento= (TextView) findViewById(R.id.tv_data_vencimento);
@@ -72,14 +74,17 @@ public class VerHistorico extends AppCompatActivity {
         String juros_mensal_formatado = nf.format (juros_mensal);
         String valor_total_formatado = nf.format (valor_total);*/
 
-        if(data_cancelamento != ""){
+        if(data_cancelamento != "" && data_cancelamento != null)
             tr_cancelado.setVisibility(View.VISIBLE);
-        }
+
+        if(data_pagamento != "" && data_cancelamento != null)
+            tr_pagamento.setVisibility(View.VISIBLE);
 
         tv_valor.setText(valor);
         tv_data_vencimento.setText(vencimento);
         tv_data_cancelamento.setText(data_cancelamento);
         tv_data_pedido.setText(data_pedido);
+        tv_data_pagamento.setText(data_pagamento);
         //tv_valor_total.setText(valor_total_formatado);
 
     }

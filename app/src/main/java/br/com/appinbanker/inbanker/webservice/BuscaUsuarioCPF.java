@@ -8,6 +8,7 @@ import org.springframework.web.client.RestTemplate;
 
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.fragments_navigation.HistoricoFragment;
+import br.com.appinbanker.inbanker.fragments_navigation.InicioFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PagamentosPendentesFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedidosEnviadosFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedidosRecebidosFragment;
@@ -22,15 +23,18 @@ public class BuscaUsuarioCPF extends AsyncTask<String,String,Usuario> {
     private PedidosRecebidosFragment prf;
     private HistoricoFragment hf;
     private PagamentosPendentesFragment pf;
+    private InicioFragment inif;
+
     private String cpf;
 
-    public BuscaUsuarioCPF(String cpf, PedidosEnviadosFragment pef, PedidosRecebidosFragment prf, HistoricoFragment hf, PagamentosPendentesFragment pf){
+    public BuscaUsuarioCPF(String cpf, PedidosEnviadosFragment pef, PedidosRecebidosFragment prf, HistoricoFragment hf, PagamentosPendentesFragment pf, InicioFragment inif){
 
         this.prf = prf;
         this.pef = pef;
         this.cpf = cpf;
         this.hf = hf;
         this.pf = pf;
+        this.inif = inif;
 
     }
 
@@ -47,6 +51,8 @@ public class BuscaUsuarioCPF extends AsyncTask<String,String,Usuario> {
                 url = "http://10.0.3.2:8080/appinbanker/rest/usuario/findCpfTransRec/"+cpf;
             else if (hf != null)
                 url = "http://10.0.3.2:8080/appinbanker/rest/usuario/findCpfTransHistorico/"+cpf;
+            else if (inif != null)
+                url = "http://10.0.3.2:8080/appinbanker/rest/usuario/findUsuarioCpf/"+cpf;
 
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
@@ -71,6 +77,8 @@ public class BuscaUsuarioCPF extends AsyncTask<String,String,Usuario> {
             hf.retornoBuscaUsuario(result);
         else if (pf != null)
             pf.retornoBuscaUsuario(result);
+        else if (inif != null)
+            inif.retornoBuscaUsuario(result);
     }
 
 }

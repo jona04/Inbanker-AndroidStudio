@@ -87,14 +87,14 @@ public class VerPagamentoPendente extends AppCompatActivity {
 
         switch (status_transacao){
             case Transacao.CONFIRMADO_RECEBIMENTO:
-                msg_ver_pedido.setText("Quando voce realizar a quitaçao da divida, aperte no botao abaixo para dar prosseguimento a transaçao.");
+                msg_ver_pedido.setText("Quando você realizar a quitação da dívida, aperte no botão abaixo para dar prosseguimento a transação.");
                 break;
             case Transacao.QUITACAO_SOLICITADA:
                 msg_ver_pedido.setText("Voce esta aguardando "+nome2+" responder sua solicitaçao de quitaçao da divida.");
                 ll_confirma_quitacao.setVisibility(View.GONE);
                 break;
             case Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA:
-                msg_ver_pedido.setText(nome2+" respondeu negativamente ao seu pedido de quitaçao da divida. Entre em contato com o mesmo e solicite novamente a quitaçao");
+                msg_ver_pedido.setText(nome2+" respondeu negativamente ao seu pedido de quitação da divida. Entre em contato com o mesmo e solicite novamente a quitação.");
                 ll_confirma_quitacao.setVisibility(View.VISIBLE);
                 break;
 
@@ -128,7 +128,7 @@ public class VerPagamentoPendente extends AppCompatActivity {
         tv_data_pagamento.setText(vencimento);
         tv_juros_mes.setText(juros_mensal_formatado);
         tv_valor_total.setText(valor_total_formatado);
-        tv_dias_corridos.setText(String.valueOf(tv_dias_corridos));
+        tv_dias_corridos.setText(String.valueOf(dias_corridos));
 
         btn_confirma_quitacao.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,16 +150,16 @@ public class VerPagamentoPendente extends AppCompatActivity {
 
     public void retornoEditaTransacao(String result){
 
-        Log.i("webservice","resultado edita transao = "+result);
+        //Log.i("webservice","resultado edita transao = "+result);
 
         progress_bar_btn.setVisibility(View.GONE);
         btn_confirma_quitacao.setEnabled(true);
 
         if(result.equals("sucesso_edit")){
-            mensagemIntent("InBanker","Voce realizou a solicitação de quitação do emprestimo. Peça que seu amigo(a) "+nome2+" confirme o recebimento do valor.", "Ok");
+            mensagemIntent("InBanker","Você realizou a solicitação de quitação do emprestimo. Peça que seu amigo(a) "+nome2+" confirme o recebimento do valor.", "Ok");
 
         }else{
-            mensagem("Houve um erro!","Ola, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
+            mensagem("Houve um erro!","Olá, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
         }
 
     }

@@ -69,7 +69,7 @@ public class PagamentosPendentesFragment extends Fragment implements RecyclerVie
         cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
 
         //busca pedidos enviados
-        new BuscaUsuarioCPF(cpf,null,null,null,PagamentosPendentesFragment.this).execute();
+        new BuscaUsuarioCPF(cpf,null,null,null,PagamentosPendentesFragment.this,null).execute();
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_pagamentos);
 

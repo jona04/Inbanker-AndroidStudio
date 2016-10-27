@@ -114,10 +114,10 @@ public class VerPedidoEnviado extends AppCompatActivity {
 
         switch (status_transacao){
             case Transacao.AGUARDANDO_RESPOSTA:
-                msg_ver_pedido.setText("Voce esta aguardando o seu pedido de emprestimo ser respondido.");
+                msg_ver_pedido.setText("Você esta aguardando o seu pedido de empréstimo ser respondido.");
                 break;
             case Transacao.PEDIDO_ACEITO:
-                msg_ver_pedido.setText("Seu pedido de emprestimo foi aceito! Quando o valor solicitado estiver em suas maos, voce deve confirmar o recebimento do mesmo no botao abaixo, para dar continuidade a transaçao.");
+                msg_ver_pedido.setText("Seu pedido de empréstimo foi aceito! Quando o valor solicitado estiver em suas mãos, você deve confirmar o recebimento do mesmo no botão abaixo, para dar continuidade a transação.");
                 ll_confirma_recebimento.setVisibility(View.VISIBLE);
                 break;
             /*case CONFIRMADO_RECEBIMENTO: //esse pedido confirmado deve estar em pagamentos pendentes
@@ -169,7 +169,7 @@ public class VerPedidoEnviado extends AppCompatActivity {
             mensagemIntent("InBanker","Parabéns, você confirmou o recebimento do valor solicitado. Ao efetuar o pagamento de quitação, peça que seu amigo(a) " + nome2 + " confirme o recebimento do valor.", "Ok");
 
         }else{
-            mensagem("Houve um erro!","Ola, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
+            mensagem("Houve um erro!","Olá, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
         }
 
     }

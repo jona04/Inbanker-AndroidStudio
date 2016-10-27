@@ -1,6 +1,7 @@
 package br.com.appinbanker.inbanker.adapters;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,6 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -27,8 +30,12 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
     private RecyclerViewOnClickListenerHack mRecyclerViewOnClickListenerHack;
     private Context c;
 
-    public ListaHistoricoAdapter(Context c, List<Transacao> l){
+    //utilizado especialmente no historico para sabermos qual usuario mostrar na listagem
+    private String meu_cpf;
+
+    public ListaHistoricoAdapter(Context c, List<Transacao> l,String meu_cpf){
         c = c;
+        meu_cpf = meu_cpf;
         mList = l;
         mLayoutInflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -56,12 +63,20 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
     @Override
     public void onBindViewHolder(ListaHistoricoAdapter.MyViewHolder holder, int position) {
         Log.i("Script", "Inicio historico adapter onBindViewHolder ");
-        holder.tv_nome_usuario.setText(mList.get(position).getNome_usu1());
 
-        //String url = mList.get(position).getPicture().getData().getUrl();
-        //Uri uri = Uri.parse(mList.get(position).getPicture().getData().getUrl());
-        //Picasso.with((c)).load(url).into(imagem);
-        //holder.imagem.setImageURI(uri);
+        Context context = holder.imagem.getContext();
+        Uri uri;
+
+        if(meu_cpf == mList.get(position).getUsu1()) {
+            holder.tv_nome_usuario.setText(mList.get(position).getNome_usu2());
+            uri = Uri.parse(mList.get(position).getUrl_img_usu2());
+            Picasso.with(context).load(uri).into(holder.imagem);
+        }else{
+            holder.tv_nome_usuario.setText(mList.get(position).getNome_usu2());
+            uri = Uri.parse(mList.get(position).getUrl_img_usu2());
+            Picasso.with(context).load(uri).into(holder.imagem);
+        }
+
     }
 
     @Override
@@ -76,7 +91,7 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
         public MyViewHolder(View itemView){
             super(itemView);
 
-            imagem = (ImageView) itemView.findViewById(R.id.image);
+            imagem = (ImageView) itemView.findViewById(R.id.icon);
             tv_nome_usuario = (TextView) itemView.findViewById(R.id.tv_nome_usuario);
 
             itemView.setOnClickListener(this);
