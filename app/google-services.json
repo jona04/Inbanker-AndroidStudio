@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "198802367921",
+    "firebase_url": "https://inbanker-3f061.firebaseio.com",
+    "project_id": "inbanker-3f061",
+    "storage_bucket": "inbanker-3f061.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:198802367921:android:12b4b160eedb0716",
+        "android_client_info": {
+          "package_name": "br.com.appinbanker.inbanker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "198802367921-felpiele4qc9slfsm1logcrkndeu8fkg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxTXbBUdnJcpX5aqY-JRG1aWFU5A5Bfk4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
