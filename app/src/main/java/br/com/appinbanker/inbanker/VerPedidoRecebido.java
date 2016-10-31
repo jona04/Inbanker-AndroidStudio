@@ -120,7 +120,7 @@ public class VerPedidoRecebido extends AppCompatActivity {
         double juros_mensal = 0;
         switch (status_transacao){
             case Transacao.AGUARDANDO_RESPOSTA:
-                juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias)));
+                juros_mensal = Double.parseDouble(valor) * (0.00066333 * dias);
                 msg_ver_pedido.setText(nome1+" esta lhe pedindo um empréstimo. Para aceitar ou recusar utilize os botões abaixo.");
                 break;
             case Transacao.PEDIDO_ACEITO:
@@ -129,20 +129,20 @@ public class VerPedidoRecebido extends AppCompatActivity {
                 break;
             case Transacao.CONFIRMADO_RECEBIMENTO:
                 ll_resposta_pedido.setVisibility(View.GONE);
-                juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias_corridos)));
+                juros_mensal = Double.parseDouble(valor) * (0.00066333 * dias_corridos);
                 tr_dias_corridos.setVisibility(View.VISIBLE);
                 msg_ver_pedido.setText("Você esta aguardando que seu amigo(a) " + nome1 + " solicite a confirmação de quitação do empréstimo.");
                 break;
             case Transacao.QUITACAO_SOLICITADA:
                 ll_resposta_pedido.setVisibility(View.GONE);
-                juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias_corridos)));
+                juros_mensal = Double.parseDouble(valor) * (0.00066333 * dias_corridos);
                 tr_dias_corridos.setVisibility(View.VISIBLE);
                 msg_ver_pedido.setText("Seu amigo(a) "+ nome1 +" esta solicitando que você confirme a quitação do valor que ele solicitou em empréstimo.");
                 ll_confirma_recebimento_valor_emprestado.setVisibility(View.VISIBLE);
                 break;
             case Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA:
                 ll_resposta_pedido.setVisibility(View.GONE);
-                juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias_corridos)));
+                juros_mensal = Double.parseDouble(valor) * (0.00066333 * dias_corridos);
                 tr_dias_corridos.setVisibility(View.VISIBLE);
                 msg_ver_pedido.setText("Você já recusou uma confirmação de quitação dessa dívida com "+ nome1+". Agora está aguardando por outra solicitação de quitação.");
                 break;

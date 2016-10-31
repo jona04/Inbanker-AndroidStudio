@@ -41,10 +41,13 @@ public class EditaTransacao extends AsyncTask<String, String, String> {
     @Override
     protected String doInBackground(String... params) {
 
+        //String host = "http://10.0.3.2:8080";
+        String host = "http://45.55.217.160:8081";
+
         try {
 
             //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/edit/"+ usuario.getCpf();
-            final String url = "http://10.0.3.2:8080/appinbanker/rest/usuario/editTransacao/" + cpf_user1+"/"+cpf_user2;
+            final String url = host+"/appinbanker/rest/usuario/editTransacao/" + cpf_user1+"/"+cpf_user2;
 
             // Set the Content-Type header
             HttpHeaders requestHeaders = new HttpHeaders();

@@ -114,7 +114,7 @@ public class VerPagamentoPendente extends AppCompatActivity {
         //     dias_corridos = dias_corridos -1;
 
         DecimalFormat decimal = new DecimalFormat( "0.00" );
-        double juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias_corridos)));
+        double juros_mensal = Double.parseDouble(valor) * (0.00066333 * dias_corridos);
 
         double valor_total = juros_mensal +  Double.parseDouble(valor);
 

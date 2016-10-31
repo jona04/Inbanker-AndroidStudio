@@ -34,8 +34,8 @@ public class AddUsuario extends AsyncTask<String, String, String> {
 
         try {
 
-            //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/add";
-            final String url = "http://10.0.3.2:8080/appinbanker/rest/usuario/add";
+            final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/add";
+            //final String url = "http://10.0.3.2:8080/appinbanker/rest/usuario/add";
 
             // Set the Content-Type header
             HttpHeaders requestHeaders = new HttpHeaders();

@@ -3,6 +3,7 @@ package br.com.appinbanker.inbanker;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TableRow;
@@ -68,19 +69,22 @@ public class VerHistorico extends AppCompatActivity {
         tv_juros_mes= (TextView) findViewById(R.id.tv_juros_mes);
         tv_valor_total= (TextView) findViewById(R.id.tv_valor_total);
 
-        /*Locale ptBr = new Locale("pt", "BR");
+        Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
         String valor_formatado = nf.format (Double.parseDouble(valor));
-        String juros_mensal_formatado = nf.format (juros_mensal);
-        String valor_total_formatado = nf.format (valor_total);*/
+        //String juros_mensal_formatado = nf.format (juros_mensal);
+        //String valor_total_formatado = nf.format (valor_total);
 
-        if(data_cancelamento != "" && data_cancelamento != null)
+        //se o tamanho da variavel data for maior que 5 é por que existe uma data registrada
+        if(data_cancelamento.length() > 5)
             tr_cancelado.setVisibility(View.VISIBLE);
 
-        if(data_pagamento != "" && data_cancelamento != null)
+        if(data_pagamento.length() > 5) {
             tr_pagamento.setVisibility(View.VISIBLE);
+            //Log.i("webservice","data pagamento"+data_pagamento);
+        }
 
-        tv_valor.setText(valor);
+        tv_valor.setText(valor_formatado);
         tv_data_vencimento.setText(vencimento);
         tv_data_cancelamento.setText(data_cancelamento);
         tv_data_pedido.setText(data_pedido);

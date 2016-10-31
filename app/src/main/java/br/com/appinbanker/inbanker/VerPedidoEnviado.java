@@ -110,7 +110,7 @@ public class VerPedidoEnviado extends AppCompatActivity {
 
         DecimalFormat decimal = new DecimalFormat( "0.00" );
 
-        double juros_mensal = Double.parseDouble(decimal.format(Double.parseDouble(valor) * (0.00066333 * dias)));
+        double juros_mensal = Double.parseDouble(valor) * (0.00066333 * dias);
 
         switch (status_transacao){
             case Transacao.AGUARDANDO_RESPOSTA:

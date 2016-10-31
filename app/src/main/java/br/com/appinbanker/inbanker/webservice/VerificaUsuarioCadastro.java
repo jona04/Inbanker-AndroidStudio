@@ -32,9 +32,12 @@ public class VerificaUsuarioCadastro extends AsyncTask<String,String,String> {
     @Override
     protected String doInBackground(String... params) {
         String usu = null;
+
+        //String host = "http://10.0.3.2:8080";
+        String host = "http://45.55.217.160:8081";
         try {
             //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/findEmail/"+email;
-            final String url = "http://10.0.3.2:8080/appinbanker/rest/usuario/verificaUsuarioCadastro/"+cpf+"/"+email;
+            final String url = host+"/appinbanker/rest/usuario/verificaUsuarioCadastro/"+cpf+"/"+email;
 
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());

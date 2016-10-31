@@ -67,7 +67,7 @@ public class SimuladorResultado extends AppCompatActivity {
 
         DecimalFormat decimal = new DecimalFormat( "0.00" );
 
-        double juros_mensal = Double.parseDouble(decimal.format(valor * (0.00066333 * dias)));
+        double juros_mensal = valor * (0.00066333 * dias);
         //double taxa_fixa = Double.parseDouble(decimal.format(valor * 0.0099));
 
         double valor_total = juros_mensal +  valor;

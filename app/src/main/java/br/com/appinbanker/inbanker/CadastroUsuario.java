@@ -1,6 +1,7 @@
 package br.com.appinbanker.inbanker;
 
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ public class CadastroUsuario extends ActionBarActivity {
     EditText et_senha;
     EditText et_senha_novamente;
     Button btn_cadastro;
+    FloatingActionButton fab_cpf;
 
     ProgressBar progress_bar_cadastro;
     @Override
@@ -45,7 +47,16 @@ public class CadastroUsuario extends ActionBarActivity {
         et_senha = (EditText) findViewById(R.id.et_senha);
         et_senha_novamente = (EditText) findViewById(R.id.et_senha_novamente);
 
+        fab_cpf = (FloatingActionButton) findViewById(R.id.fab_cpf);
         btn_cadastro = (Button) findViewById(R.id.btn_cadastrar_usuario);
+
+        fab_cpf.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mensagem("Por que precisam do meu CPF?","Seu CPF é necessario para atendermos as normas Brasileiras. Fique tranquilo, seus dados estão protegidos e ninguém tem acesso a eles." ,"OK");
+            }
+        });
+
         btn_cadastro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

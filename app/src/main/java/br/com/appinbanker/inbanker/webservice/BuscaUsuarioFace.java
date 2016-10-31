@@ -30,9 +30,11 @@ public class BuscaUsuarioFace extends AsyncTask<String,String,Usuario> {
     @Override
     protected Usuario doInBackground(String... params) {
         Usuario usu = null;
+        //String host = "http://10.0.3.2:8080";
+        String host = "http://45.55.217.160:8081";
         try {
             //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/findEmail/"+email;
-            final String url = "http://10.0.3.2:8080/appinbanker/rest/usuario/findFace/"+id_face;
+            final String url = host+"/appinbanker/rest/usuario/findFace/"+id_face;
 
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
