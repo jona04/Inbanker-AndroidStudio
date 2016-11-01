@@ -28,6 +28,12 @@ public class Usuario {
     @JsonProperty("url_face")
     private String urlImgFace;
 
+    @JsonProperty("token_gcm")
+    private String token_gcm;
+
+    @JsonProperty("device_id")
+    private String device_id;
+
     @JsonProperty("transacoes")
     private List<Transacao> transacao;
 
@@ -51,9 +57,9 @@ public class Usuario {
         this.transacoes_enviadas = transacoes_enviadas;
     }
 
+    public void setDevice_id(String device_id){this.device_id = device_id;}
+    public void setToken_gcm(String token_gcm){this.token_gcm = token_gcm;}
     public void setTransacao(List<Transacao> trans){this.transacao = trans;}
-    public List<Transacao> getTransacao(){return this.transacao;}
-
     public void setNome(String nome){
         this.nome = nome;
     }
@@ -76,7 +82,9 @@ public class Usuario {
         this.urlImgFace = url_img;
     }
 
-
+    public String getDevice_id(){return this.device_id;}
+    public String getToken_gcm(){return this.token_gcm;}
+    public List<Transacao> getTransacao(){return this.transacao;}
     public String getNome(){
         return this.nome;
     }

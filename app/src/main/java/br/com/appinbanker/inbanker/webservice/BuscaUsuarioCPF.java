@@ -42,19 +42,18 @@ public class BuscaUsuarioCPF extends AsyncTask<String,String,Usuario> {
     protected Usuario doInBackground(String... params) {
         Usuario usu = null;
         String url = "";
-        //String host = "http://10.0.3.2:8080";
-        String host = "http://45.55.217.160:8081";
+        String host = Host.host;
         try {
             //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/findEmail/"+email;
             //verificamos de onde esta sendo chamado a api, para utilizamos a url especifico
             if(pef != null || pf != null)
-                url = host+"/appinbanker/rest/usuario/findCpfTransEnv/"+cpf;
+                url = host+"appinbanker/rest/usuario/findCpfTransEnv/"+cpf;
             else if (prf != null)
-                url = host+"/appinbanker/rest/usuario/findCpfTransRec/"+cpf;
+                url = host+"appinbanker/rest/usuario/findCpfTransRec/"+cpf;
             else if (hf != null)
-                url = host+"/appinbanker/rest/usuario/findCpfTransHistorico/"+cpf;
+                url = host+"appinbanker/rest/usuario/findCpfTransHistorico/"+cpf;
             else if (inif != null)
-                url = host+"/appinbanker/rest/usuario/findUsuarioCpf/"+cpf;
+                url = host+"appinbanker/rest/usuario/findUsuarioCpf/"+cpf;
 
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());

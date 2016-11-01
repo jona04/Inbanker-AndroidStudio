@@ -30,6 +30,8 @@ import br.com.appinbanker.inbanker.fragments_navigation.PedidosEnviadosFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedidosRecebidosFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedirEmprestimoFragment;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.webservice.AtualizaTokenGcm;
 
 public class NavigationDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -42,7 +44,6 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
     BancoControllerUsuario crud;
     Cursor cursor;
-    Usuario usu;
 
     int menu = MENU_INICIO;
 
@@ -59,7 +60,6 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
         crud = new BancoControllerUsuario(getBaseContext());
         cursor = crud.carregaDados();
-        usu = new Usuario();
 
         Intent it = getIntent();
         Bundle parametro = it.getExtras();
@@ -184,6 +184,15 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 //deleta registro do usuario no sqlite
                 String cpf = cursor.getString(cursor.getColumnIndexOrThrow("cpf"));
                 crud.deletaRegistro(cpf);
+
+                //deleta o token do usuario do banco de dados
+                String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,NavigationDrawerActivity.this);
+                //String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,NavigationDrawerActivity.this);
+                Usuario usu = new Usuario();
+                usu.setDevice_id(device_id);
+                usu.setToken_gcm("");
+                usu.setCpf(cpf);
+                new AtualizaTokenGcm(usu).execute();
 
                 Intent it = new Intent(NavigationDrawerActivity.this, Inicio.class);
                 startActivity(it);

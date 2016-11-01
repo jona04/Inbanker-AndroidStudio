@@ -13,6 +13,8 @@ import com.google.android.gms.iid.InstanceID;
 
 import java.io.IOException;
 
+import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+
 /**
  * Created by Jonatas on 31/10/2016.
  */
@@ -63,6 +65,9 @@ public class RegistrationIntentService extends IntentService {
         String deviceId = getDeviceId(this);
 
         Log.i("registrationId","device id ="+deviceId);
+
+        AllSharedPreferences.putPreferences(AllSharedPreferences.DEVICE_ID,deviceId,RegistrationIntentService.this);
+        AllSharedPreferences.putPreferences(AllSharedPreferences.TOKEN_GCM,token,RegistrationIntentService.this);
 
         //HttpConnectionUtil.sendRegistrationIdToBackend(token,deviceId,this);
     }

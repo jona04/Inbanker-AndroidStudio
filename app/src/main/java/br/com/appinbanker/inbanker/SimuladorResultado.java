@@ -30,7 +30,9 @@ import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.webservice.AddTransacao;
+import br.com.appinbanker.inbanker.webservice.AtualizaTokenGcm;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
+import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 
 public class SimuladorResultado extends AppCompatActivity {
 
@@ -44,6 +46,8 @@ public class SimuladorResultado extends AppCompatActivity {
     Transacao trans;
     ProgressBar progress_bar_simulador;
     Button btn_fazer_pedido;
+
+    String token_user2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,6 +158,10 @@ public class SimuladorResultado extends AppCompatActivity {
     public void retornoBuscaUsuario(Usuario usu){
 
         if(usu != null) {
+
+            //pegamos o token do usuario para usar na notificação
+            token_user2 = usu.getToken_gcm();
+
             //data do pedido
             DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
             DateTime hoje = new DateTime();
@@ -170,6 +178,7 @@ public class SimuladorResultado extends AppCompatActivity {
             trans.setNome_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME_FACE)));
             trans.setUrl_img_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE)));
             trans.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
+            //enviamos null para criamos um id aleatorio
             trans.setId_trans(null);
 
             new AddTransacao(trans,SimuladorResultado.this).execute();
@@ -192,8 +201,19 @@ public class SimuladorResultado extends AppCompatActivity {
         progress_bar_simulador.setVisibility(View.GONE);
         btn_fazer_pedido.setEnabled(true);
 
+        if(result.equals("sucesso_edit")){
 
-        mensagemIntent("InBanker", "Pedido enviado, aguarde a resposta de seu amigo(a) "+nome, "Ok");
+
+            //envia notificação
+            new EnviaNotificacao(trans,token_user2).execute();
+
+            //aletar e redirecionamento para tela inicial
+            mensagemIntent("InBanker", "Pedido enviado, aguarde a resposta de seu amigo(a) "+nome, "Ok");
+        }else{
+            mensagem("Houve um erro!","Parece que houve um erro de conexão, por favor tente novamente.","Ok");
+        }
+
+
     }
 
     public void mensagemIntent(String titulo,String corpo,String botao)

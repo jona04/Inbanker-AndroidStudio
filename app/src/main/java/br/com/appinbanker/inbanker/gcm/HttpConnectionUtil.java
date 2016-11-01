@@ -24,6 +24,10 @@ import cz.msebera.android.httpclient.util.EntityUtils;
 
 public class HttpConnectionUtil {
     public static String sendRegistrationIdToBackend(String regId,String deviceId,Context context){
+
+        //final String url = "http://10.0.3.2:8080/appinbanker/rest/usuario/addTransacao/" + trans.getUsu1()+"/"+trans.getUsu2();
+        //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/addTransacao/";
+
         HttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost("http://www.axei.net.br/WebService/gcm_ids.php");
         //HttpPost httpPost = new HttpPost("http://127.0.0.1/axeithe/WebService/TrabalhoRPC.php");

@@ -1,6 +1,7 @@
 package br.com.appinbanker.inbanker;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
@@ -13,6 +14,8 @@ import android.widget.ProgressBar;
 
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.util.CheckConection;
 import br.com.appinbanker.inbanker.webservice.AddUsuario;
 import br.com.appinbanker.inbanker.webservice.VerificaUsuarioCadastro;
 
@@ -62,20 +65,24 @@ public class CadastroUsuario extends ActionBarActivity {
             public void onClick(View v) {
                 Log.i("Script", "Clicou em cadastrar");
 
-                if(isValid()){
+                if(!CheckConection.temConexao(CadastroUsuario.this)){
+                    mensagem("Sem conexao!","Olá, para realizar o cadastro você precisa estar conectado em alguma rede.","Ok");
+                }else {
+                    if (isValid()) {
 
-                    if(et_senha.getText().toString().equals(et_senha_novamente.getText().toString())){
+                        if (et_senha.getText().toString().equals(et_senha_novamente.getText().toString())) {
 
-                        btn_cadastro.setEnabled(false);
-                        progress_bar_cadastro.setVisibility(View.GONE);
+                            btn_cadastro.setEnabled(false);
+                            progress_bar_cadastro.setVisibility(View.VISIBLE);
 
-                        new VerificaUsuarioCadastro(et_email.getText().toString(),et_cpf.getText().toString(),CadastroUsuario.this,CadastroUsuario.this).execute();
+                            new VerificaUsuarioCadastro(et_email.getText().toString(), et_cpf.getText().toString(), CadastroUsuario.this, CadastroUsuario.this).execute();
 
-                    }else{
-                        mensagem("Houve um erro!","Olá, as senhas digitadas não são iguais. Favor tente novamente!","Ok");
+                        } else {
+                            mensagem("Houve um erro!", "Olá, as senhas digitadas não são iguais. Favor tente novamente!", "Ok");
+                        }
+                    } else {
+                        mensagem("Houve um erro!", "Olá, existem campos não preenchidos. Favor preencha-os e tente novamente!", "OK");
                     }
-                }else{
-                    mensagem("Houve um erro!","Olá, existem campos não preenchidos. Favor preencha-os e tente novamente!","OK");
                 }
             }
 
@@ -88,6 +95,12 @@ public class CadastroUsuario extends ActionBarActivity {
     public void retornoTaskVerifica(String result){
 
         if(result == null){
+
+            String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,CadastroUsuario.this);
+            String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,CadastroUsuario.this);
+
+            usu.setToken_gcm(token);
+            usu.setDevice_id(device_id);
             usu.setCpf(et_cpf.getText().toString());
             usu.setEmail(et_email.getText().toString());
             usu.setNome(et_nome.getText().toString());

@@ -11,47 +11,34 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import br.com.appinbanker.inbanker.VerPagamentoPendente;
-import br.com.appinbanker.inbanker.VerPedidoEnviado;
-import br.com.appinbanker.inbanker.VerPedidoRecebido;
-import br.com.appinbanker.inbanker.entidades.Transacao;
+import br.com.appinbanker.inbanker.entidades.Usuario;
 
 /**
- * Created by jonatassilva on 25/10/16.
+ * Created by Jonatas on 01/11/2016.
  */
 
-public class EditaTransacao extends AsyncTask<String, String, String> {
+public class AtualizaTokenGcm extends AsyncTask<String, String, String> {
 
-    private Transacao trans;
-    private VerPedidoRecebido vpr;
-    private VerPedidoEnviado vpe;
-    private VerPagamentoPendente vpp;
-    private String cpf_user2,cpf_user1;
+    private Usuario usuario;
+    //private Te pef;
 
-    public EditaTransacao(Transacao trans, String cpf_user1, String cpf_user2, VerPedidoRecebido vpr, VerPedidoEnviado vpe, VerPagamentoPendente vpp){
-        this.cpf_user2 = cpf_user2;
-        this.cpf_user1 = cpf_user1;
-        this.trans = trans;
-        this.vpr = vpr;
-        this.vpe = vpe;
-        this.vpp = vpp;
+    public AtualizaTokenGcm(Usuario usu){
+        this.usuario = usu;
+        //this.pef = pef;
 
     }
 
     @Override
     protected String doInBackground(String... params) {
 
-        String host = Host.host;
-
         try {
 
-            //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/edit/"+ usuario.getCpf();
-            final String url = host+"appinbanker/rest/usuario/editTransacao/" + cpf_user1+"/"+cpf_user2;
+            final String url = Host.host+"appinbanker/rest/usuario/updateTokenGcm/" + usuario.getCpf();
 
             // Set the Content-Type header
             HttpHeaders requestHeaders = new HttpHeaders();
             requestHeaders.setContentType(new MediaType("application", "json"));
-            HttpEntity<Transacao> requestEntity = new HttpEntity<Transacao>(trans, requestHeaders);
+            HttpEntity<Usuario> requestEntity = new HttpEntity<Usuario>(usuario, requestHeaders);
 
             // Create a new RestTemplate instance
             RestTemplate restTemplate = new RestTemplate();
@@ -73,13 +60,9 @@ public class EditaTransacao extends AsyncTask<String, String, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        Log.i("Script","onPostExecute result add trans ="+result);
+        Log.i("Script","onPostExecute result atualiza token ="+result);
 
-        if(vpr != null)
-            vpr.retornoEditaTransacao(result);
-        else if(vpe != null)
-            vpe.retornoEditaTransacao(result);
-        else if(vpp != null)
-            vpp.retornoEditaTransacao(result);
+       // pef.retornoAtualizaTokenGcm(result);
+
     }
 }

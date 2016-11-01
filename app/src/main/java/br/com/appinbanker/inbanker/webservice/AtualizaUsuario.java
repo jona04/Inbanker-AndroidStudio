@@ -49,8 +49,7 @@ public class AtualizaUsuario extends AsyncTask<String, String, String> {
 
         try {
 
-            final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/edit/"+ usuario.getCpf();
-            //final String url = "http://10.0.3.2:8080/appinbanker/rest/usuario/edit/" + usuario.getCpf();
+            final String url = Host.host+"appinbanker/rest/usuario/edit/"+ usuario.getCpf();
 
             Log.i("WebService", "url atualiza = " + url);
             Log.i("webservice", "id name e senha" + usuario.getIdFace() + " - " + usuario.getNomeFace() + " - " + usuario.getUrlImgFace());

@@ -1,5 +1,6 @@
 package br.com.appinbanker.inbanker.webservice;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -9,41 +10,33 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import br.com.appinbanker.inbanker.VerPedidoEnviado;
-import br.com.appinbanker.inbanker.VerPedidoRecebido;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 
+
 /**
- * Created by jonatassilva on 25/10/16.
+ * Created by Jonatas on 01/11/2016.
  */
 
-public class EditaTransacaoResposta extends AsyncTask<String, String, String> {
+public class EnviaNotificacao extends AsyncTask<String,String,String> {
 
+    private String token;
     private Transacao trans;
-    private VerPedidoRecebido vpr;
-    //private VerPedidoEnviado vpe;
-    private String cpf_user2,cpf_user1;
 
-    public EditaTransacaoResposta(Transacao trans, String cpf_user1, String cpf_user2, VerPedidoRecebido vpr){
-        this.cpf_user2 = cpf_user2;
-        this.cpf_user1 = cpf_user1;
+    public EnviaNotificacao(Transacao trans, String token){
+        this.token = token;
         this.trans = trans;
-        this.vpr = vpr;
-        //this.vpe = vpe;
 
     }
-
     @Override
     protected String doInBackground(String... params) {
-
         String host = Host.host;
-
+        String result = null;
         try {
-
-            //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/edit/"+ usuario.getCpf();
-            final String url = host+"appinbanker/rest/usuario/editTransacaoResposta/" + cpf_user1+"/"+cpf_user2;
+            //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/findEmail/"+email;
+            final String url = host+"appinbanker/gcm/notification/sendNotification/"+token;
 
             // Set the Content-Type header
             HttpHeaders requestHeaders = new HttpHeaders();
@@ -55,26 +48,23 @@ public class EditaTransacaoResposta extends AsyncTask<String, String, String> {
             restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
             // Make the HTTP POST request, marshaling the request to JSON, and the response to a String
-            ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-            String result = responseEntity.getBody();
+            ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+            result = responseEntity.getBody();
 
             requestHeaders.set("Connection", "Close");
 
-            return result;
         } catch (Exception e) {
-            Log.e("WebService", e.getMessage(), e);
+            Log.e("MainActivity", e.getMessage(), e);
         }
-
-        return null;
+        return result;
     }
-
     @Override
     protected void onPostExecute(String result) {
-        Log.i("Script","onPostExecute result add trans ="+result);
 
-        if(vpr != null)
-            vpr.retornoEditaTransacao(result);
-       // else
-       //     vpe.retornoEditaTransacao(result);
+        Log.i("Script","result notification = "+result);
+
+        //tl.retornoTask(result);
+
     }
+
 }

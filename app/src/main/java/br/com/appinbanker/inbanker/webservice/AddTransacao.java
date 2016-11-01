@@ -36,8 +36,7 @@ public class AddTransacao extends AsyncTask<String, String, String> {
 
         try {
 
-            //final String url = "http://10.0.3.2:8080/appinbanker/rest/usuario/addTransacao/" + trans.getUsu1()+"/"+trans.getUsu2();
-            final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/addTransacao/" + trans.getUsu1()+"/"+trans.getUsu2();
+            final String url = Host.host+"appinbanker/rest/usuario/addTransacao/" + trans.getUsu1()+"/"+trans.getUsu2();
 
             // Set the Content-Type header
             HttpHeaders requestHeaders = new HttpHeaders();

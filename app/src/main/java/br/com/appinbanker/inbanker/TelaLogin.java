@@ -12,6 +12,8 @@ import android.widget.ProgressBar;
 
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.webservice.AtualizaTokenGcm;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioLogin;
 
 public class TelaLogin extends ActionBarActivity {
@@ -42,7 +44,7 @@ public class TelaLogin extends ActionBarActivity {
 
                 if(et_email.getText().toString().equals("") || et_senha.getText().toString().equals(""))
                 {
-                    mensagemCamposVazio();
+                    mensagem("Houve um erro!","Olá, existem campos não preenchidos. Favor preencha todos e tente novamente!","Ok");
                 }else{
 
                     pg_login.setVisibility(View.VISIBLE);
@@ -62,6 +64,21 @@ public class TelaLogin extends ActionBarActivity {
         if(usu != null){
             if(usu.getSenha().equals(et_senha.getText().toString())) {
 
+                String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,TelaLogin.this);
+                String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,TelaLogin.this);
+
+
+                if(usu.getToken_gcm()!=null){
+                    if(!usu.getToken_gcm().equals(token)){
+
+                        usu.setDevice_id(device_id);
+                        usu.setToken_gcm(token);
+
+                        //atualizamos do token
+                        new AtualizaTokenGcm(usu).execute();
+                    }
+                }
+
                 BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
                 //ordem de parametros - nome,email,cpf,senha,id_face,email_face,nome_face,url_img_face
                 String resultado = crud.insereDado(usu.getNome(),usu.getEmail(),usu.getCpf(),usu.getSenha(),usu.getIdFace(),usu.getNomeFace(),usu.getUrlImgFace());
@@ -73,13 +90,14 @@ public class TelaLogin extends ActionBarActivity {
                 //para encerrar a activity atual e todos os parent
                 finishAffinity();
             }else{
-                mensagemSenha();
+                mensagem("Houve um erro!","Olá, a senha digita está incorreta. Favor tente novamente!","oK");
+
 
                 btn_entrar.setEnabled(true);
                 pg_login.setVisibility(View.GONE);
             }
         }else{
-            mensagem();
+            mensagem("Houve um erro!","Olá, parece que houve um problema no login. Favor tente novamente!","oK");
 
             btn_entrar.setEnabled(true);
             pg_login.setVisibility(View.GONE);
@@ -87,29 +105,12 @@ public class TelaLogin extends ActionBarActivity {
 
     }
 
-    public void mensagem()
+    public void mensagem(String titulo,String corpo,String botao)
     {
         AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
-        mensagem.setTitle("Houve um erro!");
-        mensagem.setMessage("Olá, parece que houve um problema no login. Favor tente novamente!");
-        mensagem.setNeutralButton("OK",null);
-        mensagem.show();
-    }
-    public void mensagemSenha()
-    {
-        AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
-        mensagem.setTitle("Houve um erro!");
-        mensagem.setMessage("Olá, a senha digita esta incorreta. Favor tente novamente!");
-        mensagem.setNeutralButton("OK",null);
-        mensagem.show();
-    }
-
-    public void mensagemCamposVazio()
-    {
-        AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
-        mensagem.setTitle("Houve um erro!");
-        mensagem.setMessage("Olá, existem campos nao preenchidos. Favor preencha todos e tente novamente!");
-        mensagem.setNeutralButton("OK",null);
+        mensagem.setTitle(titulo);
+        mensagem.setMessage(corpo);
+        mensagem.setNeutralButton(botao,null);
         mensagem.show();
     }
 }

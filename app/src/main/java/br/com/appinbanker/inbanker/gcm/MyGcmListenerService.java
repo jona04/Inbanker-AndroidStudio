@@ -22,8 +22,6 @@ import br.com.appinbanker.inbanker.util.MyApplicationTaskOnTop;
 
 public class MyGcmListenerService extends GcmListenerService {
 
-    private String PREF_EVENT= "prefs_event";
-
     public void onMessageReceived(String from,Bundle data ){
         String tipo = data.getString("tipo");
 
