@@ -20,7 +20,7 @@ import java.io.IOException;
 public class RegistrationIntentService extends IntentService {
 
     public static final String LOG = "LOG";
-    private static final String SENDER_ID = "800377828099";
+    private static final String SENDER_ID = "198802367921";
 
     public RegistrationIntentService(){
         super(LOG);

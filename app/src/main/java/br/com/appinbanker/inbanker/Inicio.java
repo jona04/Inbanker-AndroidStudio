@@ -25,6 +25,8 @@ public class Inicio extends AppCompatActivity {
         if( checkPlayServices() ){
             Intent it = new Intent(this, RegistrationIntentService.class);
             startService(it);
+        }else{
+            Log.i("playservice","sem playservice");
         }
 
         Button btn_cadastro = (Button) findViewById(R.id.btn_cadastro);
