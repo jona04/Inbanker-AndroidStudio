@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,8 +21,12 @@ import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.gcm.RegistrationIntentService;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.util.CheckConection;
+import br.com.appinbanker.inbanker.util.CheckPlayServices;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 
 public class InicioFragment extends Fragment {
@@ -126,6 +131,25 @@ public class InicioFragment extends Fragment {
 
         if(usu != null){
 
+            if(usu.getToken_gcm() != null && usu.getToken_gcm().length() > 10) {
+                //armazenamos o token do usuario no shared preferences
+                //AllSharedPreferences.putPreferences(AllSharedPreferences.TOKEN_GCM,usu.getToken_gcm(),getActivity());
+            }else{
+                //já pegamos de agora o token do usuario para utilizar nas notificações
+                if (CheckConection.temConexao(getActivity())){
+                    if (CheckPlayServices.checkPlayServices(getActivity())) {
+                        Intent it = new Intent(getActivity(), RegistrationIntentService.class);
+                        getActivity().startService(it);
+                    } else {
+                        Log.i("playservice", "sem playservice");
+                        mensagem("Alerta","Você precisa ter o Google Play instalado para utilizar todos os serviços do Inbanker.","Ok");
+                    }
+                }else{
+                    mensagem("Alerta","Você não esta conectado a uma rede de internet. Para utilizar todos os nosso servços conecte-se a uma rede local.","Ok");
+                }
+            }
+
+
             int count_trans_env = 0;
             int count_trans_rec = 0;
             int count_pag_pen = 0;
@@ -170,6 +194,14 @@ public class InicioFragment extends Fragment {
 
         }
 
+    }
+    public void mensagem(String titulo,String corpo,String botao)
+    {
+        AlertDialog.Builder mensagem = new AlertDialog.Builder(getActivity());
+        mensagem.setTitle(titulo);
+        mensagem.setMessage(corpo);
+        mensagem.setNeutralButton(botao,null);
+        mensagem.show();
     }
 
 }

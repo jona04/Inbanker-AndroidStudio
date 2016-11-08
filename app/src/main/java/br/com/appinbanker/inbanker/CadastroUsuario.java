@@ -1,7 +1,6 @@
 package br.com.appinbanker.inbanker;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
@@ -16,6 +15,7 @@ import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.util.CheckConection;
+import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AddUsuario;
 import br.com.appinbanker.inbanker.webservice.VerificaUsuarioCadastro;
 
@@ -68,22 +68,75 @@ public class CadastroUsuario extends ActionBarActivity {
                 if(!CheckConection.temConexao(CadastroUsuario.this)){
                     mensagem("Sem conexao!","Olá, para realizar o cadastro você precisa estar conectado em alguma rede.","Ok");
                 }else {
-                    if (isValid()) {
 
-                        if (et_senha.getText().toString().equals(et_senha_novamente.getText().toString())) {
+                    boolean campos_ok = true;
+
+                    boolean nome_valido = Validador.validateNotNull(et_nome.getText().toString());
+                    if(!nome_valido) {
+                        et_nome.setError("Campo vazio");
+                        et_nome.setFocusable(true);
+                        et_nome.requestFocus();
+
+                        campos_ok = false;
+                    }
+
+                    boolean cpf_valido = Validador.isCPF(et_cpf.getText().toString());
+                    if(!cpf_valido) {
+                        et_cpf.setError("CPF inválido");
+                        et_cpf.setFocusable(true);
+                        et_cpf.requestFocus();
+
+                        campos_ok = false;
+                    }
+
+                    boolean email_valido = Validador.validateEmail(et_email.getText().toString());
+                    if(!email_valido){
+                        et_email.setError("Email inválido");
+                        et_email.setFocusable(true);
+                        et_email.requestFocus();
+
+                        campos_ok = false;
+                    }
+
+                    boolean valida_senha = Validador.validateNotNull(et_senha.getText().toString());
+                    if(!valida_senha){
+                        et_senha.setError("Campo Vazio");
+                        et_senha.setFocusable(true);
+                        et_senha.requestFocus();
+
+                        campos_ok = false;
+                    }
+
+                    boolean valida_confirm_senha = Validador.validateNotNull(et_senha_novamente.getText().toString());
+                    if(!valida_confirm_senha){
+                        et_senha_novamente.setError("Campo Vazio");
+                        et_senha_novamente.setFocusable(true);
+                        et_senha_novamente.requestFocus();
+
+                        campos_ok = false;
+                    }
+
+                    if (et_senha.getText().toString().equals(et_senha_novamente.getText().toString())) {
+
+                        if(campos_ok) {
 
                             btn_cadastro.setEnabled(false);
                             progress_bar_cadastro.setVisibility(View.VISIBLE);
 
                             new VerificaUsuarioCadastro(et_email.getText().toString(), et_cpf.getText().toString(), CadastroUsuario.this, CadastroUsuario.this).execute();
-
-                        } else {
-                            mensagem("Houve um erro!", "Olá, as senhas digitadas não são iguais. Favor tente novamente!", "Ok");
                         }
+
                     } else {
-                        mensagem("Houve um erro!", "Olá, existem campos não preenchidos. Favor preencha-os e tente novamente!", "OK");
+
+                        et_senha_novamente.setError("Senha diferente");
+                        et_senha_novamente.setFocusable(true);
+                        et_senha_novamente.requestFocus();
+
+                        campos_ok = false;
                     }
+
                 }
+
             }
 
         });
@@ -159,19 +212,4 @@ public class CadastroUsuario extends ActionBarActivity {
         mensagem.show();
     }
 
-    //metodo para validar se campos do cadastro estao vazios
-    public boolean isValid(){
-
-        if(et_cpf.getText().toString().isEmpty() ||
-                et_email.getText().toString().isEmpty() ||
-                et_nome.getText().toString().isEmpty() ||
-                et_senha.getText().toString().isEmpty() ||
-                et_senha_novamente.getText().toString().isEmpty()){
-
-            return false;
-        }else{
-            return true;
-        }
-
-    }
 }

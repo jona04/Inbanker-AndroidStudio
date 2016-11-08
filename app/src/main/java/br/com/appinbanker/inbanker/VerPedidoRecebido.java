@@ -1,5 +1,7 @@
 package br.com.appinbanker.inbanker;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
@@ -23,11 +25,16 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 
 import br.com.appinbanker.inbanker.entidades.Transacao;
+import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.EditaTransacao;
 import br.com.appinbanker.inbanker.webservice.EditaTransacaoResposta;
+import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 
 public class VerPedidoRecebido extends AppCompatActivity {
 
@@ -46,6 +53,9 @@ public class VerPedidoRecebido extends AppCompatActivity {
     private TableRow tr_dias_corridos;
 
     private ProgressBar progress_bar_btn;
+
+    //utilizado para armazenar a data que o pedido foi recusado ou finalizado
+    private String hoje_string;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -169,7 +179,7 @@ public class VerPedidoRecebido extends AppCompatActivity {
                 //data do cancelamento
                 DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
                 DateTime hoje = new DateTime();
-                final String hoje_string = fmt.print(hoje);
+                hoje_string = fmt.print(hoje);
 
                 Transacao trans = new Transacao();
                 trans.setId_trans(id);
@@ -212,7 +222,7 @@ public class VerPedidoRecebido extends AppCompatActivity {
                 //data de confirmacao de pagamento
                 DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
                 DateTime hoje = new DateTime();
-                final String hoje_string = fmt.print(hoje);
+                hoje_string = fmt.print(hoje);
 
                 resp_quitacao = true;
                 confirmou_recebimento = true;
@@ -261,27 +271,77 @@ public class VerPedidoRecebido extends AppCompatActivity {
 
         if(result.equals("sucesso_edit")){
 
-            //verificamos qual foi o tipo de resposta - aceita pedidou ou confirma quitacao
-            if(resp_quitacao) {
+            //busca token do usuario 1
+            new BuscaUsuarioCPF(cpf1,VerPedidoRecebido.this,null,null).execute();
 
-                if (confirmou_recebimento) {
-                    mensagemIntent("InBanker", "Você confirmou o recebimento do valor para quitação do empréstimo solicitado por "+ nome1+". Parabéns, essa transacão foi finalizada com sucesso.", "Ok");
-                } else {
-                    mensagemIntent("InBanker", "Você recusou uma solicitação de quitação da dívida. Entre em contato com "+nome1+" e aguarde por uma nova solicitação.","Ok");
-
-                }
-            }else{
-                if (aceitou_pedido) {
-                    mensagemIntent("InBanker", "Parabéns, você aceitou o pedido. Ao efetuar o pagamento, peça que seu amigo(a) " + nome1 + " confirme o recebimento do valor.", "Ok");
-                } else {
-                    mensagemIntent("InBanker", "Você recusou esse pedido de empréstimo de " + nome1+".", "Ok");
-
-                }
-            }
         }else{
             mensagem("Houve um erro!","Olá, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
         }
 
+    }
+
+    public void retornoBuscaTokenUsuario(Usuario usu){
+
+        Transacao trans = new Transacao();
+        trans.setNome_usu1(nome1);
+        trans.setNome_usu2(nome2);
+
+        trans.setId_trans(id);
+        trans.setUsu1(cpf1);
+        trans.setUsu2(cpf2);
+        trans.setDataPedido(data_pedido);
+        trans.setValor(valor);
+        trans.setVencimento(vencimento);
+        trans.setUrl_img_usu1(img1);
+        trans.setUrl_img_usu2(img2);
+
+
+        //verificamos qual foi o tipo de resposta - aceita pedidou ou confirma quitacao
+        if(resp_quitacao) {
+
+
+            if (confirmou_recebimento) {
+
+                trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA));
+
+                trans.setData_pagamento(hoje_string);
+
+                //envia notificacao
+                new EnviaNotificacao(trans,usu.getToken_gcm()).execute();
+
+                mensagemIntent("InBanker", "Você confirmou o recebimento do valor para quitação do empréstimo solicitado por "+ nome1+". Parabéns, essa transacão foi finalizada com sucesso.", "Ok");
+            } else {
+
+                trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA));
+
+                //envia notificacao
+                new EnviaNotificacao(trans,usu.getToken_gcm()).execute();
+
+                mensagemIntent("InBanker", "Você recusou uma solicitação de quitação da dívida. Entre em contato com "+nome1+" e aguarde por uma nova solicitação.","Ok");
+
+            }
+        }else{
+            if (aceitou_pedido) {
+
+                trans.setStatus_transacao(String.valueOf(Transacao.PEDIDO_ACEITO));
+
+                //envia notificacao
+                new EnviaNotificacao(trans,usu.getToken_gcm()).execute();
+
+                mensagemIntent("InBanker", "Parabéns, você aceitou o pedido. Ao efetuar o pagamento, peça que seu amigo(a) " + nome1 + " confirme o recebimento do valor.", "Ok");
+            } else {
+
+                trans.setStatus_transacao(String.valueOf(Transacao.PEDIDO_RECUSADO));
+
+                trans.setData_recusada(hoje_string);
+
+                //envia notificacao
+                new EnviaNotificacao(trans,usu.getToken_gcm()).execute();
+
+                mensagemIntent("InBanker", "Você recusou esse pedido de empréstimo de " + nome1+".", "Ok");
+
+            }
+        }
     }
 
     public void mensagem(String titulo,String corpo,String botao)
@@ -308,4 +368,34 @@ public class VerPedidoRecebido extends AppCompatActivity {
         });
         mensagem.show();
     }
+
+    @Override
+    public void onBackPressed()
+    {
+        // code here to show dialog
+        super.onBackPressed();  // optional depending on your needs
+
+        Log.i("Script","onBackPressed");
+
+        if(!isActivityRunning(NavigationDrawerActivity.class)){
+            Intent it = new Intent(this,NavigationDrawerActivity.class);
+            startActivity(it);
+        }
+
+    }
+
+    protected Boolean isActivityRunning(Class activityClass)
+    {
+        ActivityManager activityManager = (ActivityManager) getBaseContext().getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = activityManager.getRunningTasks(Integer.MAX_VALUE);
+
+        for (ActivityManager.RunningTaskInfo task : tasks) {
+            if (activityClass.getCanonicalName().equalsIgnoreCase(task.baseActivity.getClassName()))
+                return true;
+        }
+
+        return false;
+    }
+
+
 }

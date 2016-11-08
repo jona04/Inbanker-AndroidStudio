@@ -1,5 +1,7 @@
 package br.com.appinbanker.inbanker;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 
 public class VerHistorico extends AppCompatActivity {
@@ -91,5 +94,33 @@ public class VerHistorico extends AppCompatActivity {
         tv_data_pagamento.setText(data_pagamento);
         //tv_valor_total.setText(valor_total_formatado);
 
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        // code here to show dialog
+        super.onBackPressed();  // optional depending on your needs
+
+        Log.i("Script","onBackPressed");
+
+        if(!isActivityRunning(NavigationDrawerActivity.class)){
+            Intent it = new Intent(this,NavigationDrawerActivity.class);
+            startActivity(it);
+        }
+
+    }
+
+    protected Boolean isActivityRunning(Class activityClass)
+    {
+        ActivityManager activityManager = (ActivityManager) getBaseContext().getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = activityManager.getRunningTasks(Integer.MAX_VALUE);
+
+        for (ActivityManager.RunningTaskInfo task : tasks) {
+            if (activityClass.getCanonicalName().equalsIgnoreCase(task.baseActivity.getClassName()))
+                return true;
+        }
+
+        return false;
     }
 }

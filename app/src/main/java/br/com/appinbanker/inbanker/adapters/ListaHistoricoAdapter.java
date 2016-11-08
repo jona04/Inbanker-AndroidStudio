@@ -54,7 +54,7 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
     @Override
     public ListaHistoricoAdapter.MyViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         Log.i("Script", "Inicio historico adapter onCreateViewHolder ");
-        View v = mLayoutInflater.inflate(R.layout.adapter_item_amigos, viewGroup,false);
+        View v = mLayoutInflater.inflate(R.layout.adapter_item_historico, viewGroup,false);
         ListaHistoricoAdapter.MyViewHolder mvh = new ListaHistoricoAdapter.MyViewHolder(v);
 
         return mvh;
@@ -67,16 +67,26 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
         Context context = holder.imagem.getContext();
         Uri uri;
 
+        holder.tv_data_pedido.setText(holder.tv_data_pedido.getText().toString()+mList.get(position).getDataPedido());
+        holder.tv_valor_pedido.setText(holder.tv_valor_pedido.getText().toString()+mList.get(position).getValor());
+
         if(meu_cpf == mList.get(position).getUsu1()) {
             holder.tv_nome_usuario.setText(mList.get(position).getNome_usu2());
             uri = Uri.parse(mList.get(position).getUrl_img_usu2());
             Picasso.with(context).load(uri).into(holder.imagem);
         }else{
-            holder.tv_nome_usuario.setText(mList.get(position).getNome_usu2());
-            uri = Uri.parse(mList.get(position).getUrl_img_usu2());
+            holder.tv_nome_usuario.setText(mList.get(position).getNome_usu1());
+            uri = Uri.parse(mList.get(position).getUrl_img_usu1());
             Picasso.with(context).load(uri).into(holder.imagem);
         }
 
+        if(mList.get(position).getData_pagamento().length()>5) {
+            holder.tv_status_pedido.setText("Pedido completado");
+            holder.tv_status_pedido.setTextColor(c.getResources().getColor(R.color.colorGreen));
+        }else {
+            holder.tv_status_pedido.setText("Pedido cancelado");
+            holder.tv_status_pedido.setTextColor(c.getResources().getColor(R.color.colorRed));
+        }
     }
 
     @Override
@@ -87,12 +97,18 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public ImageView imagem;
         public TextView tv_nome_usuario;
+        public TextView tv_data_pedido;
+        public TextView tv_valor_pedido;
+        public TextView tv_status_pedido;
 
         public MyViewHolder(View itemView){
             super(itemView);
 
             imagem = (ImageView) itemView.findViewById(R.id.icon);
             tv_nome_usuario = (TextView) itemView.findViewById(R.id.tv_nome_usuario);
+            tv_data_pedido = (TextView) itemView.findViewById(R.id.tv_data_pedido);
+            tv_valor_pedido = (TextView) itemView.findViewById(R.id.tv_valor_pedido);
+            tv_status_pedido = (TextView) itemView.findViewById(R.id.tv_status_pedido);
 
             itemView.setOnClickListener(this);
         }

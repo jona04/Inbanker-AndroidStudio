@@ -82,7 +82,6 @@ public class AtualizaUsuario extends AsyncTask<String, String, String> {
 
             ObjectMapper mapper = new ObjectMapper();
 
-
             // Convert object to JSON string
             String jsonInString = mapper.writeValueAsString(usuario);
             Log.w("Webservie", "jsonInString = "+jsonInString);

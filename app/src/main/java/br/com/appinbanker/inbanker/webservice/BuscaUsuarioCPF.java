@@ -6,6 +6,9 @@ import android.util.Log;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import br.com.appinbanker.inbanker.VerPagamentoPendente;
+import br.com.appinbanker.inbanker.VerPedidoEnviado;
+import br.com.appinbanker.inbanker.VerPedidoRecebido;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.fragments_navigation.HistoricoFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.InicioFragment;
@@ -25,6 +28,10 @@ public class BuscaUsuarioCPF extends AsyncTask<String,String,Usuario> {
     private PagamentosPendentesFragment pf;
     private InicioFragment inif;
 
+    private VerPedidoRecebido vpr;
+    private VerPedidoEnviado vpe;
+    private VerPagamentoPendente vpp;
+
     private String cpf;
 
     public BuscaUsuarioCPF(String cpf, PedidosEnviadosFragment pef, PedidosRecebidosFragment prf, HistoricoFragment hf, PagamentosPendentesFragment pf, InicioFragment inif){
@@ -35,6 +42,14 @@ public class BuscaUsuarioCPF extends AsyncTask<String,String,Usuario> {
         this.hf = hf;
         this.pf = pf;
         this.inif = inif;
+
+    }
+
+    public BuscaUsuarioCPF(String cpf, VerPedidoRecebido vpr, VerPedidoEnviado vpe, VerPagamentoPendente vpp){
+        this.cpf = cpf;
+        this.vpr = vpr;
+        this.vpe = vpe;
+        this.vpp = vpp;
 
     }
 
@@ -53,6 +68,12 @@ public class BuscaUsuarioCPF extends AsyncTask<String,String,Usuario> {
             else if (hf != null)
                 url = host+"appinbanker/rest/usuario/findCpfTransHistorico/"+cpf;
             else if (inif != null)
+                url = host+"appinbanker/rest/usuario/findUsuarioCpf/"+cpf;
+            else if (vpr != null)
+                url = host+"appinbanker/rest/usuario/findUsuarioCpf/"+cpf;
+            else if (vpe != null)
+                url = host+"appinbanker/rest/usuario/findUsuarioCpf/"+cpf;
+            else if (vpp != null)
                 url = host+"appinbanker/rest/usuario/findUsuarioCpf/"+cpf;
 
             RestTemplate restTemplate = new RestTemplate();
@@ -80,6 +101,12 @@ public class BuscaUsuarioCPF extends AsyncTask<String,String,Usuario> {
             pf.retornoBuscaUsuario(result);
         else if (inif != null)
             inif.retornoBuscaUsuario(result);
+        else if(vpr != null)
+            vpr.retornoBuscaTokenUsuario(result);
+        else if(vpe != null)
+            vpe.retornoBuscaTokenUsuario(result);
+        else if(vpp != null)
+            vpp.retornoBuscaTokenUsuario(result);
     }
 
 }

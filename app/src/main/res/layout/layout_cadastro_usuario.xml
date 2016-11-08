@@ -26,7 +26,6 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:hint="Seu nome completo"
-            android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:textColor="#000"
@@ -39,31 +38,39 @@
             android:hint="Seu email"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
+            android:inputType="textEmailAddress"
             android:textColor="#000"
             android:layout_gravity="center_horizontal"/>
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="45dp"
+            android:layout_height="50dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/et_cpf"
+            <LinearLayout
+                android:id="@+id/ll_et_cpf"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Seu CPF"
-                android:layout_marginTop="1dp"
-                android:textColor="#000"/>
-
+                android:layout_marginRight="50dp">
+                <EditText
+                    android:id="@+id/et_cpf"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Seu CPF"
+                    android:inputType="number"
+                    android:layout_marginTop="1dp"
+                    android:paddingRight="20dp"
+                    android:textColor="#000"/>
+            </LinearLayout>
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/fab_cpf"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-17dp"
+                android:layout_marginTop="-10dp"
+                android:layout_marginRight="-45dp"
                 app:backgroundTint="@color/colorPrimary"
-                android:layout_alignRight="@+id/et_cpf"
+                android:layout_alignRight="@+id/ll_et_cpf"
                 app:fabSize="mini"
                 android:src="@android:drawable/ic_dialog_info" />
            <!-- <Button
@@ -83,6 +90,7 @@
             android:hint="Sua senha"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
+            android:inputType="textPassword"
             android:textColor="#000"
             android:layout_gravity="center_horizontal"/>
 
@@ -94,6 +102,7 @@
             android:hint="Sua senha novamente"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
+            android:inputType="textPassword"
             android:textColor="#000"
             android:layout_gravity="center_horizontal"/>
 
@@ -102,7 +111,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="30dp"
-            android:layout_marginBottom="20dp"
             android:orientation="horizontal">
 
             <Button

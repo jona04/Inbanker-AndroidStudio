@@ -1,5 +1,7 @@
 package br.com.appinbanker.inbanker;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Process;
@@ -24,10 +26,14 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 
 import br.com.appinbanker.inbanker.entidades.Transacao;
+import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.EditaTransacao;
+import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 
 public class VerPedidoEnviado extends AppCompatActivity {
 
@@ -166,7 +172,10 @@ public class VerPedidoEnviado extends AppCompatActivity {
         btn_confirma_recebimento.setEnabled(true);
 
         if(result.equals("sucesso_edit")){
-            mensagemIntent("InBanker","Parabéns, você confirmou o recebimento do valor solicitado. Ao efetuar o pagamento de quitação, peça que seu amigo(a) " + nome2 + " confirme o recebimento do valor.", "Ok");
+
+            //busca token do usuario 1
+            new BuscaUsuarioCPF(cpf2,null,VerPedidoEnviado.this,null).execute();
+
 
         }else{
             mensagem("Houve um erro!","Olá, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
@@ -174,6 +183,29 @@ public class VerPedidoEnviado extends AppCompatActivity {
 
     }
 
+    public void retornoBuscaTokenUsuario(Usuario usu) {
+
+        Transacao trans = new Transacao();
+
+        trans.setId_trans(id);
+        trans.setNome_usu1(nome1);
+        trans.setNome_usu2(nome2);
+        trans.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
+        trans.setUsu1(cpf1);
+        trans.setUsu2(cpf2);
+        trans.setDataPedido(data_pedido);
+        trans.setValor(valor);
+        trans.setVencimento(vencimento);
+        trans.setUrl_img_usu1(img1);
+        trans.setUrl_img_usu2(img2);
+
+
+        //envia notificacao
+        new EnviaNotificacao(trans,usu.getToken_gcm()).execute();
+
+        mensagemIntent("InBanker","Parabéns, você confirmou o recebimento do valor solicitado. Ao efetuar o pagamento de quitação, peça que seu amigo(a) " + nome2 + " confirme o recebimento do valor.", "Ok");
+
+    }
     public void mensagem(String titulo,String corpo,String botao)
     {
         AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
@@ -197,5 +229,32 @@ public class VerPedidoEnviado extends AppCompatActivity {
             }
         });
         mensagem.show();
+    }
+    @Override
+    public void onBackPressed()
+    {
+        // code here to show dialog
+        super.onBackPressed();  // optional depending on your needs
+
+        Log.i("Script","onBackPressed");
+
+        if(!isActivityRunning(NavigationDrawerActivity.class)){
+            Intent it = new Intent(this,NavigationDrawerActivity.class);
+            startActivity(it);
+        }
+
+    }
+
+    protected Boolean isActivityRunning(Class activityClass)
+    {
+        ActivityManager activityManager = (ActivityManager) getBaseContext().getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = activityManager.getRunningTasks(Integer.MAX_VALUE);
+
+        for (ActivityManager.RunningTaskInfo task : tasks) {
+            if (activityClass.getCanonicalName().equalsIgnoreCase(task.baseActivity.getClassName()))
+                return true;
+        }
+
+        return false;
     }
 }

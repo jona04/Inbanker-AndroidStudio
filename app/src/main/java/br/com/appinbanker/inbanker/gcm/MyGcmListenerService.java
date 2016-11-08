@@ -1,5 +1,6 @@
 package br.com.appinbanker.inbanker.gcm;
 
+import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -9,11 +10,18 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.View;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.gcm.GcmListenerService;
 
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
+import br.com.appinbanker.inbanker.VerHistorico;
+import br.com.appinbanker.inbanker.VerPagamentoPendente;
+import br.com.appinbanker.inbanker.VerPedidoEnviado;
+import br.com.appinbanker.inbanker.VerPedidoRecebido;
+import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.util.MyApplicationTaskOnTop;
 
 /**
@@ -23,44 +31,99 @@ import br.com.appinbanker.inbanker.util.MyApplicationTaskOnTop;
 public class MyGcmListenerService extends GcmListenerService {
 
     public void onMessageReceived(String from,Bundle data ){
-        String tipo = data.getString("tipo");
-
-        Log.i("Script","tipo gcm = "+tipo);
 
         //verifica se tem alguma outra aplicaçao no topo da activity, se tiver nao abre notificaçao
-        if(!MyApplicationTaskOnTop.isMyApplicationTaskOnTop(this)){
-            if(tipo.equals("global")){
-                sendNotificationAppGlobal(data);
-            }
-        }
+        //if(!MyApplicationTaskOnTop.isMyApplicationTaskOnTop(this)){
+        //    if(tipo.equals("global")){
+        //        sendNotificationAppGlobal(data);
+        //    }
+       //}
+
+        sendNotificationAppGlobal(data);
     }
 
     private void sendNotificationAppGlobal(final Bundle data){
 
-        //id da notificacao, cada notificacao sera um id diferente
-        //usamos o id para contar no analitcs quantas das msg enviadas foram abertas
-        int id = Integer.parseInt(data.getString("gcm_num"));
-
         //MyAppAnalytics.getInstance().trackEvent("Notificacao", "gcm-"+id, "GCM Enviados");
-        Log.i("Script", "num notifica = " + id);
+        Log.i("Script", "num notificacao= "+data);
+        Log.i("Script", "notificacao= "+data.getBundle("notification"));
+        Log.i("Script", "notificacao= "+data.getBundle("notification").getString("body"));
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .setTicker(data.getString("title"))
+                .setTicker(data.getBundle("notification").getString("title"))
                 .setSmallIcon(R.mipmap.icon)
-                .setContentTitle(data.getString("title"))
-                .setContentText(data.getString("msg"))
+                .setContentTitle(data.getBundle("notification").getString("title"))
+                .setContentText(data.getBundle("notification").getString("body"))
                 .setAutoCancel(true);
 
-        Intent it = new Intent(this, NavigationDrawerActivity.class);
-        //Bundle b = new Bundle();
-        //b.putString("notification","1");
-        //b.putInt("num_gcm", id);
-        //it.putExtras(b);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonInString = data.getBundle("notification").getString("transacao");
+        Transacao trans = new Transacao();
+        try {
+            //JSON from String to Object
+            trans = mapper.readValue(jsonInString, Transacao.class);
+        }catch(Exception e){
+            Log.d("Exception", ""+e);
+        }
+
+        int status_transacao = Integer.parseInt(trans.getStatus_transacao());
+
+        Class classe;
+
+        switch (status_transacao){
+            case Transacao.AGUARDANDO_RESPOSTA:
+                classe = VerPedidoRecebido.class;
+                break;
+            case Transacao.PEDIDO_ACEITO:
+                classe = VerPedidoEnviado.class;
+                break;
+            case Transacao.PEDIDO_RECUSADO:
+                classe = VerHistorico.class;
+                break;
+            case Transacao.CONFIRMADO_RECEBIMENTO:
+                classe = VerPedidoRecebido.class;
+                break;
+            case Transacao.QUITACAO_SOLICITADA:
+                classe = VerPedidoRecebido.class;
+                break;
+            case Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA:
+                classe = VerPagamentoPendente.class;
+                break;
+            case Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA:
+                classe = VerHistorico.class;
+                break;
+            default:
+                classe = NavigationDrawerActivity.class;
+                break;
+        }
+
+
+        Intent it = new Intent(this,classe);
+        Bundle b = new Bundle();
+        b.putString("id",trans.getId_trans());
+        b.putString("nome2",trans.getNome_usu2());
+        b.putString("cpf1",trans.getUsu1());
+        b.putString("cpf2",trans.getUsu2());
+        b.putString("data_pedido",trans.getDataPedido());
+        b.putString("nome1", trans.getNome_usu1());
+        b.putString("valor",trans.getValor());
+        b.putString("vencimento", trans.getVencimento());
+        b.putString("img1", trans.getUrl_img_usu1());
+        b.putString("img2", trans.getUrl_img_usu2());
+        b.putString("status_transacao", trans.getStatus_transacao());
+
+        if(trans.getData_recusada()!=null)
+            b.putString("data_cancelamento", trans.getData_recusada());
+        if(trans.getData_pagamento()!=null)
+            b.putString("data_pagamento", trans.getData_pagamento());
+
+        it.putExtras(b);
         PendingIntent pi = PendingIntent.getActivity(this,0,it,PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pi);
 
         NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
-        bigText.bigText(data.getString("msg"));
+        bigText.bigText(data.getBundle("notification").getString("body"));
         builder.setStyle(bigText);
 
         builder.setPriority(NotificationCompat.PRIORITY_HIGH);
@@ -73,7 +136,7 @@ public class MyGcmListenerService extends GcmListenerService {
         builder.setSound(uri);
 
         NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.notify(id, builder.build());
+        nm.notify(1, builder.build());
     }
 
 

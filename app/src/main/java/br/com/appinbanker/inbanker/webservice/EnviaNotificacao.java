@@ -35,6 +35,9 @@ public class EnviaNotificacao extends AsyncTask<String,String,String> {
         String host = Host.host;
         String result = null;
         try {
+
+            Log.i("webservice","teste token = "+token);
+
             //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/findEmail/"+email;
             final String url = host+"appinbanker/gcm/notification/sendNotification/"+token;
 
@@ -48,7 +51,7 @@ public class EnviaNotificacao extends AsyncTask<String,String,String> {
             restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
             // Make the HTTP POST request, marshaling the request to JSON, and the response to a String
-            ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+            ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
             result = responseEntity.getBody();
 
             requestHeaders.set("Connection", "Close");

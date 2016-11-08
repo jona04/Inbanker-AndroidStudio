@@ -73,7 +73,7 @@ public class EditaTransacao extends AsyncTask<String, String, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        Log.i("Script","onPostExecute result add trans ="+result);
+        Log.i("Script","onPostExecute result edita trans ="+result);
 
         if(vpr != null)
             vpr.retornoEditaTransacao(result);

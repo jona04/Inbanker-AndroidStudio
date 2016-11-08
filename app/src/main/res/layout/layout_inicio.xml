@@ -57,6 +57,7 @@
                 android:id="@+id/btn_entrar"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
                 android:text="Ja sou cadastrado"/>
 
         </LinearLayout>

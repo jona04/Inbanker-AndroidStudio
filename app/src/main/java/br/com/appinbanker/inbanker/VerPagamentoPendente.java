@@ -1,5 +1,7 @@
 package br.com.appinbanker.inbanker;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
@@ -22,10 +24,14 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 
 import br.com.appinbanker.inbanker.entidades.Transacao;
+import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.EditaTransacao;
+import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 
 public class VerPagamentoPendente extends AppCompatActivity {
 
@@ -156,7 +162,10 @@ public class VerPagamentoPendente extends AppCompatActivity {
         btn_confirma_quitacao.setEnabled(true);
 
         if(result.equals("sucesso_edit")){
-            mensagemIntent("InBanker","Você realizou a solicitação de quitação do emprestimo. Peça que seu amigo(a) "+nome2+" confirme o recebimento do valor.", "Ok");
+
+            //busca token do usuario 2
+            new BuscaUsuarioCPF(cpf2,null,null,VerPagamentoPendente.this).execute();
+
 
         }else{
             mensagem("Houve um erro!","Olá, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
@@ -164,6 +173,30 @@ public class VerPagamentoPendente extends AppCompatActivity {
 
     }
 
+    public void retornoBuscaTokenUsuario(Usuario usu) {
+
+        Transacao trans = new Transacao();
+
+        trans.setNome_usu1(nome1);
+        trans.setNome_usu2(nome2);
+
+        trans.setId_trans(id);
+        trans.setUsu1(cpf1);
+        trans.setUsu2(cpf2);
+        trans.setDataPedido(data_pedido);
+        trans.setValor(valor);
+        trans.setVencimento(vencimento);
+        trans.setUrl_img_usu1(img1);
+        trans.setUrl_img_usu2(img2);
+
+        trans.setStatus_transacao(String.valueOf(Transacao.QUITACAO_SOLICITADA));
+
+        //envia notificacao
+        new EnviaNotificacao(trans,usu.getToken_gcm()).execute();
+
+        mensagemIntent("InBanker","Você realizou a solicitação de quitação do emprestimo. Peça que seu amigo(a) "+nome2+" confirme o recebimento do valor.", "Ok");
+
+    }
     public void mensagem(String titulo,String corpo,String botao)
     {
         AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
@@ -187,5 +220,33 @@ public class VerPagamentoPendente extends AppCompatActivity {
             }
         });
         mensagem.show();
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        // code here to show dialog
+        super.onBackPressed();  // optional depending on your needs
+
+        Log.i("Script","onBackPressed");
+
+        if(!isActivityRunning(NavigationDrawerActivity.class)){
+            Intent it = new Intent(this,NavigationDrawerActivity.class);
+            startActivity(it);
+        }
+
+    }
+
+    protected Boolean isActivityRunning(Class activityClass)
+    {
+        ActivityManager activityManager = (ActivityManager) getBaseContext().getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = activityManager.getRunningTasks(Integer.MAX_VALUE);
+
+        for (ActivityManager.RunningTaskInfo task : tasks) {
+            if (activityClass.getCanonicalName().equalsIgnoreCase(task.baseActivity.getClassName()))
+                return true;
+        }
+
+        return false;
     }
 }

@@ -57,6 +57,9 @@ public class ListaTransacaoAdapter extends RecyclerView.Adapter<ListaTransacaoAd
         Context context = holder.imagem.getContext();
         Uri uri;
 
+        holder.tv_data_pedido.setText(holder.tv_data_pedido.getText().toString()+mList.get(position).getDataPedido());
+        holder.tv_valor_pedido.setText(holder.tv_valor_pedido.getText().toString()+mList.get(position).getValor());
+
         holder.tv_nome_usuario.setText(mList.get(position).getNome_usu2());
         uri = Uri.parse(mList.get(position).getUrl_img_usu2());
         Picasso.with(context).load(uri).into(holder.imagem);
@@ -70,12 +73,16 @@ public class ListaTransacaoAdapter extends RecyclerView.Adapter<ListaTransacaoAd
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public ImageView imagem;
         public TextView tv_nome_usuario;
+        public TextView tv_data_pedido;
+        public TextView tv_valor_pedido;
 
         public MyViewHolder(View itemView){
             super(itemView);
 
             imagem = (ImageView) itemView.findViewById(R.id.icon);
             tv_nome_usuario = (TextView) itemView.findViewById(R.id.tv_nome_usuario);
+            tv_data_pedido = (TextView) itemView.findViewById(R.id.tv_data_pedido);
+            tv_valor_pedido = (TextView) itemView.findViewById(R.id.tv_valor_pedido);
 
             itemView.setOnClickListener(this);
         }
