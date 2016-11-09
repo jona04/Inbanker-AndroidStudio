@@ -39,15 +39,15 @@ dependencies {
     compile 'com.android.support:support-v4:25.0.0'
     compile 'com.android.support:appcompat-v7:25.0.0'
     compile 'com.android.support:design:25.0.0'
-    compile 'org.springframework.android:spring-android-rest-template:2.0.0.M1'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.4'
+    compile 'org.springframework.android:spring-android-rest-template:2.0.0.M1' //consumir api rest
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.8.4' //conversor json java
     compile 'com.facebook.android:facebook-android-sdk:4.16.1'
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:recyclerview-v7:+'
-    compile 'net.danlew:android.joda:2.9.4.2'
+    compile 'net.danlew:android.joda:2.9.4.2' //para trabalhar com datetime
     compile 'cz.msebera.android:httpclient:4.4.1.1'
     compile 'javax.annotation:javax.annotation-api:1.2'
-    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.squareup.picasso:picasso:2.5.2' //para imagem da url
     compile 'com.google.android.gms:play-services-gcm:9.6.1'
 }
 

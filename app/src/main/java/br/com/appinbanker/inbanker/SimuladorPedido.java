@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -21,11 +22,14 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.util.Calendar;
 
-public class SimuladorPedido extends ActionBarActivity {
+import br.com.appinbanker.inbanker.util.MaskMoney;
+import br.com.appinbanker.inbanker.util.Validador;
+
+public class SimuladorPedido extends AppCompatActivity {
 
     Button btnCalendar,btn_verificar;
     EditText et_valor,et_calendario;
-    String id, nome, url_img;
+    String id, nome, url_img, valor_normal;
 
     // Variable for storing current date and time
     private int mYear, mMonth, mDay,dias_pagamento;
@@ -54,16 +58,15 @@ public class SimuladorPedido extends ActionBarActivity {
         tv.setText(tv.getText().toString()+nome);
 
         et_calendario = (EditText) findViewById(R.id.et_calendario);
+
         et_valor = (EditText) findViewById(R.id.et_valor);
+        valor_normal = et_valor.getText().toString();
+        et_valor.addTextChangedListener(MaskMoney.insert(et_valor));
+
         btnCalendar = (Button) findViewById(R.id.btnCalendar);
         btn_verificar = (Button) findViewById(R.id.btn_verificar);
 
-        et_calendario.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mostraCalendario();
-            }
-        });
+        et_calendario.setEnabled(false);
 
         btnCalendar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,25 +81,47 @@ public class SimuladorPedido extends ActionBarActivity {
             @Override
             public void onClick(View v) {
 
-                DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYYY");
-                DateTime hoje = new DateTime();
-                DateTime vencimento = fmt.parseDateTime(et_calendario.getText().toString());
+                boolean campos = true;
 
-                Days d = Days.daysBetween(hoje, vencimento);
-                dias_pagamento = d.getDays();
+                boolean campo_valor = Validador.validateNotNull(et_valor.getText().toString());
+                if(!campo_valor) {
+                    et_valor.setError("Campo vazio");
+                    et_valor.setFocusable(true);
+                    et_valor.requestFocus();
 
-                Intent it = new Intent(SimuladorPedido.this,SimuladorResultado.class);
-                Bundle b = new Bundle();
-                b.putString("id",id);
-                b.putString("nome",nome);
-                b.putString("valor",et_valor.getText().toString());
-                b.putString("url_img",url_img);
-                b.putString("vencimento",et_calendario.getText().toString());
-                b.putInt("dias",dias_pagamento);
-                it.putExtras(b);
-                startActivity(it);
+                    campos = false;
+                }
+                boolean campo_calendario = Validador.validateNotNull(et_calendario.getText().toString());
+                if(!campo_calendario) {
+                    et_calendario.setError("Campo vazio");
+                    et_calendario.setFocusable(true);
+                    et_calendario.requestFocus();
 
-                Log.i("Scrip",""+dias_pagamento);
+                    campos = false;
+                }
+
+                if(campos) {
+                    DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
+                    DateTime hoje = new DateTime();
+                    DateTime vencimento = fmt.parseDateTime(et_calendario.getText().toString());
+
+                    Days d = Days.daysBetween(hoje, vencimento);
+                    dias_pagamento = d.getDays();
+
+                    Intent it = new Intent(SimuladorPedido.this, SimuladorResultado.class);
+                    Bundle b = new Bundle();
+                    b.putString("id", id);
+                    b.putString("nome", nome);
+                    b.putString("valor", et_valor.getText().toString());
+                    b.putString("url_img", url_img);
+                    b.putString("vencimento", et_calendario.getText().toString());
+                    b.putInt("dias", dias_pagamento);
+                    it.putExtras(b);
+                    startActivity(it);
+
+                    Log.i("Scrip", "valor normal = " + valor_normal);
+
+                }
             }
         });
     }
@@ -107,8 +132,6 @@ public class SimuladorPedido extends ActionBarActivity {
         mYear = c.get(Calendar.YEAR);
         mMonth = c.get(Calendar.MONTH);
         mDay = c.get(Calendar.DAY_OF_MONTH);
-
-        String data = mDay + "/" + (mMonth + 1) + "/" + mYear;
 
         // Launch Date Picker Dialog
         DatePickerDialog dpd = new DatePickerDialog(SimuladorPedido.this,

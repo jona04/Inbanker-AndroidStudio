@@ -82,10 +82,10 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
 
         if(mList.get(position).getData_pagamento().length()>5) {
             holder.tv_status_pedido.setText("Pedido completado");
-            holder.tv_status_pedido.setTextColor(c.getResources().getColor(R.color.colorGreen));
+            //holder.tv_status_pedido.setTextColor(c.getResources().getColor(R.color.colorGreen));
         }else {
             holder.tv_status_pedido.setText("Pedido cancelado");
-            holder.tv_status_pedido.setTextColor(c.getResources().getColor(R.color.colorRed));
+            //holder.tv_status_pedido.setTextColor(c.getResources().getColor(R.color.colorRed));
         }
     }
 

@@ -5,6 +5,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -19,7 +20,7 @@ import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AddUsuario;
 import br.com.appinbanker.inbanker.webservice.VerificaUsuarioCadastro;
 
-public class CadastroUsuario extends ActionBarActivity {
+public class CadastroUsuario extends AppCompatActivity {
 
     Usuario usu;
     EditText et_nome;
