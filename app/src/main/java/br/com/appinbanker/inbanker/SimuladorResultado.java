@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -64,12 +65,14 @@ public class SimuladorResultado extends AppCompatActivity {
         Bundle parametro = it.getExtras();
         id = parametro.getString("id");
         nome = parametro.getString("nome");
-        valor = Double.parseDouble(parametro.getString("valor"));
+        //valor = Double.parseDouble(parametro.getString("valor"));
         vencimento = parametro.getString("vencimento");
         dias = parametro.getInt("dias");
         url_img = parametro.getString("url_img");
 
-        DecimalFormat decimal = new DecimalFormat( "0.00" );
+        //colocamos um ponto para simular o valor real passado no simulador
+        valor = Double.parseDouble(new StringBuffer(parametro.getString("valor")).insert(parametro.getString("valor").length()-2, ".").toString());
+        //Log.i("Script","Valor valor ="+valor);
 
         double juros_mensal = valor * (0.00066333 * dias);
         //double taxa_fixa = Double.parseDouble(decimal.format(valor * 0.0099));

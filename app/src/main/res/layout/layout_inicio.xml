@@ -39,7 +39,7 @@
         android:layout_height="fill_parent"
         android:orientation="vertical"
         android:layout_below="@+id/ll_btn"
-        android:layout_marginTop="150px"
+        android:layout_marginTop="110px"
         android:layout_centerHorizontal="true">
 
         <LinearLayout
@@ -53,11 +53,23 @@
                 android:layout_height="wrap_content"
                 android:text="Criar conta no InBanker"/>
 
+
+
+            <com.facebook.login.widget.LoginButton
+                xmlns:facebook="http://schemas.android.com/apk/res-auto"
+                facebook:com_facebook_login_text="Entrar com facebook"
+                android:id="@+id/fbLoginButton"
+                android:layout_width="fill_parent"
+                android:layout_marginTop="5dp"
+                android:layout_height="wrap_content"
+
+                />
+
             <Button
                 android:id="@+id/btn_entrar"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="5dp"
                 android:text="Ja sou cadastrado"/>
 
         </LinearLayout>

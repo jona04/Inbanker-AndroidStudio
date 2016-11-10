@@ -12,7 +12,9 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 import br.com.appinbanker.inbanker.R;
 import br.com.appinbanker.inbanker.entidades.Amigos;
@@ -67,8 +69,13 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
         Context context = holder.imagem.getContext();
         Uri uri;
 
+        Locale ptBr = new Locale("pt", "BR");
+        NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
+        String valor_formatado = nf.format (Double.parseDouble(mList.get(position).getValor()));
+
+        //concatenamos a string atual com a nova que capturamos
         holder.tv_data_pedido.setText(holder.tv_data_pedido.getText().toString()+mList.get(position).getDataPedido());
-        holder.tv_valor_pedido.setText(holder.tv_valor_pedido.getText().toString()+mList.get(position).getValor());
+        holder.tv_valor_pedido.setText(holder.tv_valor_pedido.getText().toString()+valor_formatado);
 
         if(meu_cpf == mList.get(position).getUsu1()) {
             holder.tv_nome_usuario.setText(mList.get(position).getNome_usu2());

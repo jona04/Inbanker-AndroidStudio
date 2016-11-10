@@ -47,7 +47,8 @@
         <activity
             android:name=".CadastroUsuario"
             android:label="@string/title_activity_cadastro_usuario"
-            android:parentActivityName=".Inicio">
+            android:parentActivityName=".Inicio"
+            android:windowSoftInputMode="adjustPan" >
 
             <!--
             Parent activity meta-data to support 4.0 and lower

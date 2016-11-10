@@ -5,6 +5,7 @@ import android.text.TextWatcher;
 import android.widget.EditText;
 
 import java.text.NumberFormat;
+import java.util.Locale;
 
 /**
  * Created by Jonatas on 09/11/2016.
@@ -16,8 +17,9 @@ public abstract class MaskMoney {
         return new TextWatcher() {
 
             private boolean isUpdating = false;
+            Locale ptBr = new Locale("pt", "BR");
             // Pega a formatacao do sistema, se for brasil R$ se EUA US$
-            private NumberFormat nf = NumberFormat.getCurrencyInstance();
+            private NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before,
@@ -66,6 +68,14 @@ public abstract class MaskMoney {
         };
 
 
+    }
+
+    public static String removeMask(String str){
+        // Retiramos a máscara.
+        str = str.replaceAll("[R$]", "").replaceAll("[,]", "")
+                .replaceAll("[.]", "");
+
+        return str;
     }
 }
 

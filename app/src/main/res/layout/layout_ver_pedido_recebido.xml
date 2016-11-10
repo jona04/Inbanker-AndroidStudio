@@ -64,9 +64,17 @@
                 <TextView android:text="Dias corridos:"/>
                 <TextView android:id="@+id/tv_dias_corridos" />
             </TableRow>
+            <TableRow android:id="@+id/tr_dias_pagamento" android:visibility="gone">
+                <TextView android:text="Dias para pagamento:"/>
+                <TextView android:id="@+id/tv_dias_pagamento" />
+            </TableRow>
+            <TableRow>
+                <TextView android:text="Taxa de juros A.M.:"/>
+                <TextView android:id="@+id/tv_juros_mes" />
+            </TableRow>
             <TableRow>
                 <TextView android:text="Rendimento:"/>
-                <TextView android:id="@+id/tv_juros_mes" />
+                <TextView android:id="@+id/tv_rendimento" />
             </TableRow>
             <TableRow>
                 <TextView android:text="Valor total para ser recebido:"/>

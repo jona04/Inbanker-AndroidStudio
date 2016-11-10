@@ -110,10 +110,37 @@ public class NavigationDrawerActivity extends AppCompatActivity
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
+            Log.i("NavigationDrawer","teste1");
             drawer.closeDrawer(GravityCompat.START);
+
+        //se nao estiver na tela inicial, dentro do navigationdrawer, damos um popstack no fragment e redirecionamos para a tela inicial
+        }else if(getFragmentManager().getBackStackEntryCount() > 0){
+            Log.i("NavigationDrawer","teste3 = "+getFragmentManager().findFragmentByTag("Inicio"));
+
+            getFragmentManager().popBackStack();
+
+            Fragment fragment = null;
+            Class fragmentClass = InicioFragment.class;
+
+            try {
+                fragment = (Fragment) fragmentClass.newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // Insert the fragment by replacing any existing fragment
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+            // Set action bar title
+            setTitle("Inicio");
+
+        //se ja estiver na tela inicial, saimos do aplicativo, normalmente
         } else {
+            Log.i("NavigationDrawer","teste4");
             super.onBackPressed();
         }
+
     }
 
     /*@Override
@@ -146,11 +173,15 @@ public class NavigationDrawerActivity extends AppCompatActivity
         Fragment fragment = null;
         Class fragmentClass;
 
+        //para verificar se o usuario esta na tela incial, e assim encaminar o usuario para a tela correta quando apertar em voltar dentro dos fragments do navigationdrawer
+        boolean inicio = false;
+
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        switch(id) {
+        switch (id) {
             case R.id.nav_inicio:
                 fragmentClass = InicioFragment.class;
+                inicio = true;
                 break;
             case R.id.nav_pedir_emprestimo:
                 fragmentClass = PedirEmprestimoFragment.class;
@@ -186,7 +217,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 crud.deletaRegistro(cpf);
 
                 //deleta o token do usuario do banco de dados
-                String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,NavigationDrawerActivity.this);
+                String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);
                 //String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,NavigationDrawerActivity.this);
                 Usuario usu = new Usuario();
                 usu.setDevice_id(device_id);
@@ -212,10 +243,16 @@ public class NavigationDrawerActivity extends AppCompatActivity
             e.printStackTrace();
         }
 
-        // Insert the fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+        //os fragments do navigationdrawer, com execessao do inicio, sao adicionados ao backstack
+        if (inicio) {
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
+        } else{
+            // Insert the fragment by replacing any existing fragment
+            FragmentManager fragmentManager = getFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(item.getTitle().toString()).commit();
+        }
         // Highlight the selected item has been done by NavigationView
         item.setChecked(true);
         // Set action bar title

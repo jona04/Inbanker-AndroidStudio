@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.facebook.CallbackManager;
+import com.facebook.FacebookSdk;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
@@ -20,10 +22,17 @@ public class Inicio extends AppCompatActivity {
     //utilizado na funcao de saber se o google play service esta instalado
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
+    private CallbackManager callbackManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        FacebookSdk.sdkInitialize(this.getApplicationContext());
+
         setContentView(R.layout.layout_inicio);
+
+        callbackManager = CallbackManager.Factory.create();
 
         //já pegamos de agora o token do usuario para utilizar nas notificações
         if (CheckConection.temConexao(this)){
@@ -60,6 +69,9 @@ public class Inicio extends AppCompatActivity {
                 //finish();
             }
         });
+
+
+
     }
 
     public void mensagem(String titulo,String corpo,String botao)

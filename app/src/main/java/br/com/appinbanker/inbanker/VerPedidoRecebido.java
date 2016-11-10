@@ -42,7 +42,7 @@ public class VerPedidoRecebido extends AppCompatActivity {
 
     private String id,nome2,cpf1,cpf2,data_pedido = null,nome1,valor,vencimento,img1,img2;
 
-    private TextView tv_valor,tv_data_pagamento,tv_juros_mes,tv_valor_total,tv_dias_corridos,msg_ver_pedido;
+    private TextView tv_valor,tv_data_pagamento,tv_juros_mes,tv_valor_total,tv_dias_corridos,msg_ver_pedido,tv_rendimento,tv_dias_pagamento;
 
     private int status_transacao;
 
@@ -50,7 +50,7 @@ public class VerPedidoRecebido extends AppCompatActivity {
 
     private Button btn_aceita_pedido,btn_recusa_pedido,btn_confirma_quitacao,btn_recusa_quitacao;
 
-    private TableRow tr_dias_corridos;
+    private TableRow tr_dias_corridos,tr_dias_pagamento;
 
     private ProgressBar progress_bar_btn;
 
@@ -100,9 +100,12 @@ public class VerPedidoRecebido extends AppCompatActivity {
         btn_aceita_pedido = (Button) findViewById(R.id.btn_aceita_pedido);
         btn_recusa_pedido = (Button) findViewById(R.id.btn_recusa_pedido);
         msg_ver_pedido = (TextView) findViewById(R.id.msg_ver_pedido);
+        tv_dias_pagamento = (TextView) findViewById(R.id.tv_dias_pagamento);
+        tr_dias_pagamento = (TableRow) findViewById(R.id.tr_dias_pagamento);
         tv_valor = (TextView) findViewById(R.id.tv_valor);
         tv_data_pagamento = (TextView) findViewById(R.id.tv_data_pagamento);
         tv_juros_mes = (TextView) findViewById(R.id.tv_juros_mes);
+        tv_rendimento = (TextView) findViewById(R.id.tv_rendimento);
         tv_valor_total = (TextView) findViewById(R.id.tv_valor_total);
         tv_dias_corridos = (TextView) findViewById(R.id.tv_dias_corridos);
 
@@ -112,10 +115,6 @@ public class VerPedidoRecebido extends AppCompatActivity {
         DateTime data_pedido_parse = fmt.parseDateTime(data_pedido);
         DateTime vencimento_parse = fmt.parseDateTime(vencimento);
 
-        //calculamos o total de dias para mostramos na tela inicial antes do usuario-2 aceitar ou recusar o pedido recebido
-        Days d = Days.daysBetween(hoje, vencimento_parse);
-        int dias = d.getDays();
-
         //calculamos os dias corridos para calcularmos o juros do redimento atual
         Days d_corridos = Days.daysBetween(data_pedido_parse, hoje);
         int dias_corridos = d_corridos.getDays();
@@ -124,12 +123,18 @@ public class VerPedidoRecebido extends AppCompatActivity {
         //if(dias_corridos >0)
         //    dias_corridos = dias_corridos -1;
 
-        DecimalFormat decimal = new DecimalFormat( "0.00" );
-
         //verificamos se o usuario ja aceitou ou nao o pedido recebido para calcularmos o juros correto
         double juros_mensal = 0;
         switch (status_transacao){
             case Transacao.AGUARDANDO_RESPOSTA:
+
+                //calculamos o total de dias para mostramos na tela inicial antes do usuario-2 aceitar ou recusar o pedido recebido
+                Days d = Days.daysBetween(data_pedido_parse, vencimento_parse);
+                int dias = d.getDays();
+
+                tr_dias_pagamento.setVisibility(View.VISIBLE);
+                tv_dias_pagamento.setText(String.valueOf(dias));
+
                 juros_mensal = Double.parseDouble(valor) * (0.00066333 * dias);
                 msg_ver_pedido.setText(nome1+" esta lhe pedindo um empréstimo. Para aceitar ou recusar utilize os botões abaixo.");
                 break;
@@ -169,8 +174,10 @@ public class VerPedidoRecebido extends AppCompatActivity {
         tv_valor.setText(valor_formatado);
         tv_data_pagamento.setText(vencimento);
         tv_dias_corridos.setText(String.valueOf(dias_corridos));
-        tv_juros_mes.setText(juros_mensal_formatado);
+        tv_juros_mes.setText("1,99%");
+        tv_rendimento.setText(juros_mensal_formatado);
         tv_valor_total.setText(valor_total_formatado);
+
 
         btn_recusa_pedido.setOnClickListener(new View.OnClickListener() {
             @Override

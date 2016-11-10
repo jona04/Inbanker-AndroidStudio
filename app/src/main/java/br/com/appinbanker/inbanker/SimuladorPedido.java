@@ -60,7 +60,6 @@ public class SimuladorPedido extends AppCompatActivity {
         et_calendario = (EditText) findViewById(R.id.et_calendario);
 
         et_valor = (EditText) findViewById(R.id.et_valor);
-        valor_normal = et_valor.getText().toString();
         et_valor.addTextChangedListener(MaskMoney.insert(et_valor));
 
         btnCalendar = (Button) findViewById(R.id.btnCalendar);
@@ -80,6 +79,8 @@ public class SimuladorPedido extends AppCompatActivity {
         btn_verificar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                valor_normal = MaskMoney.removeMask(et_valor.getText().toString());
 
                 boolean campos = true;
 
@@ -112,7 +113,7 @@ public class SimuladorPedido extends AppCompatActivity {
                     Bundle b = new Bundle();
                     b.putString("id", id);
                     b.putString("nome", nome);
-                    b.putString("valor", et_valor.getText().toString());
+                    b.putString("valor", valor_normal);
                     b.putString("url_img", url_img);
                     b.putString("vencimento", et_calendario.getText().toString());
                     b.putInt("dias", dias_pagamento);
