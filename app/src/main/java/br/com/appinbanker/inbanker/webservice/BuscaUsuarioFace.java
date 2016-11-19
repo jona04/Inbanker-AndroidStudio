@@ -7,9 +7,15 @@ import android.util.Log;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
+import br.com.appinbanker.inbanker.Inicio;
 import br.com.appinbanker.inbanker.SimuladorResultado;
-import br.com.appinbanker.inbanker.TelaLogin;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.fragments_navigation.HistoricoFragment;
+import br.com.appinbanker.inbanker.fragments_navigation.InicioFragment;
+import br.com.appinbanker.inbanker.fragments_navigation.PagamentosPendentesFragment;
+import br.com.appinbanker.inbanker.fragments_navigation.PedidosEnviadosFragment;
+import br.com.appinbanker.inbanker.fragments_navigation.PedidosRecebidosFragment;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 
 /**
  * Created by jonatassilva on 23/10/16.
@@ -17,12 +23,16 @@ import br.com.appinbanker.inbanker.entidades.Usuario;
 
 public class BuscaUsuarioFace extends AsyncTask<String,String,Usuario> {
 
-    private SimuladorResultado sr;
     private String id_face;
+    private Context context;
 
-    public BuscaUsuarioFace(String id_face, SimuladorResultado sr){
+    private WebServiceReturnUsuario ru;
 
-        this.sr = sr;
+
+    public BuscaUsuarioFace(String id_face, Context context, WebServiceReturnUsuario ru){
+
+        this.context = context;
+        this.ru = ru;
         this.id_face = id_face;
 
     }
@@ -50,8 +60,8 @@ public class BuscaUsuarioFace extends AsyncTask<String,String,Usuario> {
         if(result!= null)
             Log.i("Script",result.getNome());
 
-        sr.retornoBuscaUsuario(result);
-
+        //verificamos de onde esta sendo chamado a api, para utilizamos o retorno especifico
+        ru.retornoUsuarioWebService(result);
     }
 
 }

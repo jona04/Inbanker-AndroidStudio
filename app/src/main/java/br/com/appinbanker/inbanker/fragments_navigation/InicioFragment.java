@@ -17,19 +17,22 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import br.com.appinbanker.inbanker.Inicio;
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.gcm.RegistrationIntentService;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.util.CheckConection;
 import br.com.appinbanker.inbanker.util.CheckPlayServices;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
+import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 
-public class InicioFragment extends Fragment {
+public class InicioFragment extends Fragment implements WebServiceReturnUsuario{
 
     TextView badge_notification_ped_rec,badge_notification_pag_pen,badge_notification_ped_env;
 
@@ -65,7 +68,11 @@ public class InicioFragment extends Fragment {
         cursor = crud.carregaDados();
         try {
             String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
-            new BuscaUsuarioCPF(cpf, null, null, null, null, InicioFragment.this).execute();
+            String id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
+            if(!cpf.equals(""))
+                new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
+            else
+                new BuscaUsuarioFace(id_face,getActivity(),this).execute();
         }catch (Exception e){
 
         }
@@ -125,7 +132,8 @@ public class InicioFragment extends Fragment {
         return view;
     }
 
-    public void retornoBuscaUsuario(Usuario usu) {
+    @Override
+    public void retornoUsuarioWebService(Usuario usu) {
 
         progress_bar_inicio.setVisibility(View.GONE);
 
@@ -203,5 +211,4 @@ public class InicioFragment extends Fragment {
         mensagem.setNeutralButton(botao,null);
         mensagem.show();
     }
-
 }

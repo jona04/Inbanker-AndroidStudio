@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 
+import br.com.appinbanker.inbanker.SimuladorResultado;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.fragments_navigation.PedirEmprestimoFragment;
 import cz.msebera.android.httpclient.HttpResponse;
@@ -37,10 +38,16 @@ public class AtualizaUsuario extends AsyncTask<String, String, String> {
 
     private Usuario usuario;
     private PedirEmprestimoFragment pef;
+    private SimuladorResultado sr;
 
     public AtualizaUsuario(Usuario usu,PedirEmprestimoFragment pef){
         this.usuario = usu;
         this.pef = pef;
+
+    }
+    public AtualizaUsuario(Usuario usu,SimuladorResultado sr){
+        this.usuario = usu;
+        this.sr = sr;
 
     }
 
@@ -49,10 +56,14 @@ public class AtualizaUsuario extends AsyncTask<String, String, String> {
 
         try {
 
-            final String url = Host.host+"appinbanker/rest/usuario/edit/"+ usuario.getCpf();
+            String url = null;
+            if (pef != null)
+                url = Host.host+"appinbanker/rest/usuario/editUserbyCPF/"+ usuario.getCpf();
+            else if (sr != null)
+                url = Host.host+"appinbanker/rest/usuario/editUserbyFace/"+ usuario.getIdFace();
 
-            Log.i("WebService", "url atualiza = " + url);
-            Log.i("webservice", "id name e senha" + usuario.getIdFace() + " - " + usuario.getNomeFace() + " - " + usuario.getUrlImgFace());
+            //Log.i("WebService", "url atualiza = " + url);
+            //Log.i("webservice", "id name e senha" + usuario.getIdFace() + " - " + usuario.getNomeFace() + " - " + usuario.getUrlImgFace());
 
             // Set the Content-Type header
             HttpHeaders requestHeaders = new HttpHeaders();
@@ -120,7 +131,9 @@ public class AtualizaUsuario extends AsyncTask<String, String, String> {
     protected void onPostExecute(String result) {
         Log.i("Script","onPostExecute result atualiza usuario ="+result);
 
-        pef.retornoAtualizaUsuario(result);
-
+        if (pef != null)
+            pef.retornoAtualizaUsuario(result);
+        else if (sr != null)
+            sr.retornoAtualizaUsuario(result);
     }
 }

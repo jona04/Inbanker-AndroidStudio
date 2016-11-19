@@ -39,9 +39,15 @@
         android:layout_height="fill_parent"
         android:orientation="vertical"
         android:layout_below="@+id/ll_btn"
-        android:layout_marginTop="110px"
+        android:layout_marginTop="100px"
         android:layout_centerHorizontal="true">
 
+        <!--<ProgressBar
+            android:id="@+id/progress_bar_inicio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"/>-->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -51,7 +57,10 @@
                 android:id="@+id/btn_cadastro"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="Criar conta no InBanker"/>
+                android:text="Criar nova conta"
+                android:background="#30cbd6"
+                android:padding="5dp"
+                android:textColor="#ffffff"/>
 
 
 
@@ -60,17 +69,30 @@
                 facebook:com_facebook_login_text="Entrar com facebook"
                 android:id="@+id/fbLoginButton"
                 android:layout_width="fill_parent"
-                android:layout_marginTop="5dp"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
 
                 />
+
+            <Button
+                android:id="@+id/btn_fb"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="#416BC1"
+                android:text="Entrar com FaceBook"
+                android:layout_marginTop="5dp"
+                android:padding="5dp"
+                android:textColor="#ffffff" />
 
             <Button
                 android:id="@+id/btn_entrar"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:text="Ja sou cadastrado"/>
+                android:padding="5dp"
+                android:text="Ja sou cadastrado"
+                android:background="#ffffff"
+                android:textColor="#434343"/>
 
         </LinearLayout>
     </LinearLayout>

@@ -36,14 +36,14 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
     private String meu_cpf;
 
     public ListaHistoricoAdapter(Context c, List<Transacao> l,String meu_cpf){
-        c = c;
-        meu_cpf = meu_cpf;
-        mList = l;
-        mLayoutInflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.c = c;
+        this.meu_cpf = meu_cpf;
+        this.mList = l;
+        this.mLayoutInflater = (LayoutInflater) c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     public void setRecyclerViewOnClickListenerHack(RecyclerViewOnClickListenerHack r){
-        mRecyclerViewOnClickListenerHack = r;
+        this.mRecyclerViewOnClickListenerHack = r;
 
     }
 
@@ -77,11 +77,13 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
         holder.tv_data_pedido.setText(holder.tv_data_pedido.getText().toString()+mList.get(position).getDataPedido());
         holder.tv_valor_pedido.setText(holder.tv_valor_pedido.getText().toString()+valor_formatado);
 
-        if(meu_cpf == mList.get(position).getUsu1()) {
+        if(meu_cpf.equals(mList.get(position).getUsu1().toString())) {
+            holder.tv_txt_nome.setText("Você enviou para ");
             holder.tv_nome_usuario.setText(mList.get(position).getNome_usu2());
             uri = Uri.parse(mList.get(position).getUrl_img_usu2());
             Picasso.with(context).load(uri).into(holder.imagem);
         }else{
+            holder.tv_txt_nome.setText("Você recebeu de ");
             holder.tv_nome_usuario.setText(mList.get(position).getNome_usu1());
             uri = Uri.parse(mList.get(position).getUrl_img_usu1());
             Picasso.with(context).load(uri).into(holder.imagem);
@@ -107,6 +109,7 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
         public TextView tv_data_pedido;
         public TextView tv_valor_pedido;
         public TextView tv_status_pedido;
+        public TextView tv_txt_nome;
 
         public MyViewHolder(View itemView){
             super(itemView);
@@ -116,6 +119,8 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
             tv_data_pedido = (TextView) itemView.findViewById(R.id.tv_data_pedido);
             tv_valor_pedido = (TextView) itemView.findViewById(R.id.tv_valor_pedido);
             tv_status_pedido = (TextView) itemView.findViewById(R.id.tv_status_pedido);
+
+            tv_txt_nome = (TextView) itemView.findViewById(R.id.tv_txt_nome);
 
             itemView.setOnClickListener(this);
         }

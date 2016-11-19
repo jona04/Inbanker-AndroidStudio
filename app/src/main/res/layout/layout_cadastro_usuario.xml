@@ -29,6 +29,8 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:textColor="#000"
+            android:imeOptions="actionNext"
+            android:singleLine="true"
             android:layout_gravity="center_horizontal"/>
 
         <EditText
@@ -40,6 +42,8 @@
             android:layout_marginRight="10dp"
             android:inputType="textEmailAddress"
             android:textColor="#000"
+            android:imeOptions="actionNext"
+            android:singleLine="true"
             android:layout_gravity="center_horizontal"/>
 
         <RelativeLayout
@@ -61,6 +65,8 @@
                     android:inputType="number"
                     android:layout_marginTop="1dp"
                     android:paddingRight="20dp"
+                    android:imeOptions="actionNext"
+                    android:singleLine="true"
                     android:textColor="#000"/>
             </LinearLayout>
             <android.support.design.widget.FloatingActionButton
@@ -92,6 +98,8 @@
             android:layout_marginRight="10dp"
             android:inputType="textPassword"
             android:textColor="#000"
+            android:imeOptions="actionNext"
+            android:singleLine="true"
             android:layout_gravity="center_horizontal"/>
 
 
@@ -104,6 +112,7 @@
             android:layout_marginRight="10dp"
             android:inputType="textPassword"
             android:textColor="#000"
+            android:singleLine="true"
             android:layout_gravity="center_horizontal"/>
 
         <LinearLayout

@@ -67,17 +67,17 @@
                 <TextView android:id="@+id/tv_dias_pagamento" />
             </TableRow>
             <TableRow>
-                <TextView android:text="Taxa de juros A.M.: 1,99%:"/>
+                <TextView android:text="Taxa de juros A.M.:"/>
                 <TextView android:id="@+id/tv_juros_mes" />
             </TableRow>
-           <!--<TableRow>
-                <TextView android:text="Valor de serviço:"/>
-                <TextView android:id="@+id/tv_valor_servico" />
-            </TableRow>-->
+           <TableRow>
+                <TextView android:text="Valor total do juros:"/>
+                <TextView android:id="@+id/tv_valor_juros" />
+            </TableRow>
 
 
             <TableRow>
-                <TextView android:text="Valor total:"/>
+                <TextView android:text="Valor total da dívida:"/>
                 <TextView android:id="@+id/tv_valor_total" />
             </TableRow>
 

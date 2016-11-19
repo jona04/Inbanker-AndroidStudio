@@ -24,11 +24,13 @@ import br.com.appinbanker.inbanker.adapters.ListaTransacaoAdapter;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
+import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 
-public class PagamentosPendentesFragment extends Fragment implements RecyclerViewOnClickListenerHack {
+public class PagamentosPendentesFragment extends Fragment implements RecyclerViewOnClickListenerHack,WebServiceReturnUsuario {
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
@@ -64,10 +66,16 @@ public class PagamentosPendentesFragment extends Fragment implements RecyclerVie
 
         crud = new BancoControllerUsuario(getActivity());
         cursor = crud.carregaDados();
-        cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+        try {
+            String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+            String id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
+            if(!cpf.equals(""))
+                new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
+            else
+                new BuscaUsuarioFace(id_face,getActivity(),this).execute();
+        }catch (Exception e){
 
-        //busca pedidos enviados
-        new BuscaUsuarioCPF(cpf,null,null,null,PagamentosPendentesFragment.this,null).execute();
+        }
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_pagamentos);
 
@@ -93,7 +101,7 @@ public class PagamentosPendentesFragment extends Fragment implements RecyclerVie
         return view;
     }
 
-    public void retornoBuscaUsuario(Usuario usu){
+    public void retornoUsuarioWebService(Usuario usu){
 
         progress_lista_pagamentos.setVisibility(View.GONE);
 

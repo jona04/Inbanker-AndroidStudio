@@ -1,6 +1,7 @@
 package br.com.appinbanker.inbanker.gcm;
 
 import android.app.Activity;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -56,6 +57,26 @@ public class MyGcmListenerService extends GcmListenerService {
                 .setContentText(data.getBundle("notification").getString("body"))
                 .setAutoCancel(true);
 
+        NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
+        bigText.bigText(data.getBundle("notification").getString("body"));
+        builder.setStyle(bigText);
+
+        builder.setPriority(NotificationCompat.PRIORITY_HIGH);
+        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+
+        //tempo vibrando, dormindo, vibrando, dormindo
+        builder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000});
+
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+        if(alarmSound == null){
+            alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+            if(alarmSound == null){
+                alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            }
+        }
+        //Log.i("notification","sound = "+alarmSound);
+        builder.setSound(alarmSound);
+        //builder.setDefaults(Notification.DEFAULT_SOUND);
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonInString = data.getBundle("notification").getString("transacao");
@@ -68,6 +89,8 @@ public class MyGcmListenerService extends GcmListenerService {
         }
 
         int status_transacao = Integer.parseInt(trans.getStatus_transacao());
+
+        Log.i("Notificacao", "Status notificacao = "+ status_transacao);
 
         Class classe;
 
@@ -121,19 +144,6 @@ public class MyGcmListenerService extends GcmListenerService {
         it.putExtras(b);
         PendingIntent pi = PendingIntent.getActivity(this,0,it,PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pi);
-
-        NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
-        bigText.bigText(data.getBundle("notification").getString("body"));
-        builder.setStyle(bigText);
-
-        builder.setPriority(NotificationCompat.PRIORITY_HIGH);
-        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-
-        //tempo vibrando, dormindo, vibrando, dormindo
-        builder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000});
-
-        Uri uri = RingtoneManager.getDefaultUri( RingtoneManager.TYPE_NOTIFICATION );
-        builder.setSound(uri);
 
         NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         nm.notify(1, builder.build());

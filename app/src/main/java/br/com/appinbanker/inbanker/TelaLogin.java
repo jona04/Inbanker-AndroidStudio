@@ -5,14 +5,18 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AtualizaTokenGcm;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioLogin;
 
@@ -38,25 +42,66 @@ public class TelaLogin extends ActionBarActivity {
 
         pg_login = (ProgressBar) findViewById(R.id.pg_login);
 
+        et_senha.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int keyCode, KeyEvent event) {
+                if (keyCode == EditorInfo.IME_ACTION_SEARCH ||
+                        keyCode == EditorInfo.IME_ACTION_DONE ||
+                        event.getAction() == KeyEvent.ACTION_DOWN &&
+                                event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+
+
+                    clickLogin();
+
+                    return true;
+                }
+                return false;
+            }
+        });
+
         btn_entrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if(et_email.getText().toString().equals("") || et_senha.getText().toString().equals(""))
-                {
-                    mensagem("Houve um erro!","Olá, existem campos não preenchidos. Favor preencha todos e tente novamente!","Ok");
-                }else{
-
-                    pg_login.setVisibility(View.VISIBLE);
-                    btn_entrar.setEnabled(false);
-                    new BuscaUsuarioLogin(et_email.getText().toString(),TelaLogin.this,TelaLogin.this).execute();
-
-                }
-
+                clickLogin();
             }
         });
 
 
+    }
+
+    public void clickLogin(){
+        boolean campos_ok = true;
+
+        boolean email_valido = Validador.validateEmail(et_email.getText().toString());
+        if(!email_valido){
+            et_email.setError("Email inválido");
+            et_email.setFocusable(true);
+            et_email.requestFocus();
+
+            campos_ok = false;
+        }
+
+        boolean valida_senha = Validador.validateNotNull(et_senha.getText().toString());
+        if(!valida_senha){
+            et_senha.setError("Campo Vazio");
+            et_senha.setFocusable(true);
+            et_senha.requestFocus();
+
+            campos_ok = false;
+        }
+
+        if(campos_ok) {
+            if (et_email.getText().toString().equals("") || et_senha.getText().toString().equals("")) {
+                mensagem("Houve um erro!", "Olá, existem campos não preenchidos. Favor preencha todos e tente novamente!", "Ok");
+            } else {
+
+                pg_login.setVisibility(View.VISIBLE);
+                btn_entrar.setEnabled(false);
+                new BuscaUsuarioLogin(et_email.getText().toString(), TelaLogin.this, TelaLogin.this).execute();
+
+            }
+        }
     }
 
     public void retornoTask(Usuario usu){

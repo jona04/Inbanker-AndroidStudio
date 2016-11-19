@@ -304,11 +304,10 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
     public void atualizaDadosUsuario(String id, String url_picture,String name){
 
-        //atualizamos os dados do usuario que esta no sqlite com os dados dele que acabaram de ser logados no facebook
+        //atualizamos os dados do usuario que esta no sqlite com os dados dele que acabaram de ser cadastrador - cpf e senha
         BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
         Cursor cursor = crud.carregaDados();
         String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
-        crud.alteraRegistroFace(cpf,id,name,url_picture);
 
         Usuario usu = new Usuario();
 

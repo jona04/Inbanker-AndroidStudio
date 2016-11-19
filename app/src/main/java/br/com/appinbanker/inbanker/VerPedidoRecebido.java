@@ -30,13 +30,14 @@ import java.util.Locale;
 
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.EditaTransacao;
 import br.com.appinbanker.inbanker.webservice.EditaTransacaoResposta;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 
-public class VerPedidoRecebido extends AppCompatActivity {
+public class VerPedidoRecebido extends AppCompatActivity implements WebServiceReturnUsuario{
 
     private boolean aceitou_pedido = false,resp_quitacao = false,confirmou_recebimento = false;
 
@@ -279,7 +280,7 @@ public class VerPedidoRecebido extends AppCompatActivity {
         if(result.equals("sucesso_edit")){
 
             //busca token do usuario 1
-            new BuscaUsuarioCPF(cpf1,VerPedidoRecebido.this,null,null).execute();
+            new BuscaUsuarioCPF(cpf1,VerPedidoRecebido.this,this).execute();
 
         }else{
             mensagem("Houve um erro!","Olá, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
@@ -287,7 +288,8 @@ public class VerPedidoRecebido extends AppCompatActivity {
 
     }
 
-    public void retornoBuscaTokenUsuario(Usuario usu){
+    @Override
+    public void retornoUsuarioWebService(Usuario usu){
 
         Transacao trans = new Transacao();
         trans.setNome_usu1(nome1);

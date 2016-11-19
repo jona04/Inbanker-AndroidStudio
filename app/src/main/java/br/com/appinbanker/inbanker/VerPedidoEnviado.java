@@ -31,11 +31,12 @@ import java.util.Locale;
 
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.EditaTransacao;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 
-public class VerPedidoEnviado extends AppCompatActivity {
+public class VerPedidoEnviado extends AppCompatActivity implements WebServiceReturnUsuario {
 
     private String id,nome2,cpf1,cpf2,data_pedido,nome1,valor,vencimento,img1,img2;
 
@@ -174,7 +175,7 @@ public class VerPedidoEnviado extends AppCompatActivity {
         if(result.equals("sucesso_edit")){
 
             //busca token do usuario 1
-            new BuscaUsuarioCPF(cpf2,null,VerPedidoEnviado.this,null).execute();
+            new BuscaUsuarioCPF(cpf2,this,this).execute();
 
 
         }else{
@@ -183,7 +184,8 @@ public class VerPedidoEnviado extends AppCompatActivity {
 
     }
 
-    public void retornoBuscaTokenUsuario(Usuario usu) {
+    @Override
+    public void retornoUsuarioWebService(Usuario usu) {
 
         Transacao trans = new Transacao();
 

@@ -27,11 +27,13 @@ import br.com.appinbanker.inbanker.adapters.ListaTransacaoRecAdapter;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
+import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 
-public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOnClickListenerHack {
+public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOnClickListenerHack, WebServiceReturnUsuario {
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
@@ -68,10 +70,16 @@ public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOn
 
         crud = new BancoControllerUsuario(getActivity());
         cursor = crud.carregaDados();
-        cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+        try {
+            String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+            String id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
+            if(!cpf.equals(""))
+                new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
+            else
+                new BuscaUsuarioFace(id_face,getActivity(),this).execute();
+        }catch (Exception e){
 
-        //busca pedidos enviados
-        new BuscaUsuarioCPF(cpf,null,PedidosRecebidosFragment.this,null,null,null).execute();
+        }
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_pedidos_rec);
 
@@ -97,7 +105,7 @@ public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOn
         return view;
     }
 
-    public void retornoBuscaUsuario(Usuario usu){
+    public void retornoUsuarioWebService(Usuario usu){
 
         msg_lista_pedidos.setVisibility(View.GONE);
         progress_lista_pedidos_recebidos.setVisibility(View.GONE);

@@ -30,6 +30,7 @@ import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
+import br.com.appinbanker.inbanker.webservice.BuscaUsuarioHistoricoCPF;
 
 public class HistoricoFragment extends Fragment implements RecyclerViewOnClickListenerHack {
 
@@ -71,7 +72,7 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
         try{
             cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
             //busca pedidos enviados
-            new BuscaUsuarioCPF(cpf,null,null,HistoricoFragment.this,null,null).execute();
+            new BuscaUsuarioHistoricoCPF(cpf,HistoricoFragment.this).execute();
         }catch (Exception e){
             Log.i("Webservice","-"+e);
         }

@@ -7,11 +7,14 @@ import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
@@ -20,7 +23,7 @@ import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AddUsuario;
 import br.com.appinbanker.inbanker.webservice.VerificaUsuarioCadastro;
 
-public class CadastroUsuario extends AppCompatActivity {
+public class CadastroUsuario extends AppCompatActivity implements WebServiceReturnString {
 
     Usuario usu;
     EditText et_nome;
@@ -61,6 +64,23 @@ public class CadastroUsuario extends AppCompatActivity {
             }
         });
 
+        et_senha_novamente.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int keyCode, KeyEvent event) {
+                if (keyCode == EditorInfo.IME_ACTION_SEARCH ||
+                        keyCode == EditorInfo.IME_ACTION_DONE ||
+                        event.getAction() == KeyEvent.ACTION_DOWN &&
+                                event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+
+
+                    clickCadastrar();
+
+                    return true;
+
+                }
+                return false;
+            }
+        });
         btn_cadastro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -70,71 +90,7 @@ public class CadastroUsuario extends AppCompatActivity {
                     mensagem("Sem conexao!","Olá, para realizar o cadastro você precisa estar conectado em alguma rede.","Ok");
                 }else {
 
-                    boolean campos_ok = true;
-
-                    boolean nome_valido = Validador.validateNotNull(et_nome.getText().toString());
-                    if(!nome_valido) {
-                        et_nome.setError("Campo vazio");
-                        et_nome.setFocusable(true);
-                        et_nome.requestFocus();
-
-                        campos_ok = false;
-                    }
-
-                    boolean cpf_valido = Validador.isCPF(et_cpf.getText().toString());
-                    if(!cpf_valido) {
-                        et_cpf.setError("CPF inválido");
-                        et_cpf.setFocusable(true);
-                        et_cpf.requestFocus();
-
-                        campos_ok = false;
-                    }
-
-                    boolean email_valido = Validador.validateEmail(et_email.getText().toString());
-                    if(!email_valido){
-                        et_email.setError("Email inválido");
-                        et_email.setFocusable(true);
-                        et_email.requestFocus();
-
-                        campos_ok = false;
-                    }
-
-                    boolean valida_senha = Validador.validateNotNull(et_senha.getText().toString());
-                    if(!valida_senha){
-                        et_senha.setError("Campo Vazio");
-                        et_senha.setFocusable(true);
-                        et_senha.requestFocus();
-
-                        campos_ok = false;
-                    }
-
-                    boolean valida_confirm_senha = Validador.validateNotNull(et_senha_novamente.getText().toString());
-                    if(!valida_confirm_senha){
-                        et_senha_novamente.setError("Campo Vazio");
-                        et_senha_novamente.setFocusable(true);
-                        et_senha_novamente.requestFocus();
-
-                        campos_ok = false;
-                    }
-
-                    if (et_senha.getText().toString().equals(et_senha_novamente.getText().toString())) {
-
-                        if(campos_ok) {
-
-                            btn_cadastro.setEnabled(false);
-                            progress_bar_cadastro.setVisibility(View.VISIBLE);
-
-                            new VerificaUsuarioCadastro(et_email.getText().toString(), et_cpf.getText().toString(), CadastroUsuario.this, CadastroUsuario.this).execute();
-                        }
-
-                    } else {
-
-                        et_senha_novamente.setError("Senha diferente");
-                        et_senha_novamente.setFocusable(true);
-                        et_senha_novamente.requestFocus();
-
-                        campos_ok = false;
-                    }
+                    clickCadastrar();
 
                 }
 
@@ -143,6 +99,76 @@ public class CadastroUsuario extends AppCompatActivity {
         });
 
 
+
+    }
+
+    public void clickCadastrar(){
+
+        boolean campos_ok = true;
+
+        boolean nome_valido = Validador.validateNotNull(et_nome.getText().toString());
+        if(!nome_valido) {
+            et_nome.setError("Campo vazio");
+            et_nome.setFocusable(true);
+            et_nome.requestFocus();
+
+            campos_ok = false;
+        }
+
+        boolean cpf_valido = Validador.isCPF(et_cpf.getText().toString());
+        if(!cpf_valido) {
+            et_cpf.setError("CPF inválido");
+            et_cpf.setFocusable(true);
+            et_cpf.requestFocus();
+
+            campos_ok = false;
+        }
+
+        boolean email_valido = Validador.validateEmail(et_email.getText().toString());
+        if(!email_valido){
+            et_email.setError("Email inválido");
+            et_email.setFocusable(true);
+            et_email.requestFocus();
+
+            campos_ok = false;
+        }
+
+        boolean valida_senha = Validador.validateNotNull(et_senha.getText().toString());
+        if(!valida_senha){
+            et_senha.setError("Campo Vazio");
+            et_senha.setFocusable(true);
+            et_senha.requestFocus();
+
+            campos_ok = false;
+        }
+
+        boolean valida_confirm_senha = Validador.validateNotNull(et_senha_novamente.getText().toString());
+        if(!valida_confirm_senha){
+            et_senha_novamente.setError("Campo Vazio");
+            et_senha_novamente.setFocusable(true);
+            et_senha_novamente.requestFocus();
+
+            campos_ok = false;
+        }
+
+        if (et_senha.getText().toString().equals(et_senha_novamente.getText().toString())) {
+
+            if(campos_ok) {
+
+                btn_cadastro.setEnabled(false);
+                progress_bar_cadastro.setVisibility(View.VISIBLE);
+
+                new VerificaUsuarioCadastro(et_email.getText().toString(), et_cpf.getText().toString(), CadastroUsuario.this).execute();
+            }
+
+        } else {
+
+            et_senha_novamente.setError("Senha diferente");
+            et_senha_novamente.setFocusable(true);
+            et_senha_novamente.requestFocus();
+
+            campos_ok = false;
+        }
 
     }
 
@@ -166,7 +192,7 @@ public class CadastroUsuario extends AppCompatActivity {
             usu.setUrlImgFace("");
 
             //fazemos a chamada a classe responsavel por realizar a tarefa de webservice em doinbackground
-            new AddUsuario(usu, CadastroUsuario.this).execute();
+            new AddUsuario(usu, CadastroUsuario.this,null).execute();
         }else {
 
             btn_cadastro.setEnabled(true);
@@ -181,7 +207,7 @@ public class CadastroUsuario extends AppCompatActivity {
     }
 
     //metodo que sera invoca na classe de webserve
-    public void retornoTaskAdd(String msg){
+    public void retornoStringWebService(String msg){
 
         btn_cadastro.setEnabled(true);
         progress_bar_cadastro.setVisibility(View.GONE);

@@ -1,5 +1,6 @@
 package br.com.appinbanker.inbanker.webservice;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -13,7 +14,9 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 
 import br.com.appinbanker.inbanker.CadastroUsuario;
+import br.com.appinbanker.inbanker.Inicio;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 
 /**
  * Created by jonatassilva on 18/10/16.
@@ -22,11 +25,13 @@ import br.com.appinbanker.inbanker.entidades.Usuario;
 public class AddUsuario extends AsyncTask<String, String, String> {
 
     private Usuario usuario;
-    private CadastroUsuario cu;
+    private Context context;
+    private WebServiceReturnString rs;
 
-    public AddUsuario(Usuario usu, CadastroUsuario cu) {
+    public AddUsuario(Usuario usu, Context context, WebServiceReturnString rs) {
         this.usuario = usu;
-        this.cu = cu;
+        this.rs = rs;
+        this.context = context;
     }
 
     @Override
@@ -66,7 +71,8 @@ public class AddUsuario extends AsyncTask<String, String, String> {
     protected void onPostExecute(String result) {
         Log.i("Script","resultado = "+result);
 
-        cu.retornoTaskAdd(result);
-
+        rs.retornoStringWebService(result);
     }
+
+
 }

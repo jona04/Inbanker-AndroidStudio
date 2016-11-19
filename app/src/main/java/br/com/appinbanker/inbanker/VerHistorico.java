@@ -3,6 +3,7 @@ package br.com.appinbanker.inbanker;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,11 @@ import com.squareup.picasso.Picasso;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
+
+import br.com.appinbanker.inbanker.fragments_navigation.HistoricoFragment;
+import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
+import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 
 public class VerHistorico extends AppCompatActivity {
 
@@ -56,11 +62,22 @@ public class VerHistorico extends AppCompatActivity {
             finish();
         }
 
-        ImageView img = (ImageView) findViewById(R.id.img_amigo);
-        Picasso.with(getBaseContext()).load(img2).into(img);
+        BancoControllerUsuario crud = new BancoControllerUsuario(this);
+        Cursor cursor = crud.carregaDados();
+        String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
 
+        ImageView img = (ImageView) findViewById(R.id.img_amigo);
         TextView tv = (TextView) findViewById(R.id.nome_amigo);
-        tv.setText(tv.getText().toString()+nome2);
+        //identicamos qual é o usuario 1 e 2 na transacao, para exibir os dados corretoa na tela
+        if(cpf.equals(cpf1)) {
+            Picasso.with(getBaseContext()).load(img2).into(img);
+            tv.setText("Você enviou esse pedido para "+tv.getText().toString() + nome2);
+        }else {
+            Picasso.with(getBaseContext()).load(img1).into(img);
+            tv.setText("Você recebeu esse pedido de "+tv.getText().toString() + nome1);
+        }
+
+
 
         tr_pagamento = (TableRow) findViewById(R.id.tr_pagamento);
         tr_cancelado = (TableRow) findViewById(R.id.tr_cancelado);

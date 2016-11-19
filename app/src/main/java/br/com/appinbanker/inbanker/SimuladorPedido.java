@@ -21,6 +21,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import br.com.appinbanker.inbanker.util.MaskMoney;
 import br.com.appinbanker.inbanker.util.Validador;
@@ -148,6 +149,19 @@ public class SimuladorPedido extends AppCompatActivity {
                         et_calendario.setText(data);
                     }
                 }, mYear, mMonth, mDay);
+
+        Date today = new Date();
+        Calendar c2 = Calendar.getInstance();
+        c2.setTime(today);
+        c2.add( Calendar.MONTH, 2 ); // add 2 months
+        Calendar c3 = Calendar.getInstance();
+        c3.setTime(today);
+        c3.add( Calendar.DAY_OF_MONTH, 1 ); // add 1 day
+        long minDate = c3.getTime().getTime(); // Twice!
+        long maxDate = c2.getTime().getTime(); // Twice!
+
+        dpd.getDatePicker().setMinDate(minDate);
+        dpd.getDatePicker().setMaxDate(maxDate);
         dpd.show();
     }
 

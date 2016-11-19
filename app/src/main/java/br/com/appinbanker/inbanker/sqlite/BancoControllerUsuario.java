@@ -96,6 +96,21 @@ public class BancoControllerUsuario {
         db.update(CriandoBanco.TABELA,valores,where,null);
         db.close();
     }
+    public void alteraRegistroCpf(String id_face,String cpf,String senha){
+        ContentValues valores;
+        String where;
+
+        db = banco.getWritableDatabase();
+
+        where = CriandoBanco.ID_FACE + "= '" + id_face +"'";
+
+        valores = new ContentValues();
+        valores.put(CriandoBanco.CPF, cpf);
+        valores.put(CriandoBanco.SENHA, senha);
+
+        db.update(CriandoBanco.TABELA,valores,where,null);
+        db.close();
+    }
 
     public void deletaRegistro(String cpf){
         String where = CriandoBanco.CPF + "= '" + cpf +"'";

@@ -60,7 +60,7 @@ public class AtualizaTokenGcm extends AsyncTask<String, String, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        Log.i("Script","onPostExecute result atualiza token ="+result);
+        Log.i("Script","webservice onPostExecute result atualiza token ="+result);
 
        // pef.retornoAtualizaTokenGcm(result);
 
