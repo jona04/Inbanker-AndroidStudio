@@ -43,28 +43,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Inicio" />
         <activity
-            android:name=".CadastroUsuario"
-            android:label="@string/title_activity_cadastro_usuario"
-            android:parentActivityName=".Inicio"
-            android:windowSoftInputMode="adjustPan" >
-
-            <!--
-            Parent activity meta-data to support 4.0 and lower
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="br.com.appinbanker.inbanker.Inicio"/>
-            -->
-        </activity>
+            android:name=".Inicio"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
         <activity
             android:name=".NavigationDrawerActivity"
             android:label="@string/title_activity_navigation_drawer"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".TelaLogin"
-            android:label="@string/title_activity_telalogin"
-            android:parentActivityName=".Inicio" />
         <activity
             android:name=".SimuladorPedido"
             android:label="@string/title_activity_simulador_pedido"

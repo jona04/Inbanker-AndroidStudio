@@ -21,4 +21,6 @@
     <string name="title_activity_historico">Historico</string>
     <string name="title_activity_ver_pagamento">Pagamento pendente</string>
 
+    <string name="tela_inicio_termo"><u>Termos de uso</u></string>
+    <string name="tela_inicio_politica"><u>Política de privacidade</u></string>
 </resources>

@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import br.com.appinbanker.inbanker.TelaLogin;
+import br.com.appinbanker.inbanker.Inicio;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 
 /**
@@ -22,13 +22,13 @@ import br.com.appinbanker.inbanker.entidades.Usuario;
 public class BuscaUsuarioLogin extends AsyncTask<String,String,Usuario> {
 
     private Context context;
-    private TelaLogin tl;
-    private String email;
+    private Inicio tl;
+    private String cpf;
 
-    public BuscaUsuarioLogin(String email, Context context, TelaLogin tl){
+    public BuscaUsuarioLogin(String cpf, Context context, Inicio tl){
         this.context = context;
         this.tl = tl;
-        this.email = email;
+        this.cpf = cpf;
 
     }
     @Override
@@ -37,7 +37,7 @@ public class BuscaUsuarioLogin extends AsyncTask<String,String,Usuario> {
         String host = Host.host;
         try {
             //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/findEmail/"+email;
-            final String url = host+"appinbanker/rest/usuario/findEmail/"+email;
+            final String url = host+"appinbanker/rest/usuario/findUsuarioCpf/"+cpf;
 
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
@@ -54,7 +54,7 @@ public class BuscaUsuarioLogin extends AsyncTask<String,String,Usuario> {
         if(result!= null)
             Log.i("Script",result.getNome());
 
-        tl.retornoTask(result);
+        tl.retornoTaskUsuarioLogin(result);
 
     }
 }

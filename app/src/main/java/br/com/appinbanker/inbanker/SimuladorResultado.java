@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -16,7 +17,9 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -94,7 +97,18 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         double valor_total = juros_mensal +  valor;
 
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
-        Picasso.with(getBaseContext()).load(url_img).into(img);
+
+        Transformation transformation = new RoundedTransformationBuilder()
+                .borderColor(Color.GRAY)
+                .borderWidthDp(3)
+                .cornerRadiusDp(70)
+                .oval(false)
+                .build();
+
+        Picasso.with(getBaseContext())
+                .load(url_img)
+                .transform(transformation)
+                .into(img);
 
         tv_nome = (TextView) findViewById(R.id.nome_amigo);
         tv_dias_pagamento = (TextView) findViewById(R.id.tv_dias_pagamento);
@@ -115,7 +129,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         String valor_total_formatado = nf.format (valor_total);
 
        // tv_valor_servico.setText(taxa_fixa_formatado);
-        tv_nome.setText(tv_nome.getText().toString()+nome);
+        tv_nome.setText(nome);
         tv_dias_pagamento.setText(String.valueOf(dias));
         tv_valor_juros.setText(juros_mensal_formatado);
         tv_juros_mes.setText("1,99%");
@@ -237,7 +251,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
                             if (senha.equals(et_senha.getText().toString())) {
 
-                                new BuscaUsuarioFace(id, SimuladorResultado.this, null).execute();
+                                buscaUsuarioFace();
 
                                 dialog.dismiss();
 
@@ -259,7 +273,11 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
     }
 
-    public void retornoTaskVerifica(String result){
+    public void buscaUsuarioFace() {
+        new BuscaUsuarioFace(id, SimuladorResultado.this, this).execute();
+    }
+
+    public void retornoTaskVerificaCadastro(String result){
 
         if(result == null){
 

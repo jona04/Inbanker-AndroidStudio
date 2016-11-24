@@ -66,8 +66,8 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
     public void onBindViewHolder(ListaHistoricoAdapter.MyViewHolder holder, int position) {
         Log.i("Script", "Inicio historico adapter onBindViewHolder ");
 
-        Context context = holder.imagem.getContext();
-        Uri uri;
+        //Context context = holder.imagem.getContext();
+        //Uri uri;
 
         Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
@@ -75,25 +75,29 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
 
         //concatenamos a string atual com a nova que capturamos
         holder.tv_data_pedido.setText(holder.tv_data_pedido.getText().toString()+mList.get(position).getDataPedido());
-        holder.tv_valor_pedido.setText(holder.tv_valor_pedido.getText().toString()+valor_formatado);
 
         if(meu_cpf.equals(mList.get(position).getUsu1().toString())) {
-            holder.tv_txt_nome.setText("Você enviou para ");
+            holder.tv_valor_pedido.setText(valor_formatado);
             holder.tv_nome_usuario.setText(mList.get(position).getNome_usu2());
-            uri = Uri.parse(mList.get(position).getUrl_img_usu2());
-            Picasso.with(context).load(uri).into(holder.imagem);
+            holder.tv_valor_pedido.setText(valor_formatado);
+            //uri = Uri.parse(mList.get(position).getUrl_img_usu2());
+            //Picasso.with(context).load(uri).into(holder.imagem);
         }else{
-            holder.tv_txt_nome.setText("Você recebeu de ");
+            holder.tv_valor_pedido.setText("- "+valor_formatado);
             holder.tv_nome_usuario.setText(mList.get(position).getNome_usu1());
-            uri = Uri.parse(mList.get(position).getUrl_img_usu1());
-            Picasso.with(context).load(uri).into(holder.imagem);
+            //uri = Uri.parse(mList.get(position).getUrl_img_usu1());
+            //Picasso.with(context).load(uri).into(holder.imagem);
         }
 
         if(mList.get(position).getData_pagamento().length()>5) {
-            holder.tv_status_pedido.setText("Pedido completado");
+            String data_enc = mList.get(position).getData_pagamento().substring(0, mList.get(position).getData_pagamento().length()-5);
+            holder.tv_data_finalizado.setText(data_enc);
+            //holder.tv_status_pedido.setText("Pedido completado");
             //holder.tv_status_pedido.setTextColor(c.getResources().getColor(R.color.colorGreen));
         }else {
-            holder.tv_status_pedido.setText("Pedido cancelado");
+            String data_enc = mList.get(position).getData_recusada().substring(0, mList.get(position).getData_recusada().length()-5);
+            holder.tv_data_finalizado.setText(data_enc);
+            //holder.tv_status_pedido.setText("Pedido cancelado");
             //holder.tv_status_pedido.setTextColor(c.getResources().getColor(R.color.colorRed));
         }
     }
@@ -104,23 +108,21 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        public ImageView imagem;
+        //public ImageView imagem;
         public TextView tv_nome_usuario;
         public TextView tv_data_pedido;
         public TextView tv_valor_pedido;
-        public TextView tv_status_pedido;
-        public TextView tv_txt_nome;
+        public TextView tv_data_finalizado;
 
         public MyViewHolder(View itemView){
             super(itemView);
 
-            imagem = (ImageView) itemView.findViewById(R.id.icon);
+            //imagem = (ImageView) itemView.findViewById(R.id.icon);
             tv_nome_usuario = (TextView) itemView.findViewById(R.id.tv_nome_usuario);
             tv_data_pedido = (TextView) itemView.findViewById(R.id.tv_data_pedido);
             tv_valor_pedido = (TextView) itemView.findViewById(R.id.tv_valor_pedido);
-            tv_status_pedido = (TextView) itemView.findViewById(R.id.tv_status_pedido);
 
-            tv_txt_nome = (TextView) itemView.findViewById(R.id.tv_txt_nome);
+            tv_data_finalizado = (TextView) itemView.findViewById(R.id.tv_data_finalizado);
 
             itemView.setOnClickListener(this);
         }

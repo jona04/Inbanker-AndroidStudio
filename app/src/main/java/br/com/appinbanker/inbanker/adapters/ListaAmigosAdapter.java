@@ -1,6 +1,7 @@
 package br.com.appinbanker.inbanker.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -10,7 +11,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import org.w3c.dom.Text;
 
@@ -64,8 +67,19 @@ public class ListaAmigosAdapter extends RecyclerView.Adapter<ListaAmigosAdapter.
 
         Context context = holder.imagem.getContext();
         Uri uri = Uri.parse(mList.get(position).getPicture().getData().getUrl());
-        Picasso.with(context).load(uri).into(holder.imagem);
-        //holder.imagem.setImageURI(uri);
+
+        Transformation transformation = new RoundedTransformationBuilder()
+                .borderColor(Color.GRAY)
+                .borderWidthDp(3)
+                .cornerRadiusDp(70)
+                .oval(false)
+                .build();
+
+        Picasso.with(context)
+                .load(uri)
+                .transform(transformation)
+                .into(holder.imagem);
+
     }
 
     @Override

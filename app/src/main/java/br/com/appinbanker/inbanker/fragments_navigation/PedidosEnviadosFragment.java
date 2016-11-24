@@ -78,6 +78,7 @@ public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnC
         try {
             String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
             String id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
+            Log.i("Sqlite","valor cpf = "+cpf+" valor id_face = "+id_face);
             if(!cpf.equals(""))
                 new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
             else

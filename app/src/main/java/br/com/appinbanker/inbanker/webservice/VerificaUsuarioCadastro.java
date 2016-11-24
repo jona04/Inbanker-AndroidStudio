@@ -1,17 +1,13 @@
 package br.com.appinbanker.inbanker.webservice;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import br.com.appinbanker.inbanker.CadastroUsuario;
+import br.com.appinbanker.inbanker.Inicio;
 import br.com.appinbanker.inbanker.SimuladorResultado;
-import br.com.appinbanker.inbanker.TelaLogin;
-import br.com.appinbanker.inbanker.entidades.Usuario;
-import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 
 /**
  * Created by Jonatas on 27/10/2016.
@@ -19,12 +15,12 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 
 public class VerificaUsuarioCadastro extends AsyncTask<String,String,String> {
 
-    private CadastroUsuario tl;
+    private Inicio tl;
     private String email;
     private String cpf;
     private SimuladorResultado sr;
 
-    public VerificaUsuarioCadastro(String email,String cpf, CadastroUsuario tl){
+    public VerificaUsuarioCadastro(String email,String cpf, Inicio tl){
         this.tl = tl;
         this.email = email;
         this.cpf = cpf;
@@ -60,9 +56,9 @@ public class VerificaUsuarioCadastro extends AsyncTask<String,String,String> {
 
         Log.i("Script",""+result);
         if (tl != null)
-            tl.retornoTaskVerifica(result);
+            tl.retornoTaskVerificaCadastro(result);
         else if (sr != null)
-            sr.retornoTaskVerifica(result);
+            sr.retornoTaskVerificaCadastro(result);
     }
 
 }

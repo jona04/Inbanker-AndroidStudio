@@ -1,8 +1,11 @@
 package br.com.appinbanker.inbanker.fragments_navigation;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,12 +14,19 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -30,14 +40,20 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.makeramen.roundedimageview.RoundedTransformationBuilder;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
+import br.com.appinbanker.inbanker.Inicio;
 import br.com.appinbanker.inbanker.R;
 import br.com.appinbanker.inbanker.SimuladorPedido;
 import br.com.appinbanker.inbanker.adapters.ListaAmigosAdapter;
@@ -49,6 +65,11 @@ import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.webservice.AtualizaUsuario;
 
 public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnClickListenerHack {
+
+    EditText et_calendario;
+
+    // Variable for storing current date and time
+    private int mYear, mMonth, mDay,dias_pagamento;
 
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
@@ -341,7 +362,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
     @Override
     public void onClickListener(View view, int position) {
 
-        Log.i("Script", "Click tste inicio =" + mList.get(position).getName());
+        /*Log.i("Script", "Click tste inicio =" + mList.get(position).getName());
 
         Intent it = new Intent(getActivity(), SimuladorPedido.class);
         Bundle b = new Bundle();
@@ -349,8 +370,80 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         b.putString("nome",mList.get(position).getName());
         b.putString("url_img",mList.get(position).getPicture().getData().getUrl());
         it.putExtras(b);
-        startActivity(it);
+        startActivity(it);*/
 
+        final Dialog dialog = new Dialog(getActivity(),R.style.AppThemeDialog);
+        dialog.setContentView(R.layout.dialog_simulador_pedido);
+        dialog.setTitle("Simulador Pedido");
+
+        et_calendario = (EditText) dialog.findViewById(R.id.et_calendario);
+
+        ImageView img = (ImageView) dialog.findViewById(R.id.img_amigo);
+
+        Transformation transformation = new RoundedTransformationBuilder()
+                .borderColor(Color.GRAY)
+                .borderWidthDp(3)
+                .cornerRadiusDp(70)
+                .oval(false)
+                .build();
+
+        Picasso.with(getActivity())
+                .load(mList.get(position).getPicture().getData().getUrl())
+                .transform(transformation)
+                .into(img);
+
+        TextView tv = (TextView) dialog.findViewById(R.id.nome_amigo);
+        tv.setText(mList.get(position).getName());
+
+        Button btnCalendar = (Button) dialog.findViewById(R.id.btnCalendar);
+        btnCalendar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                mostraCalendario();
+
+            }
+        });
+
+        dialog.show();
+
+    }
+
+    public void mostraCalendario(){
+        // Process to get Current Date
+        final Calendar c = Calendar.getInstance();
+        mYear = c.get(Calendar.YEAR);
+        mMonth = c.get(Calendar.MONTH);
+        mDay = c.get(Calendar.DAY_OF_MONTH);
+
+        // Launch Date Picker Dialog
+        DatePickerDialog dpd = new DatePickerDialog(getActivity(),
+                new DatePickerDialog.OnDateSetListener() {
+
+                    @Override
+                    public void onDateSet(DatePicker view, int year,
+                                          int monthOfYear, int dayOfMonth) {
+
+                        String data = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year;
+
+                        // Display Selected date in textbox
+                        et_calendario.setText(data);
+                    }
+                }, mYear, mMonth, mDay);
+
+        Date today = new Date();
+        Calendar c2 = Calendar.getInstance();
+        c2.setTime(today);
+        c2.add( Calendar.MONTH, 2 ); // add 2 months
+        Calendar c3 = Calendar.getInstance();
+        c3.setTime(today);
+        c3.add( Calendar.DAY_OF_MONTH, 1 ); // add 1 day
+        long minDate = c3.getTime().getTime(); // Twice!
+        long maxDate = c2.getTime().getTime(); // Twice!
+
+        dpd.getDatePicker().setMinDate(minDate);
+        dpd.getDatePicker().setMaxDate(maxDate);
+        dpd.show();
     }
 
     public void mensagem()

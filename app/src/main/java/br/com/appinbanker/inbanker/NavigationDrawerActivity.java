@@ -3,6 +3,7 @@ package br.com.appinbanker.inbanker;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.NavigationView;
@@ -19,7 +20,9 @@ import android.widget.TextView;
 
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
+import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
@@ -95,10 +98,21 @@ public class NavigationDrawerActivity extends AppCompatActivity
         tv_nome_usu.setText(nome_usu_logado);
 
         ImageView img_usu_logado = (ImageView) header.findViewById(R.id.img_usu_logado);
-        Log.i("Facebook","url="+url);
+        //Log.i("Facebook","url="+url);
         if(url != null)
-            if(url.equals("")){}else{
-                Picasso.with(getBaseContext()).load(url).into(img_usu_logado);}
+            if(url.equals("")){}else {
+                Transformation transformation = new RoundedTransformationBuilder()
+                        .borderColor(Color.GRAY)
+                        .borderWidthDp(3)
+                        .cornerRadiusDp(70)
+                        .oval(false)
+                        .build();
+
+                Picasso.with(getBaseContext())
+                        .load(url)
+                        .transform(transformation)
+                        .into(img_usu_logado);
+            }
 
        //para iniciar com o primeiro item do menu navigation drawer (Inicio)
         //se tiver tiver algum parametro o menu é alterado

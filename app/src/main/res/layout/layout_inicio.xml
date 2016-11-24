@@ -4,96 +4,110 @@
     android:id="@+id/layout_inicio"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingTop="@dimen/activity_horizontal_margin"
+    android:background="@drawable/gradiente_splash"
     tools:context="br.com.appinbanker.inbanker.Inicio">
 
     <LinearLayout
         android:id="@+id/ll_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50px"
         android:orientation="vertical"
         >
 
         <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="150dp"
             android:layout_gravity="center_horizontal"
-            android:src="@drawable/icon"/>
+            android:src="@drawable/logo_inbanker"
+            android:id="@+id/imageView" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="Parceria entre amigos"
-            android:textSize="20dp"/>
 
     </LinearLayout>
 
+    <ProgressBar
+        android:id="@+id/progress_bar_inicio"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/fbLoginButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="invisible"/>
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/fbLoginButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        />
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_below="@+id/ll_btn"
-        android:layout_marginTop="100px"
-        android:layout_centerHorizontal="true">
-
-        <!--<ProgressBar
-            android:id="@+id/progress_bar_inicio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone"/>-->
+        android:layout_below="@id/fbLoginButton"
+        android:layout_centerHorizontal="true"
+        >
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <Button
-                android:id="@+id/btn_cadastro"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:text="Criar nova conta"
-                android:background="#30cbd6"
-                android:padding="5dp"
-                android:textColor="#ffffff"/>
 
-
-
-            <com.facebook.login.widget.LoginButton
-                xmlns:facebook="http://schemas.android.com/apk/res-auto"
-                facebook:com_facebook_login_text="Entrar com facebook"
-                android:id="@+id/fbLoginButton"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-
-                />
-
-            <Button
+            <!--<Button
                 android:id="@+id/btn_fb"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:background="#416BC1"
+                android:background="#4e7bf1"
                 android:text="Entrar com FaceBook"
-                android:layout_marginTop="5dp"
                 android:padding="5dp"
-                android:textColor="#ffffff" />
+                android:textColor="#fff" />-->
+
+            <Button
+                android:id="@+id/btn_cadastro"
+                android:layout_width="fill_parent"
+                android:layout_height="30dp"
+                android:text="Criar nova conta"
+                android:background="@drawable/borda_branca"
+                android:layout_marginTop="10dp"
+                android:padding="5dp"
+                android:textColor="#fff"/>
 
             <Button
                 android:id="@+id/btn_entrar"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:layout_height="30dp"
+                android:layout_marginTop="10dp"
                 android:padding="5dp"
-                android:text="Ja sou cadastrado"
-                android:background="#ffffff"
-                android:textColor="#434343"/>
+                android:text="Já sou cadastrado"
+                android:background="@null"
+                android:textColor="#fff"/>
 
         </LinearLayout>
     </LinearLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="@string/tela_inicio_termo"
+        android:textSize="10sp"
+        android:textColor="#fff"
+        android:background="@null"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="@string/tela_inicio_politica"
+        android:textSize="10sp"
+        android:textColor="#fff"
+        android:background="@null"/>
+
 </RelativeLayout>
