@@ -71,8 +71,12 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
         cursor = crud.carregaDados();
         try{
             cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
-            //busca pedidos enviados
-            new BuscaUsuarioHistoricoCPF(cpf,HistoricoFragment.this).execute();
+            if(!cpf.equals("")) {
+                msg_lista_historico.setVisibility(View.GONE);
+                progress_lista_historico.setVisibility(View.VISIBLE);
+                //busca pedidos enviados
+                new BuscaUsuarioHistoricoCPF(cpf, HistoricoFragment.this).execute();
+            }
         }catch (Exception e){
             Log.i("Webservice","-"+e);
         }

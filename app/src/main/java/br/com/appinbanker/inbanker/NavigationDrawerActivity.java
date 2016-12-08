@@ -13,6 +13,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -45,9 +46,6 @@ public class NavigationDrawerActivity extends AppCompatActivity
     public static final int MENU_PAGAMENTOS_ABERTO = 3;
     public static final int MENU_PEDIDOS_RECEBIDOS = 4;
 
-    BancoControllerUsuario crud;
-    Cursor cursor;
-
     int menu = MENU_INICIO;
 
     @Override
@@ -61,8 +59,8 @@ public class NavigationDrawerActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_navigation_drawer); //app_bar_navigation_drawer.xml
         setSupportActionBar(toolbar);
 
-        crud = new BancoControllerUsuario(getBaseContext());
-        cursor = crud.carregaDados();
+        BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
+        Cursor cursor = crud.carregaDados();
 
         Intent it = getIntent();
         Bundle parametro = it.getExtras();
@@ -157,14 +155,14 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
     }
 
-    /*@Override
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.navigation_drawer, menu);
         return true;
-    }*/
+    }
 
-    /*@Override
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -172,12 +170,15 @@ public class NavigationDrawerActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.menu_notificacao) {
+
+            Log.i("Script","menu notificacao clicado");
+
             return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }*/
+    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -225,6 +226,9 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
                 //faz o logout do usuario logado
                 LoginManager.getInstance().logOut();
+
+                BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
+                Cursor cursor = crud.carregaDados();
 
                 //deleta registro do usuario no sqlite
                 String cpf = cursor.getString(cursor.getColumnIndexOrThrow("cpf"));

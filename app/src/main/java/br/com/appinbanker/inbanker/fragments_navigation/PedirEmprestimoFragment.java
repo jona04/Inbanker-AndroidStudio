@@ -1,13 +1,11 @@
 package br.com.appinbanker.inbanker.fragments_navigation;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -19,13 +17,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
@@ -44,29 +41,33 @@ import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import br.com.appinbanker.inbanker.Inicio;
 import br.com.appinbanker.inbanker.R;
-import br.com.appinbanker.inbanker.SimuladorPedido;
+import br.com.appinbanker.inbanker.SimuladorResultado;
 import br.com.appinbanker.inbanker.adapters.ListaAmigosAdapter;
 import br.com.appinbanker.inbanker.entidades.Amigos;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.util.MaskMoney;
+import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AtualizaUsuario;
 
 public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnClickListenerHack {
 
-    EditText et_calendario;
+    private EditText et_calendario,et_valor;
 
     // Variable for storing current date and time
     private int mYear, mMonth, mDay,dias_pagamento;
@@ -195,8 +196,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                 Log.i("Facebook", "onError - exception = "+exception);
 
                 pb.setVisibility(View.GONE);
-                mensagem();
-
+                mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","Ok");
             }
 
         });
@@ -229,7 +229,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                             }catch (Exception e){
                                 Log.i("Facebook","Exception JSON graph facebook = "+e);
 
-                                mensagem();
+                                mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","Ok");
                                 mRecyclerView.setVisibility(View.GONE);
                                 pb.setVisibility(View.GONE);
 
@@ -291,7 +291,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                         catch(Exception e){
                             Log.i("Facebook","exception = "+e);
 
-                            mensagem();
+                            mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","Ok");
                             mRecyclerView.setVisibility(View.GONE);
                             pb.setVisibility(View.GONE);
                         }
@@ -303,7 +303,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
     public void listaAmigos(String id, String url, String name){
 
-        Log.i("Facebook","metodo Lista amigos");
+       // Log.i("Facebook","metodo Lista amigos");
 
         pb.setVisibility(View.GONE);
 
@@ -317,7 +317,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         //atualizamos os dados do usuario logado caso seja o primeiro login dele no face
         Cursor cursor = crud.carregaDados();
         String id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
-        Log.i("Facebook","id_face = "+id_face);
+        //Log.i("Facebook","id_face = "+id_face);
         if(id_face == null || id_face.equals(""))
             atualizaDadosUsuario(id,url,name);
 
@@ -360,7 +360,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
 
     @Override
-    public void onClickListener(View view, int position) {
+    public void onClickListener(View view, final int position) {
 
         /*Log.i("Script", "Click tste inicio =" + mList.get(position).getName());
 
@@ -377,6 +377,27 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         dialog.setTitle("Simulador Pedido");
 
         et_calendario = (EditText) dialog.findViewById(R.id.et_calendario);
+        et_valor = (EditText) dialog.findViewById(R.id.et_valor);
+        et_valor.addTextChangedListener(MaskMoney.insert(et_valor));
+
+        et_valor.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if ( (actionId == EditorInfo.IME_ACTION_DONE) || ((event.getKeyCode() == KeyEvent.KEYCODE_ENTER) && (event.getAction() == KeyEvent.ACTION_DOWN ))){
+                    Log.i("Script","apertou eba");
+                    mostraCalendario();
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+        });
+
+        et_calendario.setEnabled(false);
+
+        Button btn_verificar = (Button) dialog.findViewById(R.id.btn_verificar);
+        Button btn_voltar = (Button) dialog.findViewById(R.id.btn_voltar_simulador);
 
         ImageView img = (ImageView) dialog.findViewById(R.id.img_amigo);
 
@@ -405,11 +426,81 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
             }
         });
 
-        dialog.show();
+        btn_voltar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+        btn_verificar.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+
+                 String valor_normal = MaskMoney.removeMask(et_valor.getText().toString());
+
+                 boolean campos = true;
+
+                 boolean campo_valor = Validador.validateNotNull(et_valor.getText().toString());
+                 if (!campo_valor) {
+                     et_valor.setError("Campo vazio");
+                     et_valor.setFocusable(true);
+                     et_valor.requestFocus();
+
+                     campos = false;
+                 }
+                 boolean campo_calendario = Validador.validateNotNull(et_calendario.getText().toString());
+                 if (!campo_calendario) {
+                     et_calendario.setError("Campo vazio");
+                     et_calendario.setFocusable(true);
+                     et_calendario.requestFocus();
+
+                     campos = false;
+                 }
+
+                 if (campos) {
+
+                     String valor_normal_ = valor_normal.substring(0, valor_normal.length() - 2);
+                     if (Double.parseDouble(valor_normal_) < 500) {
+
+                         DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
+                         DateTime hoje = new DateTime();
+                         DateTime vencimento = fmt.parseDateTime(et_calendario.getText().toString());
+
+                         Days d = Days.daysBetween(hoje, vencimento);
+                         dias_pagamento = d.getDays();
+
+                         Intent it = new Intent(getActivity(), SimuladorResultado.class);
+                         Bundle b = new Bundle();
+                         b.putString("id", mList.get(position).getId());
+                         b.putString("nome", mList.get(position).getName());
+                         b.putString("valor", valor_normal);
+                         b.putString("url_img", mList.get(position).getPicture().getData().getUrl());
+                         b.putString("vencimento", et_calendario.getText().toString());
+                         b.putInt("dias", dias_pagamento);
+                         it.putExtras(b);
+                         startActivity(it);
+
+                         dialog.dismiss();
+                     } else {
+                         //Log.i("Scrip", "valor normal = " + valor_normal_);
+                         mensagem("InBanker", "Olá, no momento só é permitido valores menores que R$ 500,00. Por favor informe um valor menor.", "Ok");
+                     }
+                 }
+             }
+
+
+         });
+            dialog.show();
 
     }
 
     public void mostraCalendario(){
+
+        //esconde o teclado para nao dar erro no calendario
+        InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+
         // Process to get Current Date
         final Calendar c = Calendar.getInstance();
         mYear = c.get(Calendar.YEAR);
@@ -446,12 +537,12 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         dpd.show();
     }
 
-    public void mensagem()
+    public void mensagem(String title,String content,String button)
     {
         AlertDialog.Builder mensagem = new AlertDialog.Builder(getActivity());
-        mensagem.setTitle("Houve um erro!");
-        mensagem.setMessage("Olá, parece que houve um problema de conexao. Favor tente novamente!");
-        mensagem.setNeutralButton("OK",null);
+        mensagem.setTitle(title);
+        mensagem.setMessage(content);
+        mensagem.setNeutralButton(button,null);
         mensagem.show();
     }
 

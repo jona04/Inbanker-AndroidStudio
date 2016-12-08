@@ -27,8 +27,9 @@ public class VerificaUsuarioCadastro extends AsyncTask<String,String,String> {
 
     }
 
-    public VerificaUsuarioCadastro(String cpf, SimuladorResultado sr){
+    public VerificaUsuarioCadastro(String email,String cpf, SimuladorResultado sr){
         this.sr = sr;
+        this.email = email;
         this.cpf = cpf;
 
     }

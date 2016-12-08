@@ -69,6 +69,8 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
     private EditText et_cpf,et_senha;
     private Button btn_entrar_usuario;
 
+    private Dialog dialog;
+
     //cadastro
     EditText et_nome_cadastro,et_email_cadastro,et_cpf_cadastro,et_senha_cadastro,et_senha_novamente_cadastro;
     Button btn_cadastrar,btn_voltar_cadastro;
@@ -77,25 +79,8 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //FacebookSdk.sdkInitialize(getActivity().getApplicationContext());
-        FacebookSdk.sdkInitialize(getApplicationContext(), new FacebookSdk.InitializeCallback() {
-            @Override
-            public void onInitialized() {
-                if(AccessToken.getCurrentAccessToken() == null){
-                    Log.i("Facebook","nao logado");
+        FacebookSdk.sdkInitialize(getApplicationContext());
 
-                    //utilizamos para deixar a lista no modo hide
-                    //usuario_logado = false;
-                } else {
-                    Log.i("Facebook","logando accestoken = "+AccessToken.getCurrentAccessToken());
-
-                    //utilizamos para deixar a lista no modo hide
-                    //usuario_logado = true;
-
-                    //graphFacebook(AccessToken.getCurrentAccessToken());
-                }
-            }
-        });
 
         setContentView(R.layout.layout_inicio);
 
@@ -173,7 +158,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
                 //startActivity(it);
                 //finish();
 
-                final Dialog dialog = new Dialog(Inicio.this,R.style.AppThemeDialog);
+                dialog = new Dialog(Inicio.this,R.style.AppThemeDialog);
                 dialog.setContentView(R.layout.dialog_login_usuario_inicio);
                 dialog.setTitle("Cadastro");
 
@@ -212,6 +197,8 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
                     public void onClick(View v) {
 
                         clickLogin();
+
+                        dialog.dismiss();
                     }
                 });
 
@@ -228,7 +215,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.i("Facebook", "onSuceess - loingResult= "+loginResult);
+                //Log.i("Facebook", "onSuceess - loingResult= "+loginResult);
 
                 //chamamos o metedo graphFacebook para obter os dados do usuario logado
                 //passando como parametro o accessToken gerado no login
@@ -322,7 +309,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
                             pic = pic.getJSONObject("data");
                             url_img = pic.getString("url");
 
-                            //metodo para busca usuario face fora do callback facebook
+                            //verificamos se o usuario ja existe no banco com o um metodo fora do callback facebook, para nao ter problemas com o parametro implements
                             buscaUsuarioFace();
 
 

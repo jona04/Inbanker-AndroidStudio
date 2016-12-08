@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,7 +17,9 @@ import android.widget.ProgressBar;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -43,7 +46,7 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
 
     private String id,nome2,cpf1,cpf2,data_pedido = null,nome1,valor,vencimento,img1,img2;
 
-    private TextView tv_valor,tv_data_pagamento,tv_juros_mes,tv_valor_total,tv_dias_corridos,msg_ver_pedido,tv_rendimento,tv_dias_pagamento;
+    private TextView tv_valor,tv_data_pagamento,tv_data_pedido,tv_juros_mes,tv_valor_total,tv_dias_corridos,msg_ver_pedido,tv_rendimento,tv_dias_pagamento;
 
     private int status_transacao;
 
@@ -86,10 +89,21 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
         }
 
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
-        Picasso.with(getBaseContext()).load(img1).into(img);
 
-        /*TextView tv = (TextView) findViewById(R.id.nome_amigo);
-        tv.setText(tv.getText().toString()+nome1);*/
+        Transformation transformation = new RoundedTransformationBuilder()
+                .borderColor(Color.GRAY)
+                .borderWidthDp(3)
+                .cornerRadiusDp(70)
+                .oval(false)
+                .build();
+
+        Picasso.with(getBaseContext())
+                .load(img1)
+                .transform(transformation)
+                .into(img);
+
+        TextView tv = (TextView) findViewById(R.id.nome_amigo);
+        tv.setText(nome1);
 
         ll_resposta_pedido = (LinearLayout) findViewById(R.id.ll_resposta_pedido);
         ll_confirma_recebimento_valor_emprestado = (LinearLayout) findViewById(R.id.ll_confirma_recebimento_valor_emprestado);
@@ -109,6 +123,7 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
         tv_rendimento = (TextView) findViewById(R.id.tv_rendimento);
         tv_valor_total = (TextView) findViewById(R.id.tv_valor_total);
         tv_dias_corridos = (TextView) findViewById(R.id.tv_dias_corridos);
+        tv_data_pedido = (TextView) findViewById(R.id.tv_data_pedido);
 
         //calculamos a diferença de dias entre a data atual ate a data do pedido para calcularmos o juros
         DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
@@ -175,9 +190,9 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
         tv_valor.setText(valor_formatado);
         tv_data_pagamento.setText(vencimento);
         tv_dias_corridos.setText(String.valueOf(dias_corridos));
-        tv_juros_mes.setText("1,99%");
         tv_rendimento.setText(juros_mensal_formatado);
         tv_valor_total.setText(valor_total_formatado);
+        tv_data_pedido.setText(data_pedido);
 
 
         btn_recusa_pedido.setOnClickListener(new View.OnClickListener() {

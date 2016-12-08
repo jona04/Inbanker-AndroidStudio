@@ -55,7 +55,7 @@ public class BancoControllerUsuario {
 
     public Cursor carregaDados(){
         Cursor cursor;
-        String[] campos =  {banco.NOME,banco.CPF,banco.SENHA,banco.ID_FACE,banco.NOME_FACE,banco.URL_IMG_FACE};
+        String[] campos =  {banco.NOME,banco.CPF,banco.SENHA,banco.ID_FACE,banco.NOME_FACE,banco.URL_IMG_FACE,banco.EMAIL};
         db = banco.getReadableDatabase();
         cursor = db.query(banco.TABELA, campos, null, null, null, null, null, null);
 
@@ -96,7 +96,7 @@ public class BancoControllerUsuario {
         db.update(CriandoBanco.TABELA,valores,where,null);
         db.close();
     }
-    public void alteraRegistroCpf(String id_face,String cpf,String senha){
+    public void alteraRegistroCpf(String id_face,String cpf,String senha,String email){
         ContentValues valores;
         String where;
 
@@ -107,6 +107,7 @@ public class BancoControllerUsuario {
         valores = new ContentValues();
         valores.put(CriandoBanco.CPF, cpf);
         valores.put(CriandoBanco.SENHA, senha);
+        valores.put(CriandoBanco.EMAIL, email);
 
         db.update(CriandoBanco.TABELA,valores,where,null);
         db.close();

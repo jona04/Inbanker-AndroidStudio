@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layout_ver_pedido_recebido"
+    android:id="@+id/layout_ver_historico"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:fillViewport="true"
+    android:background="@drawable/gradiente_splash"
     tools:context="br.com.appinbanker.inbanker.VerPedidoRecebido">
 
     <LinearLayout
@@ -16,124 +13,250 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
             android:layout_gravity="center_horizontal">
 
             <ImageView
                 android:id="@+id/img_amigo"
-                android:layout_width="50sp"
-                android:layout_height="50sp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_gravity="center_horizontal"
                 android:src="@drawable/icon"/>
-            <!--<TextView
+            <TextView
                 android:id="@+id/nome_amigo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="20px"
-                android:text=""/>-->
-        </LinearLayout>
+                android:layout_gravity="center_horizontal"
+                android:layout_toRightOf="@+id/img_amigo"
+                android:layout_marginTop="5dp"
+                android:text="Nome usuario"
+                android:textColor="#fff"
+                android:textSize="20sp"
+                android:textStyle="bold|italic"/>
 
-        <TextView
-            android:id="@+id/msg_ver_pedido"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="30px"/>
-
-
-        <TableLayout
-            android:id="@+id/tb_info_pedido"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:stretchColumns="1"
-            android:layout_marginTop="50px">
-
-            <TableRow>
-                <TextView android:text="Valor solicitado:"/>
-                <TextView android:id="@+id/tv_valor" />
-            </TableRow>
-            <TableRow>
-                <TextView android:text="Data do pagamento:"/>
-                <TextView android:id="@+id/tv_data_pagamento" />
-            </TableRow>
-            <TableRow android:id="@+id/tr_dias_corridos" android:visibility="gone">
-                <TextView android:text="Dias corridos:"/>
-                <TextView android:id="@+id/tv_dias_corridos" />
-            </TableRow>
-            <TableRow android:id="@+id/tr_dias_pagamento" android:visibility="gone">
-                <TextView android:text="Dias para pagamento:"/>
-                <TextView android:id="@+id/tv_dias_pagamento" />
-            </TableRow>
-            <TableRow>
-                <TextView android:text="Taxa de juros A.M.:"/>
-                <TextView android:id="@+id/tv_juros_mes" />
-            </TableRow>
-            <TableRow>
-                <TextView android:text="Rendimento:"/>
-                <TextView android:id="@+id/tv_rendimento" />
-            </TableRow>
-            <TableRow>
-                <TextView android:text="Valor total para ser recebido:"/>
-                <TextView android:id="@+id/tv_valor_total" />
-            </TableRow>
-
-
-        </TableLayout>
-        <LinearLayout
-            android:id="@+id/ll_resposta_pedido"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:orientation="horizontal"
-            android:layout_marginTop="20px">
-
-            <Button
-                android:id="@+id/btn_recusa_pedido"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Recusar"/>
-            <Button
-                android:id="@+id/btn_aceita_pedido"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20px"
-                android:text="Aceitar"/>
 
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/ll_confirma_recebimento_valor_emprestado"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:orientation="horizontal"
-            android:visibility="gone"
-            android:layout_marginTop="20px">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="15dp"
+            android:orientation="vertical">
 
-            <Button
-                android:id="@+id/btn_confirma_quitacao"
-                android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/msg_ver_pedido"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Sim, recebi"/>
-            <Button
-                android:id="@+id/btn_recusa_quitacao"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20px"
-                android:text="Nao recebi"/>
+                android:background="@drawable/fundo_borda_reta"
+                android:padding="10dp"
+                android:textColor="#fff"
+                android:textSize="13sp"
+                android:text="Abaixo estão as informaçães referente ao pedido recebido."/>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-2dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:background="@drawable/fundo_borda_reta"
+                    android:orientation="vertical"
+                    >
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Valor Pedido"
+                        android:textAlignment="center"
+                        android:textStyle="bold"
+                        android:textSize="11sp"
+                        android:textColor="#fff"/>
+                    <TextView
+                        android:id="@+id/tv_valor"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        android:text="R$ 100,00"
+                        android:textSize="11sp"
+                        android:textColor="#fff"
+                        />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:layout_marginLeft="-2dp"
+                    android:background="@drawable/fundo_borda_reta"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Data Vencimento"
+                        android:textAlignment="center"
+                        android:textStyle="bold"
+                        android:textSize="11sp"
+                        android:singleLine="true"
+                        android:textColor="#fff"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        android:id="@+id/tv_data_pagamento"
+                        android:text="11/11/2016"
+                        android:textSize="11sp"
+                        android:textColor="#fff"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:layout_marginLeft="-2dp"
+                    android:background="@drawable/fundo_borda_reta"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Valor Total"
+                        android:textAlignment="center"
+                        android:textStyle="bold"
+                        android:textSize="11sp"
+                        android:textColor="#fff"/>
+                    <TextView
+                        android:id="@+id/tv_valor_total"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        android:text="R$ 120,00"
+                        android:textSize="11sp"
+                        android:textColor="#fff"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/fundo_borda_reta"
+                android:layout_marginTop="-2dp"
+                android:padding="20dp"
+                android:orientation="vertical">
+
+                <TableLayout
+                    android:id="@+id/tb_info_pedido"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:stretchColumns="1"
+                    android:layout_marginTop="20px">
+
+                    <TableRow>
+                        <TextView android:text="Data do pedido:" android:textSize="11sp" android:textColor="#fff"/>
+                        <TextView android:id="@+id/tv_data_pedido" android:textSize="11sp" android:textColor="#fff"/>
+                    </TableRow>
+                    <TableRow android:id="@+id/tr_dias_pagamento" android:visibility="gone">
+                        <TextView android:text="Dias para o pagamento:      " android:textSize="11sp" android:textColor="#fff"/>
+                        <TextView android:id="@+id/tv_dias_pagamento" android:textSize="11sp" android:textColor="#fff"/>
+                    </TableRow>
+                    <TableRow android:id="@+id/tr_dias_corridos" android:visibility="gone">
+                        <TextView android:text="Dias corridos:   " android:textSize="11sp" android:textColor="#fff"/>
+                        <TextView android:id="@+id/tv_dias_corridos" android:textSize="11sp" android:textColor="#fff" />
+                    </TableRow>
+                    <TableRow>
+                        <TextView android:text="Taxa de juros A.M.:    " android:textSize="11sp" android:textColor="#fff"/>
+                        <TextView android:id="@+id/tv_taxa_juros" android:text="1,99%" android:textSize="11sp" android:textColor="#fff"/>
+                    </TableRow>
+                    <TableRow>
+                        <TextView android:text="Valor de rendimento:" android:textSize="11sp" android:textColor="#fff"/>
+                        <TextView android:id="@+id/tv_rendimento" android:textSize="11sp" android:textColor="#fff"/>
+                    </TableRow>
+                    <TableRow android:id="@+id/tr_valor_multa" android:visibility="gone">
+                        <TextView android:text="Valor da multa:" android:textSize="11sp" android:textColor="#fff"/>
+                        <TextView android:id="@+id/tv_valor_multa" android:text="R$ 0,00" android:textSize="11sp" android:textColor="#fff"/>
+                    </TableRow>
+                    <TableRow android:id="@+id/tr_taxa_servico" android:visibility="gone">>
+                        <TextView android:text="Valor taxa de serviço:   " android:textSize="11sp" android:textColor="#fff"/>
+                        <TextView android:id="@+id/tv_valor_taxa_servico" android:text="R$ 0,00" android:textSize="11sp" android:textColor="#fff"/>
+                    </TableRow>
+                    <TableRow>
+                        <TextView android:text="Valor de IOF:" android:textSize="11sp" android:textColor="#fff"/>
+                        <TextView android:id="@+id/tv_valor_iof" android:textSize="11sp" android:textColor="#fff" android:text="R$ 0,00" />
+                    </TableRow>
+                    <TableRow>
+                        <TextView android:text="Seguro:" android:textSize="11sp" android:textColor="#fff"/>
+                        <TextView android:id="@+id/tv_valor_seguro" android:textSize="11sp" android:textColor="#fff" android:text="Não" />
+                    </TableRow>
+
+                </TableLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_resposta_pedido"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="30px">
+
+                    <Button
+                        android:id="@+id/btn_recusa_pedido"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/borda_branca"
+                        android:textColor="#fff"
+                        android:text="Recusar"/>
+                    <Button
+                        android:id="@+id/btn_aceita_pedido"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="40px"
+                        android:background="@drawable/borda_branca"
+                        android:textColor="#fff"
+                        android:text="Aceitar"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_confirma_recebimento_valor_emprestado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    android:layout_marginTop="30px">
+
+                    <Button
+                        android:id="@+id/btn_confirma_quitacao"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/borda_branca"
+                        android:textColor="#fff"
+                        android:text="Sim, recebi"/>
+                    <Button
+                        android:id="@+id/btn_recusa_quitacao"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="40px"
+                        android:background="@drawable/borda_branca"
+                        android:textColor="#fff"
+                        android:text="Nao recebi"/>
+
+                </LinearLayout>
+                <ProgressBar
+                    android:id="@+id/progress_bar_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10px"
+                    android:visibility="gone"
+                    android:layout_gravity="center"/>
+            </LinearLayout>
         </LinearLayout>
-        <ProgressBar
-            android:id="@+id/progress_bar_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10px"
-            android:visibility="gone"
-            android:layout_gravity="center"/>
     </LinearLayout>
-
-</LinearLayout>
+</ScrollView>

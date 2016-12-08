@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,7 +13,9 @@ import android.widget.ImageView;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -27,9 +30,7 @@ public class VerHistorico extends AppCompatActivity {
 
     private String id,nome2,cpf1,cpf2,data_pedido = null,nome1,valor,vencimento,img1,img2,data_cancelamento,data_pagamento;
 
-    private TextView tv_valor,tv_data_vencimento,tv_data_cancelamento,tv_data_pagamento,tv_juros_mes,tv_valor_total,tv_data_pedido;
-
-    private TableRow tr_cancelado,tr_pagamento;
+    private TextView tv_valor,tv_data_historico,tv_vencimento,tv_juros_mes,tv_valor_total,tv_data_pedido;
 
     private int status_transacao;
 
@@ -68,24 +69,33 @@ public class VerHistorico extends AppCompatActivity {
 
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
         TextView tv = (TextView) findViewById(R.id.nome_amigo);
+
+        Transformation transformation = new RoundedTransformationBuilder()
+                .borderColor(Color.GRAY)
+                .borderWidthDp(3)
+                .cornerRadiusDp(70)
+                .oval(false)
+                .build();
+
         //identicamos qual é o usuario 1 e 2 na transacao, para exibir os dados corretoa na tela
         if(cpf.equals(cpf1)) {
-            Picasso.with(getBaseContext()).load(img2).into(img);
-            tv.setText("Você enviou esse pedido para "+tv.getText().toString() + nome2);
+            Picasso.with(getBaseContext())
+                    .load(img2)
+                    .transform(transformation)
+                    .into(img);
+            tv.setText(nome2);
         }else {
-            Picasso.with(getBaseContext()).load(img1).into(img);
-            tv.setText("Você recebeu esse pedido de "+tv.getText().toString() + nome1);
+            Picasso.with(getBaseContext())
+                    .load(img1)
+                    .transform(transformation)
+                    .into(img);
+            tv.setText(nome1);
         }
 
-
-
-        tr_pagamento = (TableRow) findViewById(R.id.tr_pagamento);
-        tr_cancelado = (TableRow) findViewById(R.id.tr_cancelado);
         tv_valor = (TextView) findViewById(R.id.tv_valor);
-        tv_data_vencimento= (TextView) findViewById(R.id.tv_data_vencimento);
+        tv_vencimento= (TextView) findViewById(R.id.tv_vencimento);
         tv_data_pedido= (TextView) findViewById(R.id.tv_data_pedido);
-        tv_data_cancelamento= (TextView) findViewById(R.id.tv_data_cancelamento);
-        tv_data_pagamento= (TextView) findViewById(R.id.tv_data_pagamento);
+        tv_data_historico= (TextView) findViewById(R.id.tv_data_historico);
         tv_juros_mes= (TextView) findViewById(R.id.tv_juros_mes);
         tv_valor_total= (TextView) findViewById(R.id.tv_valor_total);
 
@@ -96,20 +106,17 @@ public class VerHistorico extends AppCompatActivity {
         //String valor_total_formatado = nf.format (valor_total);
 
         //se o tamanho da variavel data for maior que 5 é por que existe uma data registrada
-        if(data_cancelamento.length() > 5)
-            tr_cancelado.setVisibility(View.VISIBLE);
-
+        if(data_cancelamento.length() > 5) {
+            tv_data_historico.setText("Data cancelamento");
+            tv_vencimento.setText(data_cancelamento);
+        }
         if(data_pagamento.length() > 5) {
-            tr_pagamento.setVisibility(View.VISIBLE);
-            //Log.i("webservice","data pagamento"+data_pagamento);
+            tv_data_historico.setText("Data quitação");
+            tv_vencimento.setText(data_pagamento);
         }
 
         tv_valor.setText(valor_formatado);
-        tv_data_vencimento.setText(vencimento);
-        tv_data_cancelamento.setText(data_cancelamento);
         tv_data_pedido.setText(data_pedido);
-        tv_data_pagamento.setText(data_pagamento);
-        //tv_valor_total.setText(valor_total_formatado);
 
     }
 

@@ -117,6 +117,7 @@ public class MyGcmListenerService extends GcmListenerService {
                 classe = VerHistorico.class;
                 break;
             default:
+                Log.i("Notificacao", "default notificacao");
                 classe = NavigationDrawerActivity.class;
                 break;
         }

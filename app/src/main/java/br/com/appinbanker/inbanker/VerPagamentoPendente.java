@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,7 +16,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -38,7 +41,7 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
 
     private String id,nome2,cpf1,cpf2,data_pedido,nome1,valor,vencimento,img1,img2;
 
-    private TextView tv_valor,tv_data_pagamento,tv_juros_mes,tv_valor_total,tv_dias_corridos,msg_ver_pedido;
+    private TextView tv_valor,tv_data_pedido,tv_vencimento,tv_juros_mes,tv_valor_total,tv_dias_corridos,msg_ver_pedido;
 
     private int status_transacao;
 
@@ -76,10 +79,21 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
         }
 
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
-        Picasso.with(getBaseContext()).load(img2).into(img);
+
+        Transformation transformation = new RoundedTransformationBuilder()
+                .borderColor(Color.GRAY)
+                .borderWidthDp(3)
+                .cornerRadiusDp(70)
+                .oval(false)
+                .build();
+
+        Picasso.with(getBaseContext())
+                .load(img2)
+                .transform(transformation)
+                .into(img);
 
         TextView tv = (TextView) findViewById(R.id.nome_amigo);
-        tv.setText(tv.getText().toString()+nome2);
+        tv.setText(nome2);
 
         ll_confirma_quitacao = (LinearLayout) findViewById(R.id.ll_confirma_quitacao);
 
@@ -87,10 +101,11 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
         btn_confirma_quitacao = (Button) findViewById(R.id.btn_confirma_quitacao);
         msg_ver_pedido = (TextView) findViewById(R.id.msg_ver_pedido);
         tv_valor = (TextView) findViewById(R.id.tv_valor);
-        tv_data_pagamento = (TextView) findViewById(R.id.tv_data_pagamento);
+        tv_vencimento = (TextView) findViewById(R.id.tv_vencimento);
         tv_juros_mes = (TextView) findViewById(R.id.tv_juros_mes);
         tv_valor_total = (TextView) findViewById(R.id.tv_valor_total);
         tv_dias_corridos = (TextView) findViewById(R.id.tv_dias_corridos);
+        tv_data_pedido = (TextView) findViewById(R.id.tv_data_pedido);
 
         switch (status_transacao){
             case Transacao.CONFIRMADO_RECEBIMENTO:
@@ -132,10 +147,11 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
         String valor_total_formatado = nf.format (valor_total);
 
         tv_valor.setText(valor_formatado);
-        tv_data_pagamento.setText(vencimento);
+        tv_vencimento.setText(vencimento);
         tv_juros_mes.setText(juros_mensal_formatado);
         tv_valor_total.setText(valor_total_formatado);
         tv_dias_corridos.setText(String.valueOf(dias_corridos));
+        tv_data_pedido.setText(data_pedido);
 
         btn_confirma_quitacao.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -1,32 +1,24 @@
 package br.com.appinbanker.inbanker.fragments_navigation;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import br.com.appinbanker.inbanker.R;
-import br.com.appinbanker.inbanker.SimuladorPedido;
 import br.com.appinbanker.inbanker.VerPedidoEnviado;
-import br.com.appinbanker.inbanker.adapters.ListaAmigosAdapter;
 import br.com.appinbanker.inbanker.adapters.ListaTransacaoAdapter;
-import br.com.appinbanker.inbanker.entidades.Amigos;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
@@ -78,7 +70,7 @@ public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnC
         try {
             String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
             String id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
-            Log.i("Sqlite","valor cpf = "+cpf+" valor id_face = "+id_face);
+            //Log.i("Sqlite","valor cpf = "+cpf+" valor id_face = "+id_face);
             if(!cpf.equals(""))
                 new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
             else

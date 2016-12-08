@@ -77,13 +77,12 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
         holder.tv_data_pedido.setText(holder.tv_data_pedido.getText().toString()+mList.get(position).getDataPedido());
 
         if(meu_cpf.equals(mList.get(position).getUsu1().toString())) {
-            holder.tv_valor_pedido.setText(valor_formatado);
+            holder.tv_valor_pedido.setText("- "+valor_formatado);
             holder.tv_nome_usuario.setText(mList.get(position).getNome_usu2());
-            holder.tv_valor_pedido.setText(valor_formatado);
             //uri = Uri.parse(mList.get(position).getUrl_img_usu2());
             //Picasso.with(context).load(uri).into(holder.imagem);
         }else{
-            holder.tv_valor_pedido.setText("- "+valor_formatado);
+            holder.tv_valor_pedido.setText(valor_formatado);
             holder.tv_nome_usuario.setText(mList.get(position).getNome_usu1());
             //uri = Uri.parse(mList.get(position).getUrl_img_usu1());
             //Picasso.with(context).load(uri).into(holder.imagem);
