@@ -39,6 +39,7 @@ import java.util.List;
 
 import br.com.appinbanker.inbanker.entidades.Amigos;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.fcm.MyFirebaseInstanceIDService;
 import br.com.appinbanker.inbanker.gcm.RegistrationIntentService;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
@@ -90,7 +91,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
         //já pegamos de agora o token do usuario para utilizar nas notificações
         if (CheckConection.temConexao(this)){
             if (CheckPlayServices.checkPlayServices(this)) {
-                Intent it = new Intent(this, RegistrationIntentService.class);
+                Intent it = new Intent(this, MyFirebaseInstanceIDService.class);
                 startService(it);
             } else {
                 Log.i("playservice", "sem playservice");

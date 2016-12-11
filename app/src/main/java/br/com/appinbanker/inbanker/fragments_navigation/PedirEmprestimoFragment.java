@@ -37,6 +37,8 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
@@ -51,7 +53,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import br.com.appinbanker.inbanker.R;
 import br.com.appinbanker.inbanker.SimuladorResultado;
@@ -66,6 +70,11 @@ import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AtualizaUsuario;
 
 public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnClickListenerHack {
+
+    public static String FIREBASE_URL = "https://inbanker-3f061.firebaseio.com/";
+    // Create a storage reference from our app
+    FirebaseDatabase database;
+    DatabaseReference amigosRef;
 
     private EditText et_calendario,et_valor;
 
@@ -99,6 +108,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
         crud = new BancoControllerUsuario(getActivity());
 
+        database = FirebaseDatabase.getInstance();
     }
 
     @Override
@@ -285,6 +295,17 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                             //for (Amigos a: mList) {
                             //    Log.i("Facebook","amigo listado = "+a.getName());
                             //}
+
+
+                            //atualizamos info no faribase
+                            /*amigosRef = database.getReference("usuarios");
+
+                            Map<String, Object> infos = new HashMap<>();
+                            infos.put("id_face",id);
+                            infos.put("nome_face",name);
+                            infos.put("img_url",url_picture);
+
+                            amigosRef.child(id).updateChildren(infos);*/
 
                             listaAmigos(id,url_picture,name);
                         }

@@ -1,248 +1,298 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:fillViewport="true"
     tools:context="br.com.appinbanker.inbanker.fragments_navigation.InicioFragment">
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_gravity="center_vertical">
-
-        <ProgressBar
-            android:id="@+id/progress_bar_inicio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/ll_principal_inicio"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="20px"/>
-
         <LinearLayout
-            android:id="@+id/ll_principal_inicio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/ll_btn_inicio"
-            android:layout_marginBottom="30dp"
             android:orientation="vertical">
 
-            <RelativeLayout
-                android:id="@+id/badge_layout1"
-                android:layout_width="wrap_content"
+            <HorizontalScrollView
+                android:id="@+id/horizontal_scroll_inicio"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center">
+                android:layout_weight="1">
 
-                <RelativeLayout
-                    android:id="@+id/relative_layout"
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/logo_inbanker_com_nome"/>
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/logo_inbanker_com_nome"/>
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/logo_inbanker_com_nome"/>
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/logo_inbanker_com_nome"/>
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/logo_inbanker_com_nome"/>
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/logo_inbanker_com_nome"/>
+
+                </LinearLayout>
+            </HorizontalScrollView>
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_weight="1">
+                <ProgressBar
+
+                    android:id="@+id/progress_bar_inicio"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/round_button"
-                    android:padding="10dp"
-                    android:layout_centerInParent="true">
+                    android:layout_above="@+id/ll_principal_inicio"
+                    android:layout_gravity="center_horizontal"/>
 
-                    <Button
-                        android:id="@+id/btn_pedir_emprestimo"
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
-                        android:background="@drawable/icon_btn_inicio_pedir_emp"
-                        android:text=""/>
+                <LinearLayout
+                    android:id="@+id/ll_principal_inicio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
 
-                </RelativeLayout>
+                    android:orientation="vertical">
 
-            </RelativeLayout>
+                    <LinearLayout
+                        android:id="@+id/ll_pedir_inicio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tv_pedir_emprestimo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_gravity="center_horizontal"
-                android:paddingTop="5px"
-                android:textColor="@color/colorPrimary"
-                android:text="Pedir emprestimo"/>
+                        <RelativeLayout
+                            android:id="@+id/badge_layout1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center">
 
+                            <RelativeLayout
+                                android:id="@+id/relative_layout"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/round_button"
+                                android:padding="10dp"
+                                android:layout_centerInParent="true">
+
+                                <Button
+                                    android:id="@+id/btn_pedir_emprestimo"
+                                    android:layout_width="70dp"
+                                    android:layout_height="70dp"
+                                    android:background="@drawable/icon_btn_inicio_pedir_emp"
+                                    android:text=""/>
+
+                            </RelativeLayout>
+
+                        </RelativeLayout>
+
+                        <TextView
+                            android:id="@+id/tv_pedir_emprestimo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_gravity="center_horizontal"
+                            android:paddingTop="5px"
+                            android:textColor="@color/colorPrimary"
+                            android:text="Pedir emprestimo"/>
+
+                    </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_btn_inicio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <RelativeLayout
+                            android:id="@+id/badge_layout2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center">
+
+                            <RelativeLayout
+                                android:id="@+id/relative_layout2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/round_button"
+                                android:padding="5dp"
+                                android:layout_centerInParent="true">
+
+                                <Button
+                                    android:id="@+id/btn_pedidos_enviados"
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:background="@drawable/icon_btn_inicio_ped_env"/>
+
+                            </RelativeLayout>
+
+                            <TextView
+                                android:id="@+id/badge_notification_ped_env"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignRight="@id/relative_layout2"
+                                android:background="@drawable/badge_item_count"
+                                android:text="1"
+                                android:layout_marginTop="-2dp"
+                                android:layout_marginRight="-2dp"
+                                android:textColor="#FFF"
+                                android:textSize="9sp"
+                                android:textStyle="bold"
+                                android:visibility="gone" />
+
+                        </RelativeLayout>
+                        <TextView
+                            android:id="@+id/tv_pedidos_enviados"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_gravity="center_horizontal"
+                            android:textAlignment="center"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="12sp"
+                            android:text="Pedidos\nenviados"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <RelativeLayout
+                            android:id="@+id/badge_layout4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center">
+
+                            <RelativeLayout
+                                android:id="@+id/relative_layout4"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/round_button"
+                                android:padding="5dp"
+                                android:layout_centerInParent="true">
+
+                                <Button
+                                    android:id="@+id/btn_pagamentos_pedentes"
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:background="@drawable/icon_btn_inicio_pag_pen"/>
+
+                            </RelativeLayout>
+
+                            <TextView
+                                android:id="@+id/badge_notification_pag_pen"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignRight="@id/relative_layout4"
+                                android:background="@drawable/badge_item_count"
+                                android:text="1"
+                                android:layout_marginTop="-2dp"
+                                android:layout_marginRight="-2dp"
+                                android:textColor="#FFF"
+                                android:textSize="9sp"
+                                android:textStyle="bold"
+                                android:visibility="gone" />
+
+                        </RelativeLayout>
+                        <TextView
+                            android:id="@+id/tv_pagamentos_pendentes"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_gravity="center_horizontal"
+                            android:textAlignment="center"
+                            android:textSize="12sp"
+                            android:textColor="@color/colorPrimary"
+                            android:text="Pagamentos\npendentes"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <RelativeLayout
+                            android:id="@+id/badge_layout3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center">
+
+                            <RelativeLayout
+                                android:id="@+id/relative_layout3"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/round_button"
+                                android:padding="5dp"
+                                android:layout_centerInParent="true">
+
+                                <Button
+                                    android:id="@+id/btn_pedidos_recebidos"
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:background="@drawable/icon_btn_inicio_ped_rec"/>
+
+                            </RelativeLayout>
+
+                            <TextView
+                                android:id="@+id/badge_notification_ped_rec"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignRight="@+id/relative_layout3"
+                                android:background="@drawable/badge_item_count"
+                                android:text="1"
+                                android:layout_marginTop="-2dp"
+                                android:layout_marginRight="-2dp"
+                                android:textColor="#FFF"
+                                android:textSize="9sp"
+                                android:textStyle="bold"
+                                android:visibility="gone"/>
+
+                        </RelativeLayout>
+                        <TextView
+                            android:id="@+id/tv_pedidos_recebidos"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_gravity="center_horizontal"
+                            android:textAlignment="center"
+                            android:textSize="12sp"
+                            android:textColor="@color/colorPrimary"
+                            android:text="Pedidos\nrecebidos"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ll_btn_inicio"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <RelativeLayout
-                    android:id="@+id/badge_layout2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center">
-
-                    <RelativeLayout
-                        android:id="@+id/relative_layout2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/round_button"
-                        android:padding="5dp"
-                        android:layout_centerInParent="true">
-
-                        <Button
-                            android:id="@+id/btn_pedidos_enviados"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
-                            android:background="@drawable/icon_btn_inicio_ped_env"/>
-
-                    </RelativeLayout>
-
-                    <TextView
-                        android:id="@+id/badge_notification_ped_env"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignRight="@id/relative_layout2"
-                        android:background="@drawable/badge_item_count"
-                        android:text="1"
-                        android:layout_marginTop="-2dp"
-                        android:layout_marginRight="-2dp"
-                        android:textColor="#FFF"
-                        android:textSize="9sp"
-                        android:textStyle="bold"
-                        android:visibility="gone" />
-
-                </RelativeLayout>
-                <TextView
-                    android:id="@+id/tv_pedidos_enviados"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_gravity="center_horizontal"
-                    android:textAlignment="center"
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="12sp"
-                    android:text="Pedidos\nenviados"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <RelativeLayout
-                    android:id="@+id/badge_layout4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center">
-
-                    <RelativeLayout
-                        android:id="@+id/relative_layout4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/round_button"
-                        android:padding="5dp"
-                        android:layout_centerInParent="true">
-
-                        <Button
-                            android:id="@+id/btn_pagamentos_pedentes"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
-                            android:background="@drawable/icon_btn_inicio_pag_pen"/>
-
-                    </RelativeLayout>
-
-                    <TextView
-                        android:id="@+id/badge_notification_pag_pen"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignRight="@id/relative_layout4"
-                        android:background="@drawable/badge_item_count"
-                        android:text="1"
-                        android:layout_marginTop="-2dp"
-                        android:layout_marginRight="-2dp"
-                        android:textColor="#FFF"
-                        android:textSize="9sp"
-                        android:textStyle="bold"
-                        android:visibility="gone" />
-
-                </RelativeLayout>
-                <TextView
-                    android:id="@+id/tv_pagamentos_pendentes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_gravity="center_horizontal"
-                    android:textAlignment="center"
-                    android:textSize="12sp"
-                    android:textColor="@color/colorPrimary"
-                    android:text="Pagamentos\npendentes"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <RelativeLayout
-                    android:id="@+id/badge_layout3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center">
-
-                    <RelativeLayout
-                        android:id="@+id/relative_layout3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/round_button"
-                        android:padding="5dp"
-                        android:layout_centerInParent="true">
-
-                        <Button
-                            android:id="@+id/btn_pedidos_recebidos"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
-                            android:background="@drawable/icon_btn_inicio_ped_rec"/>
-
-                    </RelativeLayout>
-
-                    <TextView
-                        android:id="@+id/badge_notification_ped_rec"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignRight="@+id/relative_layout3"
-                        android:background="@drawable/badge_item_count"
-                        android:text="1"
-                        android:layout_marginTop="-2dp"
-                        android:layout_marginRight="-2dp"
-                        android:textColor="#FFF"
-                        android:textSize="9sp"
-                        android:textStyle="bold"
-                        android:visibility="gone"/>
-
-                </RelativeLayout>
-                <TextView
-                    android:id="@+id/tv_pedidos_recebidos"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_gravity="center_horizontal"
-                    android:textAlignment="center"
-                    android:textSize="12sp"
-                    android:textColor="@color/colorPrimary"
-                    android:text="Pedidos\nrecebidos"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-    </RelativeLayout>
-
-</FrameLayout>
+    </LinearLayout>
+</ScrollView>

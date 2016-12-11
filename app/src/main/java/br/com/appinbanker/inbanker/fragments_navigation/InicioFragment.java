@@ -43,6 +43,8 @@ public class InicioFragment extends Fragment implements WebServiceReturnUsuario{
     BancoControllerUsuario crud;
     Cursor cursor;
 
+    String passos[] = {"Passo 1","Passo 2","Passo 3","Passo 4", "Passo 5"};
+
     public InicioFragment() {
         // Required empty public constructor
     }
@@ -135,7 +137,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnUsuario{
     @Override
     public void retornoUsuarioWebService(Usuario usu) {
 
-        progress_bar_inicio.setVisibility(View.GONE);
+        progress_bar_inicio.setVisibility(View.INVISIBLE);
 
         if(usu != null){
 

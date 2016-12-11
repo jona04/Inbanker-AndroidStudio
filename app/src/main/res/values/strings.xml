@@ -7,6 +7,9 @@
 
     <string name="action_settings">Settings</string>
     <string name="menu_notificacao">Notificações</string>
+    <string name="menu_minha_conta">Minha Conta</string>
+    <string name="menu_sair">Sair</string>
+
 
     <string name="app_id">379815145741560</string>
 

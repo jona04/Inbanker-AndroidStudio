@@ -48,6 +48,10 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
     int menu = MENU_INICIO;
 
+    // Create a new fragment and specify the fragment to show based on nav item clicked
+    Fragment fragment = null;
+    Class fragmentClass;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -126,31 +130,22 @@ public class NavigationDrawerActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
 
         //se nao estiver na tela inicial, dentro do navigationdrawer, damos um popstack no fragment e redirecionamos para a tela inicial
-        }else if(getFragmentManager().getBackStackEntryCount() > 0){
-            Log.i("NavigationDrawer","teste3 = "+getFragmentManager().findFragmentByTag("Inicio"));
-
-            getFragmentManager().popBackStack();
-
-            Fragment fragment = null;
-            Class fragmentClass = InicioFragment.class;
-
-            try {
-                fragment = (Fragment) fragmentClass.newInstance();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            // Insert the fragment by replacing any existing fragment
-            FragmentManager fragmentManager = getFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-
-            // Set action bar title
-            setTitle("Inicio");
-
-        //se ja estiver na tela inicial, saimos do aplicativo, normalmente
-        } else {
+        }else {
             Log.i("NavigationDrawer","teste4");
-            super.onBackPressed();
+            if(fragmentClass == InicioFragment.class){
+                Log.i("NavigationDrawer","teste5");
+                super.onBackPressed();
+            }else{
+
+                try {
+                    fragmentClass = InicioFragment.class;
+                    fragment = (Fragment) fragmentClass.newInstance();
+                    FragmentManager fragmentManager = getFragmentManager();
+                    fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+                }catch (Exception e){
+                    Log.e("Excpetion","Botao voltar navgation excetopn = "+e);
+                }
+            }
         }
 
     }
@@ -184,19 +179,11 @@ public class NavigationDrawerActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
-        // Create a new fragment and specify the fragment to show based on nav item clicked
-        Fragment fragment = null;
-        Class fragmentClass;
-
-        //para verificar se o usuario esta na tela incial, e assim encaminar o usuario para a tela correta quando apertar em voltar dentro dos fragments do navigationdrawer
-        boolean inicio = false;
-
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_inicio:
                 fragmentClass = InicioFragment.class;
-                inicio = true;
                 break;
             case R.id.nav_pedir_emprestimo:
                 fragmentClass = PedirEmprestimoFragment.class;
@@ -261,8 +248,12 @@ public class NavigationDrawerActivity extends AppCompatActivity
             e.printStackTrace();
         }
 
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+
         //os fragments do navigationdrawer, com execessao do inicio, sao adicionados ao backstack
-        if (inicio) {
+        /*if (inicio) {
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
@@ -270,7 +261,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
             // Insert the fragment by replacing any existing fragment
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(item.getTitle().toString()).commit();
-        }
+        }*/
         // Highlight the selected item has been done by NavigationView
         item.setChecked(true);
         // Set action bar title

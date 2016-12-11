@@ -51,6 +51,10 @@ dependencies {
     compile 'com.google.android.gms:play-services-gcm:9.6.1'
 
     compile 'com.makeramen:roundedimageview:2.2.1'//image circular
+
+    compile 'com.google.firebase:firebase-core:9.6.1'
+    compile 'com.google.firebase:firebase-database:9.6.1'
+    compile 'com.google.firebase:firebase-messaging:9.6.1'
 }
 
 apply plugin: 'com.google.gms.google-services'
