@@ -6,14 +6,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
+import br.com.appinbanker.inbanker.VerHistorico;
+import br.com.appinbanker.inbanker.VerPagamentoPendente;
+import br.com.appinbanker.inbanker.VerPedidoEnviado;
+import br.com.appinbanker.inbanker.VerPedidoRecebido;
+import br.com.appinbanker.inbanker.entidades.Transacao;
 
 /**
  * Created by jonatassilva on 08/12/16.
@@ -24,35 +31,105 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        //Displaying data in log
-        //It is optional
+
+        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
         Log.d(TAG, "From: " + remoteMessage.getFrom());
-        Log.d(TAG, "Notification Message Body: " + remoteMessage.getNotification().getBody());
+
+        // Check if message contains a data payload.
+        if (remoteMessage.getData().size() > 0) {
+            //Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+
+            sendNotification(remoteMessage.getData().get("transacao"),remoteMessage.getData().get("title"),remoteMessage.getData().get("msg"));
+        }
+
+        // Check if message contains a notification payload.
+        if (remoteMessage.getNotification() != null) {
+            Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
+        }
 
         //Calling method to generate notification
-        sendNotification(remoteMessage.getNotification().getBody());
+        //sendNotification(remoteMessage.getNotification().getBody());
     }
 
     //This method is only generating push notification
     //It is same as we did in earlier posts
-    private void sendNotification(String messageBody) {
-        Intent intent = new Intent(this, NavigationDrawerActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
-                PendingIntent.FLAG_ONE_SHOT);
+    private void sendNotification(String transacao,String title,String msg) {
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Firebase Push Notification")
-                .setContentText(messageBody)
+                .setSmallIcon(R.mipmap.icon)
+                .setContentTitle(title)
+                .setContentText(msg)
                 .setAutoCancel(true)
-                .setSound(defaultSoundUri)
-                .setContentIntent(pendingIntent);
+                .setSound(defaultSoundUri);
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        notificationManager.notify(0, notificationBuilder.build());
+        NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
+        bigText.bigText(msg);
+        notificationBuilder.setStyle(bigText);
+
+        notificationBuilder.setPriority(NotificationCompat.PRIORITY_HIGH);
+        notificationBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+
+        //tempo vibrando, dormindo, vibrando, dormindo
+        notificationBuilder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000});
+
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonInString = transacao;
+        Transacao trans = new Transacao();
+        try {
+            //JSON from String to Object
+            trans = mapper.readValue(jsonInString, Transacao.class);
+
+            int status_transacao = Integer.parseInt(trans.getStatus_transacao());
+
+            Class classe;
+
+            switch (status_transacao){
+                case Transacao.AGUARDANDO_RESPOSTA:
+                    classe = VerPedidoRecebido.class;
+                    break;
+                case Transacao.PEDIDO_ACEITO:
+                    classe = VerPedidoEnviado.class;
+                    break;
+                case Transacao.PEDIDO_RECUSADO:
+                    classe = VerHistorico.class;
+                    break;
+                case Transacao.CONFIRMADO_RECEBIMENTO:
+                    classe = VerPedidoRecebido.class;
+                    break;
+                case Transacao.QUITACAO_SOLICITADA:
+                    classe = VerPedidoRecebido.class;
+                    break;
+                case Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA:
+                    classe = VerPagamentoPendente.class;
+                    break;
+                case Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA:
+                    classe = VerHistorico.class;
+                    break;
+                default:
+                    Log.i("Notificacao", "default notificacao");
+                    classe = NavigationDrawerActivity.class;
+                    break;
+            }
+
+            Intent it = new Intent(this,classe);
+            it.putExtra("transacao",trans);
+
+            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, it,
+                    PendingIntent.FLAG_ONE_SHOT);
+
+            notificationBuilder.setContentIntent(pendingIntent);
+
+            notificationManager.notify(0, notificationBuilder.build());
+
+        }catch(Exception e){
+            Log.d("Exception", ""+e);
+        }
+
+
     }
 }

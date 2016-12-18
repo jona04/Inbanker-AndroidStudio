@@ -70,23 +70,17 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent it = getIntent();
-        Bundle parametro = it.getExtras();
-        if(parametro!=null){
-            id = parametro.getString("id");
-            nome2 = parametro.getString("nome2");
-            cpf1 = parametro.getString("cpf1");
-            cpf2 = parametro.getString("cpf2");
-            nome1 = parametro.getString("nome1");
-            data_pedido = parametro.getString("data_pedido");
-            valor = parametro.getString("valor");
-            vencimento = parametro.getString("vencimento");
-            img1 = parametro.getString("img1");
-            img2 = parametro.getString("img2");
-            status_transacao = Integer.parseInt(parametro.getString("status_transacao"));
-            ///statusss
+        it.getExtras();
+        if(it.getSerializableExtra("transacao")!=null){
+            Transacao trans = (Transacao) it.getSerializableExtra("transacao");
+            Log.i("Script","valaor = "+trans.getNome_usu1());
         }else{
-            finish();
+            Log.i("Script","nullllll");
         }
+
+
+        /*
+
 
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
 
@@ -281,7 +275,7 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 btn_aceita_pedido.setEnabled(false);
             }
         });
-
+*/
 
     }
 

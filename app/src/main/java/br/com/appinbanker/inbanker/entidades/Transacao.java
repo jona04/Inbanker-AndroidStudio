@@ -1,14 +1,17 @@
 package br.com.appinbanker.inbanker.entidades;
 
+import android.os.Parcelable;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
 import java.util.Random;
 
 /**
  * Created by jonatassilva on 23/10/16.
  */
 
-public class Transacao {
+public class Transacao implements Serializable {
 
     //status da transacao
     public static final int AGUARDANDO_RESPOSTA = 0;
