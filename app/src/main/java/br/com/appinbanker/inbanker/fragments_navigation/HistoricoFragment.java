@@ -161,21 +161,7 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
         //Log.i("Script", "Click tste inicio =" + mList.get(position));
 
         Intent it = new Intent(getActivity(), VerHistorico.class);
-        Bundle b = new Bundle();
-        b.putString("id",mList.get(position).getId_trans());
-        b.putString("nome2",mList.get(position).getNome_usu2());
-        b.putString("cpf1",mList.get(position).getUsu1());
-        b.putString("cpf2",mList.get(position).getUsu2());
-        b.putString("data_pedido",mList.get(position).getDataPedido());
-        b.putString("nome1", mList.get(position).getNome_usu1());
-        b.putString("valor",mList.get(position).getValor());
-        b.putString("vencimento", mList.get(position).getVencimento());
-        b.putString("img1", mList.get(position).getUrl_img_usu1());
-        b.putString("img2", mList.get(position).getUrl_img_usu2());
-        b.putString("data_cancelamento",mList.get(position).getData_recusada());
-        b.putString("status_transacao", mList.get(position).getStatus_transacao());
-        b.putString("data_pagamento", mList.get(position).getData_pagamento());
-        it.putExtras(b);
+        it.putExtra("transacao",mList.get(position));
         startActivity(it);
 
     }

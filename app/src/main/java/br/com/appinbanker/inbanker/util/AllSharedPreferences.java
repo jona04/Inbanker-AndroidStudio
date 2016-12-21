@@ -13,6 +13,8 @@ public class AllSharedPreferences extends Activity {
     public static final String PREFS_LOCAL = "prefs_local";
     public static final String DEVICE_ID = "device_id";
     public static final String TOKEN_GCM = "token_gcm";
+    public static final String ID_FACE = "id_face";
+    public static final String CPF = "cpf";
 
     public static void putPreferences(String name, String item, Context classe){
 

@@ -42,7 +42,9 @@ import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.fcm.MyFirebaseInstanceIDService;
 import br.com.appinbanker.inbanker.gcm.RegistrationIntentService;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringFace;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
@@ -55,10 +57,8 @@ import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioLogin;
 import br.com.appinbanker.inbanker.webservice.VerificaUsuarioCadastro;
 
-public class Inicio extends AppCompatActivity implements WebServiceReturnString,WebServiceReturnUsuario {
+public class Inicio extends AppCompatActivity implements WebServiceReturnStringFace,WebServiceReturnUsuarioFace {
 
-    //utilizado na funcao de saber se o google play service esta instalado
-    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     private CallbackManager callbackManager;
 
@@ -89,8 +89,9 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
         callbackManager = CallbackManager.Factory.create();
 
         //já pegamos de agora o token do usuario para utilizar nas notificações
-        if (CheckConection.temConexao(this)){
+        /*if (CheckConection.temConexao(this)){
             if (CheckPlayServices.checkPlayServices(this)) {
+                Log.i("FCM", "esta no metodo que chama");
                 Intent it = new Intent(this, MyFirebaseInstanceIDService.class);
                 startService(it);
             } else {
@@ -99,7 +100,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
             }
         }else{
             mensagem("Alerta","Você não esta conectado a uma rede de internet. Para utilizar todos os nosso servços conecte-se a uma rede local.","Ok");
-        }
+        }*/
 
         progress_bar_inicio = (ProgressBar) findViewById(R.id.progress_bar_inicio);
         Button btn_cadastro_usuario = (Button) findViewById(R.id.btn_cadastro);
@@ -185,6 +186,8 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
 
 
                             clickLogin();
+
+                            dialog.dismiss();
 
                             return true;
                         }
@@ -333,8 +336,9 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
         new BuscaUsuarioFace(id,this, this).execute();
     }
 
+    //login do facebook
     @Override
-    public void retornoUsuarioWebService(Usuario usu){
+    public void retornoUsuarioWebServiceFace(Usuario usu){
 
         String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,Inicio.this);
         String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,Inicio.this);
@@ -352,6 +356,9 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
                     new AtualizaTokenGcm(usu).execute();
                 }
             }
+
+            //parametro null para informar que tem apenas o id_face
+            addPreferencesFaceAndCPF(null);
 
             BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
             //ordem de parametros - nome,email,cpf,senha,id_face,email_face,nome_face,url_img_face
@@ -374,7 +381,6 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
             new_usu.setNome(nome);
             new_usu.setSenha("");
 
-            //setamos esse valores vazio para nao dar problema na hora de serializacao e posteriormente erro no rest de cadastro no banco
             new_usu.setIdFace(id);
             new_usu.setNomeFace(nome);
             new_usu.setUrlImgFace(url_img);
@@ -388,11 +394,14 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
         progress_bar_inicio.setVisibility(View.GONE);
     }
 
-    //metodo que sera invoca na classe de webserve
-    public void retornoStringWebService(String msg){
+    //metodo que sera invoca na classe de webserve veio do login face
+    public void retornoStringWebServiceFace(String msg){
 
         if(msg!=null) {
             if (msg.equals("sucesso")) {
+
+                //parametro null para informar que tem apenas o id_face
+                addPreferencesFaceAndCPF(null);
 
                 BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
                 //ordem de parametros - nome,email,cpf,senha,id_face,email_face,nome_face,url_img_face
@@ -438,7 +447,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
         if(campos_ok) {
             progress_bar_entrar.setVisibility(View.VISIBLE);
             btn_entrar_usuario.setEnabled(false);
-            new BuscaUsuarioLogin(et_cpf.getText().toString(), Inicio.this, Inicio.this).execute();
+            new BuscaUsuarioLogin(et_cpf.getText().toString(), this, this).execute();
         }
 
     }
@@ -451,6 +460,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
                 String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,Inicio.this);
                 String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,Inicio.this);
 
+                addPreferencesFaceAndCPF(usu.getCpf());
 
                 if(usu.getToken_gcm()!=null){
                     if(!usu.getToken_gcm().equals(token)){
@@ -567,6 +577,8 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
             String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,Inicio.this);
             String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,Inicio.this);
 
+            addPreferencesFaceAndCPF(cpf);
+
             //adicionamos os valores as variaveis globais para serem adicionadas corretamente no sqlite la no metido retornoStringWebService
             nome = et_nome_cadastro.getText().toString();
             email = et_email_cadastro.getText().toString();
@@ -614,5 +626,18 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnString,
         mensagem.setMessage(corpo);
         mensagem.setNeutralButton(botao,null);
         mensagem.show();
+    }
+
+    public void addPreferencesFaceAndCPF(String cpf){
+
+        if(id!=null) {
+            //add id face no preferences
+            AllSharedPreferences.putPreferences(AllSharedPreferences.ID_FACE, id, Inicio.this);
+        }
+        if(cpf!=null) {
+            //add id face no preferences
+            AllSharedPreferences.putPreferences(AllSharedPreferences.CPF,cpf, Inicio.this);
+        }
+
     }
 }

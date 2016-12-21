@@ -41,7 +41,10 @@ import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 
 public class VerPedidoEnviado extends AppCompatActivity implements WebServiceReturnUsuario {
 
-    private String id,nome2,cpf1,cpf2,data_pedido,nome1,valor,vencimento,img1,img2;
+    //private String id,nome2,cpf1,cpf2,data_pedido,nome1,valor,vencimento,img1,img2;
+
+    //esse objeto ira receber a transacao atual, vinda da lista ou da notificacao
+    private Transacao trans_atual;
 
     private TextView tv_data_pedido,tv_valor,tv_vencimento,tv_juros_mes,tv_valor_total,tv_dias_corridos,msg_ver_pedido;
 
@@ -64,23 +67,21 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent it = getIntent();
-        Bundle parametro = it.getExtras();
-        if(parametro!=null){
-            id = parametro.getString("id");
-            nome2 = parametro.getString("nome2");
-            cpf1 = parametro.getString("cpf1");
-            cpf2 = parametro.getString("cpf2");
-            nome1 = parametro.getString("nome1");
-            data_pedido = parametro.getString("data_pedido");
-            valor = parametro.getString("valor");
-            vencimento = parametro.getString("vencimento");
-            img1 = parametro.getString("img1");
-            img2 = parametro.getString("img2");
-            status_transacao = Integer.parseInt(parametro.getString("status_transacao"));
-            ///statusss
+        it.getExtras();
+        if(it.getSerializableExtra("transacao")!=null){
+            trans_atual = (Transacao) it.getSerializableExtra("transacao");
+            //Log.i("Script","valaor = "+trans.getNome_usu1());
+
+            montaView();
+
+            configView();
+
         }else{
-            finish();
+            Log.i("Script","Nada vindo do parametro");
         }
+    }
+
+    public void montaView(){
 
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
 
@@ -92,12 +93,12 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
                 .build();
 
         Picasso.with(getBaseContext())
-                .load(img2)
+                .load(trans_atual.getUrl_img_usu2())
                 .transform(transformation)
                 .into(img);
 
         TextView tv = (TextView) findViewById(R.id.nome_amigo);
-        tv.setText(nome2);
+        tv.setText(trans_atual.getNome_usu2());
 
         ll_confirma_recebimento = (LinearLayout) findViewById(R.id.ll_confirma_recebimento);
 
@@ -112,11 +113,16 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
         tv_valor_total = (TextView) findViewById(R.id.tv_valor_total);
         tv_dias_corridos = (TextView) findViewById(R.id.tv_dias_corridos);
 
+    }
+
+
+    public void configView(){
+
         //calculamos a diferença de dias entre a data atual ate a data do pedido para calcularmos o juros
         DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
         DateTime hoje = new DateTime();
         //DateTime data_pedido_parse = fmt.parseDateTime(data_pedido);
-        DateTime vencimento_parse = fmt.parseDateTime(vencimento);
+        DateTime vencimento_parse = fmt.parseDateTime(trans_atual.getVencimento());
 
         //calculamos o total de dias para mostramos na tela inicial antes do usuario-2 aceitar ou recusar o pedido recebido
         Days d = Days.daysBetween(hoje, vencimento_parse);
@@ -127,12 +133,14 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
         //int dias_corridos = d_corridos.getDays();
 
         //isso é para discontar 1 dia de juros, pois é dado prazo maximo de 1 dia para o usuario-2 aceitar o pedido
-       //if(dias_corridos >0)
-       //     dias_corridos = dias_corridos -1;
+        //if(dias_corridos >0)
+        //     dias_corridos = dias_corridos -1;
 
         DecimalFormat decimal = new DecimalFormat( "0.00" );
 
-        double juros_mensal = Double.parseDouble(valor) * (0.00066333 * dias);
+        double juros_mensal = Double.parseDouble(trans_atual.getValor()) * (0.00066333 * dias);
+
+        status_transacao = Integer.parseInt(trans_atual.getStatus_transacao());
 
         switch (status_transacao){
             case Transacao.AGUARDANDO_RESPOSTA:
@@ -150,17 +158,17 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
                 break;*/
         }
 
-        double valor_total = juros_mensal +  Double.parseDouble(valor);
+        double valor_total = juros_mensal +  Double.parseDouble(trans_atual.getValor());
 
         Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
-        String valor_formatado = nf.format (Double.parseDouble(valor));
+        String valor_formatado = nf.format (Double.parseDouble(trans_atual.getValor()));
         String juros_mensal_formatado = nf.format (juros_mensal);
         String valor_total_formatado = nf.format (valor_total);
 
         tv_valor.setText(valor_formatado);
-        tv_data_pedido.setText(data_pedido);
-        tv_vencimento.setText(vencimento);
+        tv_data_pedido.setText(trans_atual.getDataPedido());
+        tv_vencimento.setText(trans_atual.getVencimento());
         tv_juros_mes.setText(juros_mensal_formatado);
         tv_valor_total.setText(valor_total_formatado);
 
@@ -169,17 +177,19 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
             public void onClick(View v) {
 
                 Transacao trans = new Transacao();
-                trans.setId_trans(id);
+                trans.setId_trans(trans_atual.getId_trans());
                 trans.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
 
-                new EditaTransacao(trans,cpf1,cpf2,null,VerPedidoEnviado.this,null).execute();
+                new EditaTransacao(trans,trans_atual.getUsu1(),trans_atual.getUsu2(),null,VerPedidoEnviado.this,null).execute();
 
                 progress_bar_btn.setVisibility(View.VISIBLE);
                 btn_confirma_recebimento.setEnabled(false);
 
             }
         });
+
     }
+
 
     public void retornoEditaTransacao(String result){
 
@@ -190,8 +200,8 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
 
         if(result.equals("sucesso_edit")){
 
-            //busca token do usuario 1
-            new BuscaUsuarioCPF(cpf2,this,this).execute();
+            //busca token do usuario 2 para enviarmos notificacao
+            new BuscaUsuarioCPF(trans_atual.getUsu2(),this,this).execute();
 
 
         }else{
@@ -205,23 +215,24 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
 
         Transacao trans = new Transacao();
 
-        trans.setId_trans(id);
-        trans.setNome_usu1(nome1);
-        trans.setNome_usu2(nome2);
+        trans.setNome_usu1(trans_atual.getNome_usu1());
+        trans.setNome_usu2(trans_atual.getNome_usu2());
         trans.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
-        trans.setUsu1(cpf1);
-        trans.setUsu2(cpf2);
-        trans.setDataPedido(data_pedido);
-        trans.setValor(valor);
-        trans.setVencimento(vencimento);
-        trans.setUrl_img_usu1(img1);
-        trans.setUrl_img_usu2(img2);
+
+        trans.setId_trans(trans_atual.getId_trans());
+        trans.setUsu1(trans_atual.getUsu1());
+        trans.setUsu2(trans_atual.getUsu2());
+        trans.setDataPedido(trans_atual.getDataPedido());
+        trans.setValor(trans_atual.getValor());
+        trans.setVencimento(trans_atual.getVencimento());
+        trans.setUrl_img_usu1(trans_atual.getUrl_img_usu1());
+        trans.setUrl_img_usu2(trans_atual.getUrl_img_usu2());
 
 
         //envia notificacao
         new EnviaNotificacao(trans,usu.getToken_gcm()).execute();
 
-        mensagemIntent("InBanker","Parabéns, você confirmou o recebimento do valor solicitado. Ao efetuar o pagamento de quitação, peça que seu amigo(a) " + nome2 + " confirme o recebimento do valor.", "Ok");
+        mensagemIntent("InBanker","Parabéns, você confirmou o recebimento do valor solicitado. Ao efetuar o pagamento de quitação, peça que seu amigo(a) " + trans_atual.getNome_usu2() + " confirme o recebimento do valor.", "Ok");
 
     }
     public void mensagem(String titulo,String corpo,String botao)

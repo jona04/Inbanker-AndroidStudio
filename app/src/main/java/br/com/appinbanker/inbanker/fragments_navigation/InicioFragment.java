@@ -24,6 +24,7 @@ import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.gcm.RegistrationIntentService;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
@@ -32,7 +33,7 @@ import br.com.appinbanker.inbanker.util.CheckPlayServices;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 
-public class InicioFragment extends Fragment implements WebServiceReturnUsuario{
+public class InicioFragment extends Fragment implements WebServiceReturnUsuario {
 
     TextView badge_notification_ped_rec,badge_notification_pag_pen,badge_notification_ped_env;
 
@@ -73,8 +74,6 @@ public class InicioFragment extends Fragment implements WebServiceReturnUsuario{
             String id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
             if(!cpf.equals(""))
                 new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
-            else
-                new BuscaUsuarioFace(id_face,getActivity(),this).execute();
         }catch (Exception e){
 
         }
@@ -205,6 +204,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnUsuario{
         }
 
     }
+
     public void mensagem(String titulo,String corpo,String botao)
     {
         AlertDialog.Builder mensagem = new AlertDialog.Builder(getActivity());

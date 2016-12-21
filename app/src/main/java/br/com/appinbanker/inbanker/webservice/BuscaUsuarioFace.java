@@ -16,6 +16,7 @@ import br.com.appinbanker.inbanker.fragments_navigation.PagamentosPendentesFragm
 import br.com.appinbanker.inbanker.fragments_navigation.PedidosEnviadosFragment;
 import br.com.appinbanker.inbanker.fragments_navigation.PedidosRecebidosFragment;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 
 /**
  * Created by jonatassilva on 23/10/16.
@@ -26,10 +27,10 @@ public class BuscaUsuarioFace extends AsyncTask<String,String,Usuario> {
     private String id_face;
     private Context context;
 
-    private WebServiceReturnUsuario ru;
+    private WebServiceReturnUsuarioFace ru;
 
 
-    public BuscaUsuarioFace(String id_face, Context context, WebServiceReturnUsuario ru){
+    public BuscaUsuarioFace(String id_face, Context context, WebServiceReturnUsuarioFace ru){
 
         this.context = context;
         this.ru = ru;
@@ -61,7 +62,7 @@ public class BuscaUsuarioFace extends AsyncTask<String,String,Usuario> {
             Log.i("Script",result.getNome());
 
         //verificamos de onde esta sendo chamado a api, para utilizamos o retorno especifico
-        ru.retornoUsuarioWebService(result);
+        ru.retornoUsuarioWebServiceFace(result);
     }
 
 }

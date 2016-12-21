@@ -4,6 +4,7 @@ import android.app.FragmentManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.design.widget.NavigationView;
@@ -24,6 +25,8 @@ import com.facebook.login.LoginManager;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
+
+import java.io.IOException;
 
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
@@ -170,6 +173,47 @@ public class NavigationDrawerActivity extends AppCompatActivity
             Log.i("Script","menu notificacao clicado");
 
             return true;
+        }else if (id == R.id.menu_minha_conta) {
+
+            Log.i("Script","menu nminha conta");
+
+            return true;
+        }else if (id == R.id.menu_sair) {
+
+            Log.i("Script","menu sair");
+
+            //faz o logout do usuario logado facebook
+            LoginManager.getInstance().logOut();
+
+            BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
+            Cursor cursor = crud.carregaDados();
+
+            //deleta registro do usuario no sqlite
+            String cpf = cursor.getString(cursor.getColumnIndexOrThrow("cpf"));
+            crud.deletaRegistro(cpf);
+
+            //limpa preferences login
+            AllSharedPreferences.putPreferences(AllSharedPreferences.ID_FACE, "", NavigationDrawerActivity.this);
+            AllSharedPreferences.putPreferences(AllSharedPreferences.CPF,"", NavigationDrawerActivity.this);
+
+            //deleta o token do usuario do banco de dados
+            String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);
+            //String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,NavigationDrawerActivity.this);
+            //Usuario usu = new Usuario();
+            //usu.setDevice_id(device_id);
+            //usu.setToken_gcm("");
+            //usu.setCpf(cpf);
+
+            //new AtualizaTokenGcm(usu).execute();
+
+
+            Intent it = new Intent(NavigationDrawerActivity.this, Inicio.class);
+            startActivity(it);
+
+            //para encerrar a activity atual e todos os parent
+            finishAffinity();
+
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -211,7 +255,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 //fragment qualquer para nao dar erro do try
                 fragmentClass = InicioFragment.class;
 
-                //faz o logout do usuario logado
+                //faz o logout do usuario logado facebook
                 LoginManager.getInstance().logOut();
 
                 BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
@@ -221,14 +265,20 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 String cpf = cursor.getString(cursor.getColumnIndexOrThrow("cpf"));
                 crud.deletaRegistro(cpf);
 
+                //limpa preferences login
+                AllSharedPreferences.putPreferences(AllSharedPreferences.ID_FACE, "", NavigationDrawerActivity.this);
+                AllSharedPreferences.putPreferences(AllSharedPreferences.CPF,"", NavigationDrawerActivity.this);
+
                 //deleta o token do usuario do banco de dados
-                String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);
+                //String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);
                 //String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,NavigationDrawerActivity.this);
-                Usuario usu = new Usuario();
-                usu.setDevice_id(device_id);
-                usu.setToken_gcm("");
-                usu.setCpf(cpf);
-                new AtualizaTokenGcm(usu).execute();
+                //Usuario usu = new Usuario();
+                //usu.setDevice_id(device_id);
+                //usu.setToken_gcm("");
+                //usu.setCpf(cpf);
+
+                //new AtualizaTokenGcm(usu).execute();
+
 
                 Intent it = new Intent(NavigationDrawerActivity.this, Inicio.class);
                 startActivity(it);

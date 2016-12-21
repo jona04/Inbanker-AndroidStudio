@@ -17,10 +17,17 @@ import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 
+import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.fragments_navigation.HistoricoFragment;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
@@ -28,11 +35,12 @@ import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 
 public class VerHistorico extends AppCompatActivity {
 
-    private String id,nome2,cpf1,cpf2,data_pedido = null,nome1,valor,vencimento,img1,img2,data_cancelamento,data_pagamento;
+    //private String id,nome2,cpf1,cpf2,data_pedido = null,nome1,valor,vencimento,img1,img2,data_cancelamento,data_pagamento;
 
-    private TextView tv_valor,tv_data_historico,tv_vencimento,tv_juros_mes,tv_valor_total,tv_data_pedido;
+    //esse objeto ira receber a transacao atual, vinda da lista ou da notificacao
+    private Transacao trans_atual;
 
-    private int status_transacao;
+    private TextView tv_valor,tv_data_historico,tv_vencimento,tv_juros_mes,tv_valor_total,tv_data_pedido,tv_dias_corridos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,25 +51,22 @@ public class VerHistorico extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent it = getIntent();
-        Bundle parametro = it.getExtras();
-        if(parametro!=null){
-            id = parametro.getString("id");
-            nome2 = parametro.getString("nome2");
-            cpf1 = parametro.getString("cpf1");
-            cpf2 = parametro.getString("cpf2");
-            nome1 = parametro.getString("nome1");
-            data_pedido = parametro.getString("data_pedido");
-            valor = parametro.getString("valor");
-            vencimento = parametro.getString("vencimento");
-            img1 = parametro.getString("img1");
-            img2 = parametro.getString("img2");
-            data_cancelamento = parametro.getString("data_cancelamento");
-            data_pagamento = parametro.getString("data_pagamento");
-            status_transacao = Integer.parseInt(parametro.getString("status_transacao"));
-            ///statusss
+        it.getExtras();
+        if(it.getSerializableExtra("transacao")!=null){
+            trans_atual = (Transacao) it.getSerializableExtra("transacao");
+            //Log.i("Script","valaor = "+trans.getNome_usu1());
+
+            montaView();
+
+            configView();
+
         }else{
-            finish();
+            Log.i("Script","Nada vindo do parametro");
         }
+
+    }
+
+    public void montaView(){
 
         BancoControllerUsuario crud = new BancoControllerUsuario(this);
         Cursor cursor = crud.carregaDados();
@@ -78,18 +83,18 @@ public class VerHistorico extends AppCompatActivity {
                 .build();
 
         //identicamos qual é o usuario 1 e 2 na transacao, para exibir os dados corretoa na tela
-        if(cpf.equals(cpf1)) {
+        if(cpf.equals(trans_atual.getUsu1())) {
             Picasso.with(getBaseContext())
-                    .load(img2)
+                    .load(trans_atual.getUrl_img_usu2())
                     .transform(transformation)
                     .into(img);
-            tv.setText(nome2);
+            tv.setText(trans_atual.getNome_usu2());
         }else {
             Picasso.with(getBaseContext())
-                    .load(img1)
+                    .load(trans_atual.getUrl_img_usu1())
                     .transform(transformation)
                     .into(img);
-            tv.setText(nome1);
+            tv.setText(trans_atual.getNome_usu1());
         }
 
         tv_valor = (TextView) findViewById(R.id.tv_valor);
@@ -98,33 +103,61 @@ public class VerHistorico extends AppCompatActivity {
         tv_data_historico= (TextView) findViewById(R.id.tv_data_historico);
         tv_juros_mes= (TextView) findViewById(R.id.tv_juros_mes);
         tv_valor_total= (TextView) findViewById(R.id.tv_valor_total);
+        tv_dias_corridos = (TextView) findViewById(R.id.tv_dias_corridos);
+
+    }
+
+    public void configView(){
+
+        //calculamos a diferença de dias entre a data do pedido ate a data de finalizacao do pedido para calcularmos o juros
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
+        DateTime data_pedido_parse = fmt.parseDateTime(trans_atual.getDataPedido());
+        DateTime data_finalizado;
+
+        int dias_corridos = 0;
 
         Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
-        String valor_formatado = nf.format (Double.parseDouble(valor));
-        //String juros_mensal_formatado = nf.format (juros_mensal);
-        //String valor_total_formatado = nf.format (valor_total);
 
         //se o tamanho da variavel data for maior que 5 é por que existe uma data registrada
-        if(data_cancelamento.length() > 5) {
-            tv_data_historico.setText("Data cancelamento");
-            tv_vencimento.setText(data_cancelamento);
+        if(trans_atual.getData_recusada() != null) {
+            if(trans_atual.getData_recusada().length() > 5) {
+                tv_data_historico.setText("Data cancelamento");
+                tv_vencimento.setText(trans_atual.getData_recusada());
+                data_finalizado = fmt.parseDateTime(trans_atual.getData_recusada());
+
+                Days d = Days.daysBetween(data_pedido_parse, data_finalizado);
+                dias_corridos = d.getDays();
+            }
         }
-        if(data_pagamento.length() > 5) {
-            tv_data_historico.setText("Data quitação");
-            tv_vencimento.setText(data_pagamento);
+        if(trans_atual.getData_pagamento() != null) {
+            if(trans_atual.getData_pagamento().length() > 5) {
+                tv_data_historico.setText("Data quitação");
+                tv_vencimento.setText(trans_atual.getData_pagamento());
+                data_finalizado = fmt.parseDateTime(trans_atual.getData_pagamento());
+
+                Days d = Days.daysBetween(data_pedido_parse, data_finalizado);
+                dias_corridos = d.getDays();
+            }
         }
 
+        double juros_mensal = Double.parseDouble(trans_atual.getValor()) * (0.00066333 * dias_corridos);
+        double valor_total = juros_mensal +  Double.parseDouble(trans_atual.getValor());
+
+        String valor_total_formatado = nf.format (valor_total);
+        String valor_formatado = nf.format (Double.parseDouble(trans_atual.getValor()));
+
+        tv_dias_corridos.setText(String.valueOf(dias_corridos));
         tv_valor.setText(valor_formatado);
-        tv_data_pedido.setText(data_pedido);
+        tv_valor_total.setText(valor_total_formatado);
+        tv_data_pedido.setText(trans_atual.getDataPedido());
+        tv_juros_mes.setText(nf.format (juros_mensal));
 
     }
 
     @Override
     public void onBackPressed()
     {
-        // code here to show dialog
-        super.onBackPressed();  // optional depending on your needs
 
         Log.i("Script","onBackPressed");
 
@@ -132,6 +165,8 @@ public class VerHistorico extends AppCompatActivity {
             Intent it = new Intent(this,NavigationDrawerActivity.class);
             startActivity(it);
         }
+        // code here to show dialog
+        super.onBackPressed();  // optional depending on your needs
 
     }
 

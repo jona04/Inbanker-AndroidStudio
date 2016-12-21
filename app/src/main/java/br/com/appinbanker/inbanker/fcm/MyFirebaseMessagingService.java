@@ -21,6 +21,7 @@ import br.com.appinbanker.inbanker.VerPagamentoPendente;
 import br.com.appinbanker.inbanker.VerPedidoEnviado;
 import br.com.appinbanker.inbanker.VerPedidoRecebido;
 import br.com.appinbanker.inbanker.entidades.Transacao;
+import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 
 /**
  * Created by jonatassilva on 08/12/16.
@@ -37,11 +38,26 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
-            //Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
 
-            sendNotification(remoteMessage.getData().get("transacao"),remoteMessage.getData().get("title"),remoteMessage.getData().get("msg"));
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonInString = remoteMessage.getData().get("transacao");
+            Transacao trans = new Transacao();
+            try {
+                //JSON from String to Object
+                trans = mapper.readValue(jsonInString, Transacao.class);
+
+                String id_face = AllSharedPreferences.getPreferences(AllSharedPreferences.ID_FACE, getApplication());
+                String cpf = AllSharedPreferences.getPreferences(AllSharedPreferences.CPF, getApplication());
+                if (id_face != null || cpf != null) {
+                    if (id_face != "" || cpf != "")
+                        sendNotification(trans, remoteMessage.getData().get("title"), remoteMessage.getData().get("msg"));
+
+                }
+            }catch (Exception e){
+                Log.i("Notificatio","Excepition = "+e);
+            }
         }
-
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
@@ -53,7 +69,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     //This method is only generating push notification
     //It is same as we did in earlier posts
-    private void sendNotification(String transacao,String title,String msg) {
+    private void sendNotification(Transacao trans,String title,String msg) {
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
@@ -76,59 +92,55 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         //tempo vibrando, dormindo, vibrando, dormindo
         notificationBuilder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000});
 
-        ObjectMapper mapper = new ObjectMapper();
-        String jsonInString = transacao;
-        Transacao trans = new Transacao();
-        try {
-            //JSON from String to Object
-            trans = mapper.readValue(jsonInString, Transacao.class);
+        int status_transacao = Integer.parseInt(trans.getStatus_transacao());
 
-            int status_transacao = Integer.parseInt(trans.getStatus_transacao());
+        Class classe;
 
-            Class classe;
-
-            switch (status_transacao){
-                case Transacao.AGUARDANDO_RESPOSTA:
-                    classe = VerPedidoRecebido.class;
-                    break;
-                case Transacao.PEDIDO_ACEITO:
-                    classe = VerPedidoEnviado.class;
-                    break;
-                case Transacao.PEDIDO_RECUSADO:
-                    classe = VerHistorico.class;
-                    break;
-                case Transacao.CONFIRMADO_RECEBIMENTO:
-                    classe = VerPedidoRecebido.class;
-                    break;
-                case Transacao.QUITACAO_SOLICITADA:
-                    classe = VerPedidoRecebido.class;
-                    break;
-                case Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA:
-                    classe = VerPagamentoPendente.class;
-                    break;
-                case Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA:
-                    classe = VerHistorico.class;
-                    break;
-                default:
-                    Log.i("Notificacao", "default notificacao");
-                    classe = NavigationDrawerActivity.class;
-                    break;
-            }
-
-            Intent it = new Intent(this,classe);
-            it.putExtra("transacao",trans);
-
-            it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, it,
-                    PendingIntent.FLAG_ONE_SHOT);
-
-            notificationBuilder.setContentIntent(pendingIntent);
-
-            notificationManager.notify(0, notificationBuilder.build());
-
-        }catch(Exception e){
-            Log.d("Exception", ""+e);
+        switch (status_transacao){
+            case Transacao.AGUARDANDO_RESPOSTA:
+                Log.i("Script","Notifca aguardando esposta");
+                classe = VerPedidoRecebido.class;
+                break;
+            case Transacao.PEDIDO_ACEITO:
+                Log.i("Script","Notifca aguardando esposta");
+                classe = VerPedidoEnviado.class;
+                break;
+            case Transacao.PEDIDO_RECUSADO:
+                Log.i("Script","Notifca PEDIDO_RECUSADO");
+                classe = VerHistorico.class;
+                break;
+            case Transacao.CONFIRMADO_RECEBIMENTO:
+                Log.i("Script","Notifca CONFIRMADO_RECEBIMENTO");
+                classe = VerPedidoRecebido.class;
+                break;
+            case Transacao.QUITACAO_SOLICITADA:
+                Log.i("Script","Notifca QUITACAO_SOLICITADA");
+                classe = VerPedidoRecebido.class;
+                break;
+            case Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA:
+                Log.i("Script","Notifca RESP_QUITACAO_SOLICITADA_RECUSADA");
+                classe = VerPagamentoPendente.class;
+                break;
+            case Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA:
+                Log.i("Script","Notifca RESP_QUITACAO_SOLICITADA_CONFIRMADA");
+                classe = VerHistorico.class;
+                break;
+            default:
+                Log.i("Notificacao", "default notificacao");
+                classe = NavigationDrawerActivity.class;
+                break;
         }
+
+        Intent it = new Intent(this,classe);
+        it.putExtra("transacao",trans);
+
+        it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, it,
+                PendingIntent.FLAG_ONE_SHOT);
+
+        notificationBuilder.setContentIntent(pendingIntent);
+
+        notificationManager.notify(0, notificationBuilder.build());
 
 
     }

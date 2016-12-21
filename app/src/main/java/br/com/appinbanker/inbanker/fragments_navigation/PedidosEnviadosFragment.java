@@ -73,8 +73,6 @@ public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnC
             //Log.i("Sqlite","valor cpf = "+cpf+" valor id_face = "+id_face);
             if(!cpf.equals(""))
                 new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
-            else
-                new BuscaUsuarioFace(id_face,getActivity(),this).execute();
         }catch (Exception e){
 
         }
@@ -161,19 +159,7 @@ public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnC
         //Log.i("Script", "Click tste inicio =" + mList.get(position));
 
         Intent it = new Intent(getActivity(), VerPedidoEnviado.class);
-        Bundle b = new Bundle();
-        b.putString("id",mList.get(position).getId_trans());
-        b.putString("nome2",mList.get(position).getNome_usu2());
-        b.putString("cpf1",mList.get(position).getUsu1());
-        b.putString("cpf2",mList.get(position).getUsu2());
-        b.putString("data_pedido",mList.get(position).getDataPedido());
-        b.putString("nome1", mList.get(position).getNome_usu1());
-        b.putString("valor",mList.get(position).getValor());
-        b.putString("vencimento", mList.get(position).getVencimento());
-        b.putString("img1", mList.get(position).getUrl_img_usu1());
-        b.putString("img2", mList.get(position).getUrl_img_usu2());
-        b.putString("status_transacao", mList.get(position).getStatus_transacao());
-        it.putExtras(b);
+        it.putExtra("transacao",mList.get(position));
         startActivity(it);
 
 

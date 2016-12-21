@@ -31,6 +31,7 @@ import java.util.Locale;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.CheckConection;
@@ -42,7 +43,7 @@ import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 import br.com.appinbanker.inbanker.webservice.VerificaUsuarioCadastro;
 
-public class SimuladorResultado extends AppCompatActivity implements WebServiceReturnUsuario {
+public class SimuladorResultado extends AppCompatActivity implements WebServiceReturnUsuario,WebServiceReturnUsuarioFace {
 
     double valor;
     String id,nome,vencimento,url_img;
@@ -378,6 +379,57 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
     @Override
     public void retornoUsuarioWebService(Usuario usu){
+
+        if(usu != null) {
+            if(usu.getCpf().equals("")){
+                mensagem("Falha no envio!", "Olá, seu amigo(a) "+usu.getNome()+" ainda não completou o cadastro. Solicite que ele vá em configurações e atualize seus dados.", "Ok");
+
+                //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
+                progress_bar_simulador.setVisibility(View.GONE);
+                btn_fazer_pedido.setEnabled(true);
+
+            }else {
+                //pegamos o token do usuario para usar na notificação
+                token_user2 = usu.getToken_gcm();
+
+                //data do pedido
+                DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
+                DateTime hoje = new DateTime();
+                final String hoje_string = fmt.print(hoje);
+
+                BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
+                Cursor cursor = crud.carregaDados();
+
+                //adicionamos a trasacao em ambas as contas
+                trans.setDataPedido(hoje_string);
+                trans.setUsu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF)));
+                trans.setUsu2(usu.getCpf());
+                trans.setValor(String.valueOf(valor));
+                trans.setVencimento(vencimento);
+                trans.setNome_usu2(nome);
+                trans.setUrl_img_usu2(url_img);
+                trans.setNome_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME_FACE)));
+                trans.setUrl_img_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE)));
+                trans.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
+                //enviamos null para criamos um id aleatorio
+                trans.setId_trans(null);
+
+                new AddTransacao(trans, SimuladorResultado.this).execute();
+            }
+        }else{
+            mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","OK");
+
+            //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
+            progress_bar_simulador.setVisibility(View.GONE);
+            btn_fazer_pedido.setEnabled(true);
+
+        }
+
+
+    }
+
+    @Override
+    public void retornoUsuarioWebServiceFace(Usuario usu){
 
         if(usu != null) {
             if(usu.getCpf().equals("")){

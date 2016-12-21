@@ -39,7 +39,10 @@ import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 
 public class VerPagamentoPendente extends AppCompatActivity implements WebServiceReturnUsuario {
 
-    private String id,nome2,cpf1,cpf2,data_pedido,nome1,valor,vencimento,img1,img2;
+    //private String id,nome2,cpf1,cpf2,data_pedido,nome1,valor,vencimento,img1,img2;
+
+    //esse objeto ira receber a transacao atual, vinda da lista ou da notificacao
+    private Transacao trans_atual;
 
     private TextView tv_valor,tv_data_pedido,tv_vencimento,tv_juros_mes,tv_valor_total,tv_dias_corridos,msg_ver_pedido;
 
@@ -60,23 +63,21 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent it = getIntent();
-        Bundle parametro = it.getExtras();
-        if(parametro!=null){
-            id = parametro.getString("id");
-            nome2 = parametro.getString("nome2");
-            cpf1 = parametro.getString("cpf1");
-            cpf2 = parametro.getString("cpf2");
-            nome1 = parametro.getString("nome1");
-            data_pedido = parametro.getString("data_pedido");
-            valor = parametro.getString("valor");
-            vencimento = parametro.getString("vencimento");
-            img1 = parametro.getString("img1");
-            img2 = parametro.getString("img2");
-            status_transacao = Integer.parseInt(parametro.getString("status_transacao"));
-            ///statusss
+        it.getExtras();
+        if(it.getSerializableExtra("transacao")!=null){
+            trans_atual = (Transacao) it.getSerializableExtra("transacao");
+            //Log.i("Script","valaor = "+trans.getNome_usu1());
+
+            montaView();
+
+            configView();
+
         }else{
-            finish();
+            Log.i("Script","Nada vindo do parametro");
         }
+    }
+
+    public void montaView(){
 
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
 
@@ -88,12 +89,12 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
                 .build();
 
         Picasso.with(getBaseContext())
-                .load(img2)
+                .load(trans_atual.getUrl_img_usu2())
                 .transform(transformation)
                 .into(img);
 
         TextView tv = (TextView) findViewById(R.id.nome_amigo);
-        tv.setText(nome2);
+        tv.setText(trans_atual.getNome_usu2());
 
         ll_confirma_quitacao = (LinearLayout) findViewById(R.id.ll_confirma_quitacao);
 
@@ -107,16 +108,23 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
         tv_dias_corridos = (TextView) findViewById(R.id.tv_dias_corridos);
         tv_data_pedido = (TextView) findViewById(R.id.tv_data_pedido);
 
+
+    }
+
+    public void configView(){
+
+        status_transacao = Integer.parseInt(trans_atual.getStatus_transacao());
+
         switch (status_transacao){
             case Transacao.CONFIRMADO_RECEBIMENTO:
                 msg_ver_pedido.setText("Quando você realizar a quitação da dívida, aperte no botão abaixo para dar prosseguimento a transação.");
                 break;
             case Transacao.QUITACAO_SOLICITADA:
-                msg_ver_pedido.setText("Voce esta aguardando "+nome2+" responder sua solicitaçao de quitaçao da divida.");
+                msg_ver_pedido.setText("Voce esta aguardando "+trans_atual.getNome_usu2()+" responder sua solicitaçao de quitaçao da divida.");
                 ll_confirma_quitacao.setVisibility(View.GONE);
                 break;
             case Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA:
-                msg_ver_pedido.setText(nome2+" respondeu negativamente ao seu pedido de quitação da divida. Entre em contato com o mesmo e solicite novamente a quitação.");
+                msg_ver_pedido.setText(trans_atual.getNome_usu2()+" respondeu negativamente ao seu pedido de quitação da divida. Entre em contato com o mesmo e solicite novamente a quitação.");
                 ll_confirma_quitacao.setVisibility(View.VISIBLE);
                 break;
 
@@ -125,7 +133,7 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
         //calculamos a diferença de dias entre a data atual ate a data do pedido para calcularmos o juros
         DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
         DateTime hoje = new DateTime();
-        DateTime data_pedido_parse = fmt.parseDateTime(data_pedido);
+        DateTime data_pedido_parse = fmt.parseDateTime(trans_atual.getDataPedido());
 
         //calculamos o total de dias para mostramos na tela inicial antes do usuario-2 aceitar ou recusar o pedido recebido
         Days d = Days.daysBetween(data_pedido_parse, hoje);
@@ -136,32 +144,32 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
         //     dias_corridos = dias_corridos -1;
 
         DecimalFormat decimal = new DecimalFormat( "0.00" );
-        double juros_mensal = Double.parseDouble(valor) * (0.00066333 * dias_corridos);
+        double juros_mensal = Double.parseDouble(trans_atual.getValor()) * (0.00066333 * dias_corridos);
 
-        double valor_total = juros_mensal +  Double.parseDouble(valor);
+        double valor_total = juros_mensal +  Double.parseDouble(trans_atual.getValor());
 
         Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
-        String valor_formatado = nf.format (Double.parseDouble(valor));
+        String valor_formatado = nf.format (Double.parseDouble(trans_atual.getValor()));
         String juros_mensal_formatado = nf.format (juros_mensal);
         String valor_total_formatado = nf.format (valor_total);
 
         tv_valor.setText(valor_formatado);
-        tv_vencimento.setText(vencimento);
+        tv_vencimento.setText(trans_atual.getVencimento());
         tv_juros_mes.setText(juros_mensal_formatado);
         tv_valor_total.setText(valor_total_formatado);
         tv_dias_corridos.setText(String.valueOf(dias_corridos));
-        tv_data_pedido.setText(data_pedido);
+        tv_data_pedido.setText(trans_atual.getDataPedido());
 
         btn_confirma_quitacao.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 Transacao trans = new Transacao();
-                trans.setId_trans(id);
+                trans.setId_trans(trans_atual.getId_trans());
                 trans.setStatus_transacao(String.valueOf(Transacao.QUITACAO_SOLICITADA));
 
-                new EditaTransacao(trans,cpf1,cpf2,null,null,VerPagamentoPendente.this).execute();
+                new EditaTransacao(trans,trans_atual.getUsu1(),trans_atual.getUsu2(),null,null,VerPagamentoPendente.this).execute();
 
                 progress_bar_btn.setVisibility(View.VISIBLE);
                 btn_confirma_quitacao.setEnabled(false);
@@ -169,7 +177,9 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
             }
         });
 
+
     }
+
 
     public void retornoEditaTransacao(String result){
 
@@ -180,8 +190,8 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
 
         if(result.equals("sucesso_edit")){
 
-            //busca token do usuario 2
-            new BuscaUsuarioCPF(cpf2,VerPagamentoPendente.this,this).execute();
+            //busca token do usuario 2 para enviar notificacao
+            new BuscaUsuarioCPF(trans_atual.getUsu2(),VerPagamentoPendente.this,this).execute();
 
 
         }else{
@@ -194,25 +204,23 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
     public void retornoUsuarioWebService(Usuario usu) {
 
         Transacao trans = new Transacao();
-
-        trans.setNome_usu1(nome1);
-        trans.setNome_usu2(nome2);
-
-        trans.setId_trans(id);
-        trans.setUsu1(cpf1);
-        trans.setUsu2(cpf2);
-        trans.setDataPedido(data_pedido);
-        trans.setValor(valor);
-        trans.setVencimento(vencimento);
-        trans.setUrl_img_usu1(img1);
-        trans.setUrl_img_usu2(img2);
+        trans.setNome_usu1(trans_atual.getNome_usu1());
+        trans.setNome_usu2(trans_atual.getNome_usu2());
+        trans.setId_trans(trans_atual.getId_trans());
+        trans.setUsu1(trans_atual.getUsu1());
+        trans.setUsu2(trans_atual.getUsu2());
+        trans.setDataPedido(trans_atual.getDataPedido());
+        trans.setValor(trans_atual.getValor());
+        trans.setVencimento(trans_atual.getVencimento());
+        trans.setUrl_img_usu1(trans_atual.getUrl_img_usu1());
+        trans.setUrl_img_usu2(trans_atual.getUrl_img_usu2());
 
         trans.setStatus_transacao(String.valueOf(Transacao.QUITACAO_SOLICITADA));
 
         //envia notificacao
         new EnviaNotificacao(trans,usu.getToken_gcm()).execute();
 
-        mensagemIntent("InBanker","Você realizou a solicitação de quitação do emprestimo. Peça que seu amigo(a) "+nome2+" confirme o recebimento do valor.", "Ok");
+        mensagemIntent("InBanker","Você realizou a solicitação de quitação do emprestimo. Peça que seu amigo(a) "+trans_atual.getNome_usu2()+" confirme o recebimento do valor.", "Ok");
 
     }
     public void mensagem(String titulo,String corpo,String botao)

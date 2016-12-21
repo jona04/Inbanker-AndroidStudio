@@ -1,9 +1,14 @@
 package br.com.appinbanker.inbanker.fcm;
 
+import android.content.Context;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
+
+import br.com.appinbanker.inbanker.gcm.RegistrationIntentService;
+import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 
 /**
  * Created by jonatassilva on 08/12/16.
@@ -24,7 +29,24 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService{
     }
 
     private void sendRegistrationToServer(String token) {
-        //You can implement this method to store the token on your server
-        //Not required for current project
+
+        AllSharedPreferences.putPreferences(AllSharedPreferences.TOKEN_GCM,token,MyFirebaseInstanceIDService.this);
+
+        String deviceId = getDeviceId(this);
+
+        Log.i("registrationId","device id ="+deviceId);
+
+        AllSharedPreferences.putPreferences(AllSharedPreferences.DEVICE_ID,deviceId,MyFirebaseInstanceIDService.this);
+
+    }
+
+    //serve para pegar o id unico do aparelho e armazenar no banco, para podermos bloquear algum aparelho caso queiramos
+    public static String getDeviceId(Context context) {
+        final String deviceId = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+        if (deviceId != null) {
+            return deviceId;
+        } else {
+            return android.os.Build.SERIAL;
+        }
     }
 }

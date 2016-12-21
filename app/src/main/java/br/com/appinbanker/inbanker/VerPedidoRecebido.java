@@ -44,7 +44,10 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
 
     private boolean aceitou_pedido = false,resp_quitacao = false,confirmou_recebimento = false;
 
-    private String id,nome2,cpf1,cpf2,data_pedido = null,nome1,valor,vencimento,img1,img2;
+    //private String id,nome2,cpf1,cpf2,data_pedido = null,nome1,valor,vencimento,img1,img2;
+
+    //esse objeto ira receber a transacao atual, vinda da lista ou da notificacao
+    private Transacao trans_atual;
 
     private TextView tv_valor,tv_data_pagamento,tv_data_pedido,tv_juros_mes,tv_valor_total,tv_dias_corridos,msg_ver_pedido,tv_rendimento,tv_dias_pagamento;
 
@@ -72,15 +75,23 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
         Intent it = getIntent();
         it.getExtras();
         if(it.getSerializableExtra("transacao")!=null){
-            Transacao trans = (Transacao) it.getSerializableExtra("transacao");
-            Log.i("Script","valaor = "+trans.getNome_usu1());
+            trans_atual = (Transacao) it.getSerializableExtra("transacao");
+            //Log.i("Script","valaor = "+trans.getNome_usu1());
+
+            montaView();
+
+            configView();
+
         }else{
-            Log.i("Script","nullllll");
+            Log.i("Script","Nada vindo do parametro");
         }
 
 
-        /*
 
+
+    }
+
+    public void montaView(){
 
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
 
@@ -92,12 +103,12 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 .build();
 
         Picasso.with(getBaseContext())
-                .load(img1)
+                .load(trans_atual.getUrl_img_usu1())
                 .transform(transformation)
                 .into(img);
 
         TextView tv = (TextView) findViewById(R.id.nome_amigo);
-        tv.setText(nome1);
+        tv.setText(trans_atual.getNome_usu1());
 
         ll_resposta_pedido = (LinearLayout) findViewById(R.id.ll_resposta_pedido);
         ll_confirma_recebimento_valor_emprestado = (LinearLayout) findViewById(R.id.ll_confirma_recebimento_valor_emprestado);
@@ -119,15 +130,21 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
         tv_dias_corridos = (TextView) findViewById(R.id.tv_dias_corridos);
         tv_data_pedido = (TextView) findViewById(R.id.tv_data_pedido);
 
+    }
+
+    public void configView(){
+
         //calculamos a diferença de dias entre a data atual ate a data do pedido para calcularmos o juros
         DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
         DateTime hoje = new DateTime();
-        DateTime data_pedido_parse = fmt.parseDateTime(data_pedido);
-        DateTime vencimento_parse = fmt.parseDateTime(vencimento);
+        DateTime data_pedido_parse = fmt.parseDateTime(trans_atual.getDataPedido());
+        DateTime vencimento_parse = fmt.parseDateTime(trans_atual.getVencimento());
 
         //calculamos os dias corridos para calcularmos o juros do redimento atual
         Days d_corridos = Days.daysBetween(data_pedido_parse, hoje);
         int dias_corridos = d_corridos.getDays();
+
+        status_transacao = Integer.parseInt(trans_atual.getStatus_transacao());
 
         //isso é para discontar 1 dia de juros, pois é dado prazo maximo de 1 dia para o usuario-2 aceitar o pedido
         //if(dias_corridos >0)
@@ -145,48 +162,49 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 tr_dias_pagamento.setVisibility(View.VISIBLE);
                 tv_dias_pagamento.setText(String.valueOf(dias));
 
-                juros_mensal = Double.parseDouble(valor) * (0.00066333 * dias);
-                msg_ver_pedido.setText(nome1+" esta lhe pedindo um empréstimo. Para aceitar ou recusar utilize os botões abaixo.");
+                juros_mensal = Double.parseDouble(trans_atual.getValor()) * (0.00066333 * dias);
+                msg_ver_pedido.setText(trans_atual.getNome_usu1()+" esta lhe pedindo um empréstimo. Para aceitar ou recusar utilize os botões abaixo.");
                 break;
             case Transacao.PEDIDO_ACEITO:
+                Log.i("Script","Esta aqui ohhhh");
                 ll_resposta_pedido.setVisibility(View.GONE);
-                msg_ver_pedido.setText("Você esta aguardando que seu amigo(a) " + nome1 + " confirme o recebimento do valor.");
+                msg_ver_pedido.setText("Você esta aguardando que seu amigo(a) " + trans_atual.getNome_usu1() + " confirme o recebimento do valor.");
                 break;
             case Transacao.CONFIRMADO_RECEBIMENTO:
                 ll_resposta_pedido.setVisibility(View.GONE);
-                juros_mensal = Double.parseDouble(valor) * (0.00066333 * dias_corridos);
+                juros_mensal = Double.parseDouble(trans_atual.getValor()) * (0.00066333 * dias_corridos);
                 tr_dias_corridos.setVisibility(View.VISIBLE);
-                msg_ver_pedido.setText("Você esta aguardando que seu amigo(a) " + nome1 + " solicite a confirmação de quitação do empréstimo.");
+                msg_ver_pedido.setText("Você esta aguardando que seu amigo(a) " + trans_atual.getNome_usu1() + " solicite a confirmação de quitação do empréstimo.");
                 break;
             case Transacao.QUITACAO_SOLICITADA:
                 ll_resposta_pedido.setVisibility(View.GONE);
-                juros_mensal = Double.parseDouble(valor) * (0.00066333 * dias_corridos);
+                juros_mensal = Double.parseDouble(trans_atual.getValor()) * (0.00066333 * dias_corridos);
                 tr_dias_corridos.setVisibility(View.VISIBLE);
-                msg_ver_pedido.setText("Seu amigo(a) "+ nome1 +" esta solicitando que você confirme a quitação do valor que ele solicitou em empréstimo.");
+                msg_ver_pedido.setText("Seu amigo(a) "+ trans_atual.getNome_usu1() +" esta solicitando que você confirme a quitação do valor que ele solicitou em empréstimo.");
                 ll_confirma_recebimento_valor_emprestado.setVisibility(View.VISIBLE);
                 break;
             case Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA:
                 ll_resposta_pedido.setVisibility(View.GONE);
-                juros_mensal = Double.parseDouble(valor) * (0.00066333 * dias_corridos);
+                juros_mensal = Double.parseDouble(trans_atual.getValor()) * (0.00066333 * dias_corridos);
                 tr_dias_corridos.setVisibility(View.VISIBLE);
-                msg_ver_pedido.setText("Você já recusou uma confirmação de quitação dessa dívida com "+ nome1+". Agora está aguardando por outra solicitação de quitação.");
+                msg_ver_pedido.setText("Você já recusou uma confirmação de quitação dessa dívida com "+ trans_atual.getNome_usu1()+". Agora está aguardando por outra solicitação de quitação.");
                 break;
         }
 
-        double valor_total = juros_mensal +  Double.parseDouble(valor);
+        double valor_total = juros_mensal +  Double.parseDouble(trans_atual.getValor());
 
         Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
-        String valor_formatado = nf.format (Double.parseDouble(valor));
+        String valor_formatado = nf.format (Double.parseDouble(trans_atual.getValor()));
         String juros_mensal_formatado = nf.format (juros_mensal);
         String valor_total_formatado = nf.format (valor_total);
 
         tv_valor.setText(valor_formatado);
-        tv_data_pagamento.setText(vencimento);
+        tv_data_pagamento.setText(trans_atual.getVencimento());
         tv_dias_corridos.setText(String.valueOf(dias_corridos));
         tv_rendimento.setText(juros_mensal_formatado);
         tv_valor_total.setText(valor_total_formatado);
-        tv_data_pedido.setText(data_pedido);
+        tv_data_pedido.setText(trans_atual.getDataPedido());
 
 
         btn_recusa_pedido.setOnClickListener(new View.OnClickListener() {
@@ -199,12 +217,12 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 hoje_string = fmt.print(hoje);
 
                 Transacao trans = new Transacao();
-                trans.setId_trans(id);
+                trans.setId_trans(trans_atual.getId_trans());
                 trans.setStatus_transacao(String.valueOf(Transacao.PEDIDO_RECUSADO));
                 trans.setData_recusada(hoje_string);
                 trans.setData_pagamento("");
 
-                new EditaTransacaoResposta(trans,cpf1,cpf2,VerPedidoRecebido.this).execute();
+                new EditaTransacaoResposta(trans,trans_atual.getUsu1(),trans_atual.getUsu2(),VerPedidoRecebido.this).execute();
 
                 progress_bar_btn.setVisibility(View.VISIBLE);
                 btn_recusa_pedido.setEnabled(false);
@@ -220,10 +238,10 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 aceitou_pedido = true;
 
                 Transacao trans = new Transacao();
-                trans.setId_trans(id);
+                trans.setId_trans(trans_atual.getId_trans());
                 trans.setStatus_transacao(String.valueOf(Transacao.PEDIDO_ACEITO));
 
-                new EditaTransacao(trans,cpf1,cpf2,VerPedidoRecebido.this,null,null).execute();
+                new EditaTransacao(trans,trans_atual.getUsu1(),trans_atual.getUsu2(),VerPedidoRecebido.this,null,null).execute();
 
                 progress_bar_btn.setVisibility(View.VISIBLE);
                 btn_recusa_pedido.setEnabled(false);
@@ -245,12 +263,12 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 confirmou_recebimento = true;
 
                 Transacao trans2 = new Transacao();
-                trans2.setId_trans(id);
+                trans2.setId_trans(trans_atual.getId_trans());
                 trans2.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA));
                 trans2.setData_recusada("");
                 trans2.setData_pagamento(hoje_string);
 
-                new EditaTransacaoResposta(trans2,cpf1,cpf2,VerPedidoRecebido.this).execute();
+                new EditaTransacaoResposta(trans2,trans_atual.getUsu1(),trans_atual.getUsu2(),VerPedidoRecebido.this).execute();
 
                 progress_bar_btn.setVisibility(View.VISIBLE);
                 btn_recusa_pedido.setEnabled(false);
@@ -265,17 +283,16 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 resp_quitacao = true;
 
                 Transacao trans = new Transacao();
-                trans.setId_trans(id);
+                trans.setId_trans(trans_atual.getId_trans());
                 trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA));
 
-                new EditaTransacao(trans,cpf1,cpf2,VerPedidoRecebido.this,null,null).execute();
+                new EditaTransacao(trans,trans_atual.getUsu1(),trans_atual.getUsu2(),VerPedidoRecebido.this,null,null).execute();
 
                 progress_bar_btn.setVisibility(View.VISIBLE);
                 btn_recusa_pedido.setEnabled(false);
                 btn_aceita_pedido.setEnabled(false);
             }
         });
-*/
 
     }
 
@@ -289,7 +306,7 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
         if(result.equals("sucesso_edit")){
 
             //busca token do usuario 1
-            new BuscaUsuarioCPF(cpf1,VerPedidoRecebido.this,this).execute();
+            new BuscaUsuarioCPF(trans_atual.getUsu1(),VerPedidoRecebido.this,this).execute();
 
         }else{
             mensagem("Houve um erro!","Olá, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
@@ -301,17 +318,16 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
     public void retornoUsuarioWebService(Usuario usu){
 
         Transacao trans = new Transacao();
-        trans.setNome_usu1(nome1);
-        trans.setNome_usu2(nome2);
-
-        trans.setId_trans(id);
-        trans.setUsu1(cpf1);
-        trans.setUsu2(cpf2);
-        trans.setDataPedido(data_pedido);
-        trans.setValor(valor);
-        trans.setVencimento(vencimento);
-        trans.setUrl_img_usu1(img1);
-        trans.setUrl_img_usu2(img2);
+        trans.setNome_usu1(trans_atual.getNome_usu1());
+        trans.setNome_usu2(trans_atual.getNome_usu2());
+        trans.setId_trans(trans_atual.getId_trans());
+        trans.setUsu1(trans_atual.getUsu1());
+        trans.setUsu2(trans_atual.getUsu2());
+        trans.setDataPedido(trans_atual.getDataPedido());
+        trans.setValor(trans_atual.getValor());
+        trans.setVencimento(trans_atual.getVencimento());
+        trans.setUrl_img_usu1(trans_atual.getUrl_img_usu1());
+        trans.setUrl_img_usu2(trans_atual.getUrl_img_usu2());
 
 
         //verificamos qual foi o tipo de resposta - aceita pedidou ou confirma quitacao
@@ -327,7 +343,7 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 //envia notificacao
                 new EnviaNotificacao(trans,usu.getToken_gcm()).execute();
 
-                mensagemIntent("InBanker", "Você confirmou o recebimento do valor para quitação do empréstimo solicitado por "+ nome1+". Parabéns, essa transacão foi finalizada com sucesso.", "Ok");
+                mensagemIntent("InBanker", "Você confirmou o recebimento do valor para quitação do empréstimo solicitado por "+ trans_atual.getNome_usu1()+". Parabéns, essa transacão foi finalizada com sucesso.", "Ok");
             } else {
 
                 trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA));
@@ -335,7 +351,7 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 //envia notificacao
                 new EnviaNotificacao(trans,usu.getToken_gcm()).execute();
 
-                mensagemIntent("InBanker", "Você recusou uma solicitação de quitação da dívida. Entre em contato com "+nome1+" e aguarde por uma nova solicitação.","Ok");
+                mensagemIntent("InBanker", "Você recusou uma solicitação de quitação da dívida. Entre em contato com "+trans_atual.getNome_usu1()+" e aguarde por uma nova solicitação.","Ok");
 
             }
         }else{
@@ -346,7 +362,7 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 //envia notificacao
                 new EnviaNotificacao(trans,usu.getToken_gcm()).execute();
 
-                mensagemIntent("InBanker", "Parabéns, você aceitou o pedido. Ao efetuar o pagamento, peça que seu amigo(a) " + nome1 + " confirme o recebimento do valor.", "Ok");
+                mensagemIntent("InBanker", "Parabéns, você aceitou o pedido. Ao efetuar o pagamento, peça que seu amigo(a) " + trans_atual.getNome_usu1() + " confirme o recebimento do valor.", "Ok");
             } else {
 
                 trans.setStatus_transacao(String.valueOf(Transacao.PEDIDO_RECUSADO));
@@ -356,7 +372,7 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 //envia notificacao
                 new EnviaNotificacao(trans,usu.getToken_gcm()).execute();
 
-                mensagemIntent("InBanker", "Você recusou esse pedido de empréstimo de " + nome1+".", "Ok");
+                mensagemIntent("InBanker", "Você recusou esse pedido de empréstimo de " + trans_atual.getNome_usu1()+".", "Ok");
 
             }
         }

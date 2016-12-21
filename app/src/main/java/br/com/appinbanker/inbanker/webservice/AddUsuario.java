@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringFace;
 
 /**
  * Created by jonatassilva on 18/10/16.
@@ -24,9 +25,9 @@ public class AddUsuario extends AsyncTask<String, String, String> {
 
     private Usuario usuario;
     private Context context;
-    private WebServiceReturnString rs;
+    private WebServiceReturnStringFace rs;
 
-    public AddUsuario(Usuario usu, Context context, WebServiceReturnString rs) {
+    public AddUsuario(Usuario usu, Context context, WebServiceReturnStringFace rs) {
         this.usuario = usu;
         this.rs = rs;
         this.context = context;
@@ -69,7 +70,7 @@ public class AddUsuario extends AsyncTask<String, String, String> {
     protected void onPostExecute(String result) {
         Log.i("Script","resultado = "+result);
 
-        rs.retornoStringWebService(result);
+        rs.retornoStringWebServiceFace(result);
     }
 
 
