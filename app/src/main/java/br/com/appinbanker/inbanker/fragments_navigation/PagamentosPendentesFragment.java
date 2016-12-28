@@ -9,6 +9,7 @@ import android.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,7 +74,7 @@ public class PagamentosPendentesFragment extends Fragment implements RecyclerVie
             if(!cpf.equals(""))
                 new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
         }catch (Exception e){
-
+            Log.i("Exception","Excessao Pedido pagamento pendente cpf = "+e);
         }
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_pagamentos);
@@ -81,19 +82,6 @@ public class PagamentosPendentesFragment extends Fragment implements RecyclerVie
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 
-        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                //Log.i("Script", "onScrollStateChanged");
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                //Log.i("Script", "onScrolled");
-            }
-        });
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
 
@@ -109,7 +97,7 @@ public class PagamentosPendentesFragment extends Fragment implements RecyclerVie
             //iremos adicionar a uma nova lista apenas as trasacoes de status maior igual a 3 e menor igual a 5, para posteriormente adicionarmos no adapter
             ArrayList<Transacao> list = new ArrayList<Transacao>();
 
-            if(usu.getTransacoes_enviadas() != null) {
+            /*if(usu.getTransacoes_enviadas() != null) {
                 mList = usu.getTransacoes_enviadas();
 
                 for(int i = 0; i < mList.size(); i++){
@@ -118,7 +106,7 @@ public class PagamentosPendentesFragment extends Fragment implements RecyclerVie
                         list.add(mList.get(i));
                     }
                 }
-            }
+            }*/
 
             if(list.size() > 0) {
                 mList = list;

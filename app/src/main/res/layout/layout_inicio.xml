@@ -75,6 +75,7 @@
                 android:background="@drawable/borda_branca"
                 android:layout_marginTop="10dp"
                 android:padding="5dp"
+                android:onClick="criarConta"
                 android:textColor="#fff"/>
 
             <Button
@@ -85,6 +86,7 @@
                 android:padding="5dp"
                 android:text="Já sou cadastrado"
                 android:background="@null"
+                android:onClick="entrar"
                 android:textColor="#fff"/>
 
         </LinearLayout>

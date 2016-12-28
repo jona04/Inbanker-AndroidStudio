@@ -77,7 +77,7 @@ public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOn
             if(!cpf.equals(""))
                 new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
         }catch (Exception e){
-
+            Log.i("Exception","Excessao Pedido recebido cpf = "+e);
         }
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_pedidos_rec);
@@ -85,19 +85,6 @@ public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOn
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 
-        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                //Log.i("Script", "onScrollStateChanged");
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                //Log.i("Script", "onScrolled");
-            }
-        });
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
 
@@ -114,7 +101,7 @@ public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOn
             //iremos adicionar a uma nova lista apenas as trasacoes de status diferente de 2, para posteriormente adicionarmos no adapter
             ArrayList<Transacao> list = new ArrayList<Transacao>();
 
-            if(usu.getTransacoes_recebidas() != null) {
+            /*if(usu.getTransacoes_recebidas() != null) {
                 mList = usu.getTransacoes_recebidas();
 
 
@@ -125,7 +112,7 @@ public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOn
                     }
                 }
 
-            }
+            }*/
             if(list.size() > 0) {
                 mList = list;
                 mRecyclerView.setVisibility(View.VISIBLE);

@@ -102,13 +102,13 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
             //iremos adicionar a uma nova lista apenas as trasacoes de status 2 (historico), para posteriormente adicionarmos no adapter
             ArrayList<Transacao> list = new ArrayList<Transacao>();
 
-            if(usu.getTransacoes_enviadas() != null) {
+            /*if(usu.getTransacoes_enviadas() != null) {
                 mList = usu.getTransacoes_enviadas();
 
 
                 for(int i = 0; i < mList.size(); i++){
                     int status = Integer.parseInt(mList.get(i).getStatus_transacao());
-                    if(status == 2 || status == 6){
+                    if(status == 2 || status >= 6){
                         list.add(mList.get(i));
                     }
                 }
@@ -116,6 +116,7 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
             }
 
             if(usu.getTransacoes_recebidas() != null) {
+                mList.clear();
                 mList = usu.getTransacoes_recebidas();
 
                 //Log.i("webservice", "lista hist rec = " + mList);
@@ -124,14 +125,15 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
                 for(int i = 0; i < mList.size(); i++){
                     //Log.i("webservice", "lista list = " + i+" - "+mList.get(i).getStatus_transacao());
                     int status = Integer.parseInt(mList.get(i).getStatus_transacao());
-                    if(status == 2 || status == 6){
+                    if(status == 2 || status >= 6){
                         list.add(mList.get(i));
                     }
                 }
 
-            }
+            }*/
 
             if(list.size() > 0) {
+                mList.clear();
                 mList = list;
                 mRecyclerView.setVisibility(View.VISIBLE);
                 ListaHistoricoAdapter adapter = new ListaHistoricoAdapter(getActivity(), list,cpf);

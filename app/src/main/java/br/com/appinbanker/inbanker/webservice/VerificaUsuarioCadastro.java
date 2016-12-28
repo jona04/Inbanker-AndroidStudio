@@ -56,10 +56,10 @@ public class VerificaUsuarioCadastro extends AsyncTask<String,String,String> {
     protected void onPostExecute(String result) {
 
         Log.i("Script",""+result);
-        if (tl != null)
-            tl.retornoTaskVerificaCadastro(result);
-        else if (sr != null)
-            sr.retornoTaskVerificaCadastro(result);
+        //if (tl != null)
+           // tl.retornoTaskVerificaCadastro(result);
+        //else if (sr != null)
+          //  sr.retornoTaskVerificaCadastro(result);
     }
 
 }

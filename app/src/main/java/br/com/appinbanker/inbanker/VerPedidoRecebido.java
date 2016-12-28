@@ -30,9 +30,11 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringTokenizer;
 
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
@@ -40,7 +42,7 @@ import br.com.appinbanker.inbanker.webservice.EditaTransacao;
 import br.com.appinbanker.inbanker.webservice.EditaTransacaoResposta;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 
-public class VerPedidoRecebido extends AppCompatActivity implements WebServiceReturnUsuario{
+public class VerPedidoRecebido extends AppCompatActivity implements WebServiceReturnUsuario,WebServiceReturnString{
 
     private boolean aceitou_pedido = false,resp_quitacao = false,confirmou_recebimento = false;
 
@@ -49,7 +51,7 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
     //esse objeto ira receber a transacao atual, vinda da lista ou da notificacao
     private Transacao trans_atual;
 
-    private TextView tv_valor,tv_data_pagamento,tv_data_pedido,tv_juros_mes,tv_valor_total,tv_dias_corridos,msg_ver_pedido,tv_rendimento,tv_dias_pagamento;
+    private TextView tv_valor,tv_data_pagamento,tv_data_pedido,tv_juros_mes,tv_valor_total,tv_dias_corridos,msg_ver_pedido,tv_rendimento,tv_dias_pagamento,tv_dias_atraso,tv_valor_multa;
 
     private int status_transacao;
 
@@ -57,7 +59,7 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
 
     private Button btn_aceita_pedido,btn_recusa_pedido,btn_confirma_quitacao,btn_recusa_quitacao;
 
-    private TableRow tr_dias_corridos,tr_dias_pagamento;
+    private TableRow tr_dias_corridos,tr_dias_atraso,tr_dias_pagamento,tr_valor_multa;
 
     private ProgressBar progress_bar_btn;
 
@@ -95,17 +97,22 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
 
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
 
-        Transformation transformation = new RoundedTransformationBuilder()
-                .borderColor(Color.GRAY)
-                .borderWidthDp(3)
-                .cornerRadiusDp(70)
-                .oval(false)
-                .build();
-
-        Picasso.with(getBaseContext())
-                .load(trans_atual.getUrl_img_usu1())
-                .transform(transformation)
-                .into(img);
+        try {
+            Transformation transformation = new RoundedTransformationBuilder()
+                    .borderColor(Color.GRAY)
+                    .borderWidthDp(3)
+                    .cornerRadiusDp(70)
+                    .oval(false)
+                    .build();
+            Picasso.with(getBaseContext())
+                    .load(trans_atual.getUrl_img_usu1())
+                    .error(R.drawable.icon)
+                    .transform(transformation)
+                    .into(img);
+        }catch (Exception e)
+        {
+            Log.i("Excpetion","Imagem pedido = "+ e);
+        }
 
         TextView tv = (TextView) findViewById(R.id.nome_amigo);
         tv.setText(trans_atual.getNome_usu1());
@@ -116,23 +123,29 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
         btn_confirma_quitacao = (Button) findViewById(R.id.btn_confirma_quitacao);
         btn_recusa_quitacao = (Button) findViewById(R.id.btn_recusa_quitacao);
         progress_bar_btn = (ProgressBar) findViewById(R.id.progress_bar_btn);
+        tr_dias_pagamento = (TableRow) findViewById(R.id.tr_dias_pagamento);
         tr_dias_corridos = (TableRow) findViewById(R.id.tr_dias_corridos);
+        tr_dias_atraso = (TableRow) findViewById(R.id.tr_dias_atraso);
+        tr_valor_multa = (TableRow) findViewById(R.id.tr_valor_multa);
         btn_aceita_pedido = (Button) findViewById(R.id.btn_aceita_pedido);
         btn_recusa_pedido = (Button) findViewById(R.id.btn_recusa_pedido);
         msg_ver_pedido = (TextView) findViewById(R.id.msg_ver_pedido);
         tv_dias_pagamento = (TextView) findViewById(R.id.tv_dias_pagamento);
-        tr_dias_pagamento = (TableRow) findViewById(R.id.tr_dias_pagamento);
         tv_valor = (TextView) findViewById(R.id.tv_valor);
+        tv_valor_multa = (TextView) findViewById(R.id.tv_valor_multa);
         tv_data_pagamento = (TextView) findViewById(R.id.tv_data_pagamento);
-        tv_juros_mes = (TextView) findViewById(R.id.tv_juros_mes);
         tv_rendimento = (TextView) findViewById(R.id.tv_rendimento);
         tv_valor_total = (TextView) findViewById(R.id.tv_valor_total);
         tv_dias_corridos = (TextView) findViewById(R.id.tv_dias_corridos);
         tv_data_pedido = (TextView) findViewById(R.id.tv_data_pedido);
 
+
     }
 
     public void configView(){
+
+        Locale ptBr = new Locale("pt", "BR");
+        NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
 
         //calculamos a diferença de dias entre a data atual ate a data do pedido para calcularmos o juros
         DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
@@ -149,6 +162,11 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
         //isso é para discontar 1 dia de juros, pois é dado prazo maximo de 1 dia para o usuario-2 aceitar o pedido
         //if(dias_corridos >0)
         //    dias_corridos = dias_corridos -1;
+
+
+        double multa_atraso = 0;
+        int dias_atraso = 0;
+        DateTime data_vencimento_parse;
 
         //verificamos se o usuario ja aceitou ou nao o pedido recebido para calcularmos o juros correto
         double juros_mensal = 0;
@@ -171,12 +189,48 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 msg_ver_pedido.setText("Você esta aguardando que seu amigo(a) " + trans_atual.getNome_usu1() + " confirme o recebimento do valor.");
                 break;
             case Transacao.CONFIRMADO_RECEBIMENTO:
+
+                tr_dias_atraso.setVisibility(View.VISIBLE);
+                tr_valor_multa.setVisibility(View.VISIBLE);
+
+                data_vencimento_parse = fmt.parseDateTime(trans_atual.getVencimento());
+                if(hoje.isAfter(data_vencimento_parse)){
+
+                    Days d_atraso = Days.daysBetween(data_vencimento_parse, hoje);
+                    dias_atraso = d_atraso.getDays();
+
+                    Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
+
+                    multa_atraso = Double.parseDouble(trans_atual.getValor())*0.1;
+                    tv_valor_multa.setText(String.valueOf(nf.format(multa_atraso)));
+                    tv_dias_atraso.setText(String.valueOf(dias_atraso));
+
+                }
+
                 ll_resposta_pedido.setVisibility(View.GONE);
                 juros_mensal = Double.parseDouble(trans_atual.getValor()) * (0.00066333 * dias_corridos);
                 tr_dias_corridos.setVisibility(View.VISIBLE);
                 msg_ver_pedido.setText("Você esta aguardando que seu amigo(a) " + trans_atual.getNome_usu1() + " solicite a confirmação de quitação do empréstimo.");
                 break;
             case Transacao.QUITACAO_SOLICITADA:
+
+                tr_dias_atraso.setVisibility(View.VISIBLE);
+                tr_valor_multa.setVisibility(View.VISIBLE);
+
+                data_vencimento_parse = fmt.parseDateTime(trans_atual.getVencimento());
+                if(hoje.isAfter(data_vencimento_parse)){
+
+                    Days d_atraso = Days.daysBetween(data_vencimento_parse, hoje);
+                    dias_atraso = d_atraso.getDays();
+
+                    Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
+
+                    multa_atraso = Double.parseDouble(trans_atual.getValor())*0.1;
+                    tv_valor_multa.setText(String.valueOf(nf.format(multa_atraso)));
+                    tv_dias_atraso.setText(String.valueOf(dias_atraso));
+
+                }
+
                 ll_resposta_pedido.setVisibility(View.GONE);
                 juros_mensal = Double.parseDouble(trans_atual.getValor()) * (0.00066333 * dias_corridos);
                 tr_dias_corridos.setVisibility(View.VISIBLE);
@@ -184,6 +238,24 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 ll_confirma_recebimento_valor_emprestado.setVisibility(View.VISIBLE);
                 break;
             case Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA:
+
+                tr_dias_atraso.setVisibility(View.VISIBLE);
+                tr_valor_multa.setVisibility(View.VISIBLE);
+
+                data_vencimento_parse = fmt.parseDateTime(trans_atual.getVencimento());
+                if(hoje.isAfter(data_vencimento_parse)){
+
+                    Days d_atraso = Days.daysBetween(data_vencimento_parse, hoje);
+                    dias_atraso = d_atraso.getDays();
+
+                    Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
+
+                    multa_atraso = Double.parseDouble(trans_atual.getValor())*0.1;
+                    tv_valor_multa.setText(String.valueOf(nf.format(multa_atraso)));
+                    tv_dias_atraso.setText(String.valueOf(dias_atraso));
+
+                }
+
                 ll_resposta_pedido.setVisibility(View.GONE);
                 juros_mensal = Double.parseDouble(trans_atual.getValor()) * (0.00066333 * dias_corridos);
                 tr_dias_corridos.setVisibility(View.VISIBLE);
@@ -191,10 +263,8 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 break;
         }
 
-        double valor_total = juros_mensal +  Double.parseDouble(trans_atual.getValor());
+        double valor_total = multa_atraso + juros_mensal +  Double.parseDouble(trans_atual.getValor());
 
-        Locale ptBr = new Locale("pt", "BR");
-        NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
         String valor_formatado = nf.format (Double.parseDouble(trans_atual.getValor()));
         String juros_mensal_formatado = nf.format (juros_mensal);
         String valor_total_formatado = nf.format (valor_total);
@@ -241,7 +311,7 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 trans.setId_trans(trans_atual.getId_trans());
                 trans.setStatus_transacao(String.valueOf(Transacao.PEDIDO_ACEITO));
 
-                new EditaTransacao(trans,trans_atual.getUsu1(),trans_atual.getUsu2(),VerPedidoRecebido.this,null,null).execute();
+                metodoEditaTrans(trans);
 
                 progress_bar_btn.setVisibility(View.VISIBLE);
                 btn_recusa_pedido.setEnabled(false);
@@ -286,7 +356,7 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
                 trans.setId_trans(trans_atual.getId_trans());
                 trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA));
 
-                new EditaTransacao(trans,trans_atual.getUsu1(),trans_atual.getUsu2(),VerPedidoRecebido.this,null,null).execute();
+                metodoEditaTrans(trans);
 
                 progress_bar_btn.setVisibility(View.VISIBLE);
                 btn_recusa_pedido.setEnabled(false);
@@ -296,7 +366,11 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
 
     }
 
-    public void retornoEditaTransacao(String result){
+    public void metodoEditaTrans(Transacao trans){
+        new EditaTransacao(trans,trans_atual.getUsu1(),trans_atual.getUsu2(),this).execute();
+    }
+
+    public void retornoStringWebService(String result){
         Log.i("webservice","resultado edita transao = "+result);
 
         progress_bar_btn.setVisibility(View.GONE);
@@ -336,9 +410,7 @@ public class VerPedidoRecebido extends AppCompatActivity implements WebServiceRe
 
             if (confirmou_recebimento) {
 
-                trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA));
-
-                trans.setData_pagamento(hoje_string);
+                trans.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
 
                 //envia notificacao
                 new EnviaNotificacao(trans,usu.getToken_gcm()).execute();

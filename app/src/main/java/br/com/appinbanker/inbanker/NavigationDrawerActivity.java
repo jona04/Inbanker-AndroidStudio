@@ -22,6 +22,8 @@ import android.widget.TextView;
 
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
@@ -74,15 +76,6 @@ public class NavigationDrawerActivity extends AppCompatActivity
         if(parametro!=null){
             menu = parametro.getInt("menu_item");
         }
-
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab); //app_bar_navigation_drawer.xml
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout); //activity_navigation_drawer.xml
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -168,12 +161,13 @@ public class NavigationDrawerActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.menu_notificacao) {
+        /*if (id == R.id.menu_notificacao) {
 
             Log.i("Script","menu notificacao clicado");
 
             return true;
-        }else if (id == R.id.menu_minha_conta) {
+        }else */
+        if (id == R.id.menu_minha_conta) {
 
             Log.i("Script","menu nminha conta");
 
@@ -181,6 +175,8 @@ public class NavigationDrawerActivity extends AppCompatActivity
         }else if (id == R.id.menu_sair) {
 
             Log.i("Script","menu sair");
+
+            FirebaseAuth.getInstance().signOut();
 
             //faz o logout do usuario logado facebook
             LoginManager.getInstance().logOut();
@@ -195,17 +191,6 @@ public class NavigationDrawerActivity extends AppCompatActivity
             //limpa preferences login
             AllSharedPreferences.putPreferences(AllSharedPreferences.ID_FACE, "", NavigationDrawerActivity.this);
             AllSharedPreferences.putPreferences(AllSharedPreferences.CPF,"", NavigationDrawerActivity.this);
-
-            //deleta o token do usuario do banco de dados
-            String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);
-            //String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,NavigationDrawerActivity.this);
-            //Usuario usu = new Usuario();
-            //usu.setDevice_id(device_id);
-            //usu.setToken_gcm("");
-            //usu.setCpf(cpf);
-
-            //new AtualizaTokenGcm(usu).execute();
-
 
             Intent it = new Intent(NavigationDrawerActivity.this, Inicio.class);
             startActivity(it);
@@ -255,6 +240,8 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 //fragment qualquer para nao dar erro do try
                 fragmentClass = InicioFragment.class;
 
+                FirebaseAuth.getInstance().signOut();
+
                 //faz o logout do usuario logado facebook
                 LoginManager.getInstance().logOut();
 
@@ -268,17 +255,6 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 //limpa preferences login
                 AllSharedPreferences.putPreferences(AllSharedPreferences.ID_FACE, "", NavigationDrawerActivity.this);
                 AllSharedPreferences.putPreferences(AllSharedPreferences.CPF,"", NavigationDrawerActivity.this);
-
-                //deleta o token do usuario do banco de dados
-                //String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);
-                //String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,NavigationDrawerActivity.this);
-                //Usuario usu = new Usuario();
-                //usu.setDevice_id(device_id);
-                //usu.setToken_gcm("");
-                //usu.setCpf(cpf);
-
-                //new AtualizaTokenGcm(usu).execute();
-
 
                 Intent it = new Intent(NavigationDrawerActivity.this, Inicio.class);
                 startActivity(it);
@@ -302,16 +278,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
 
-        //os fragments do navigationdrawer, com execessao do inicio, sao adicionados ao backstack
-        /*if (inicio) {
-            FragmentManager fragmentManager = getFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
-        } else{
-            // Insert the fragment by replacing any existing fragment
-            FragmentManager fragmentManager = getFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).addToBackStack(item.getTitle().toString()).commit();
-        }*/
         // Highlight the selected item has been done by NavigationView
         item.setChecked(true);
         // Set action bar title

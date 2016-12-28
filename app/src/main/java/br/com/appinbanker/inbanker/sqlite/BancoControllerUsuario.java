@@ -16,25 +16,17 @@ public class BancoControllerUsuario {
     private SQLiteDatabase db;
     private CriandoBanco banco;
 
-    private String nome;
-    private String email;
-    private String cpf;
-    private String senha;
-
-    private String id_face;
-    private String nome_face;
-    private String url_img_face;
-
     public BancoControllerUsuario(Context context){
         banco = new CriandoBanco(context);
     }
 
-    public String insereDado(String nome, String email, String cpf,String senha,String id_face,String nome_face,String url_img_face ){
+    public String insereDado(String id_firebase, String nome, String email, String cpf,String senha,String id_face,String nome_face,String url_img_face ){
         ContentValues valores;
         long resultado;
 
         db = banco.getWritableDatabase();
         valores = new ContentValues();
+        valores.put(CriandoBanco.ID_FIREBASE, id_firebase);
         valores.put(CriandoBanco.NOME, nome);
         valores.put(CriandoBanco.EMAIL, email);
         valores.put(CriandoBanco.CPF, cpf);
@@ -55,7 +47,7 @@ public class BancoControllerUsuario {
 
     public Cursor carregaDados(){
         Cursor cursor;
-        String[] campos =  {banco.NOME,banco.CPF,banco.SENHA,banco.ID_FACE,banco.NOME_FACE,banco.URL_IMG_FACE,banco.EMAIL};
+        String[] campos =  {banco.ID_FIREBASE,banco.NOME,banco.CPF,banco.SENHA,banco.ID_FACE,banco.NOME_FACE,banco.URL_IMG_FACE,banco.EMAIL};
         db = banco.getReadableDatabase();
         cursor = db.query(banco.TABELA, campos, null, null, null, null, null, null);
 

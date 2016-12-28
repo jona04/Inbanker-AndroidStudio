@@ -17,6 +17,7 @@ public class CriandoBanco extends SQLiteOpenHelper {
 
     //variaveis para a tabela de usuario
     public static final String ID = "_id";
+    public static final String ID_FIREBASE = "id_firebase";
     public static final String NOME = "nome";
     public static final String EMAIL = "email";
     public static final String CPF = "cpf";
@@ -26,7 +27,7 @@ public class CriandoBanco extends SQLiteOpenHelper {
     public static final String URL_IMG_FACE = "url_img_face";
 
     //Se a estrutura do banco for alterada, a versao deve ser alterada tambem, para surtir efeito
-    private static final int VERSAO = 4;
+    private static final int VERSAO = 5;
 
     public CriandoBanco(Context context){
         super(context, NOME_BANCO,null,VERSAO);
@@ -36,6 +37,7 @@ public class CriandoBanco extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String sql = "CREATE TABLE "+TABELA+"("
                 + ID + " integer primary key autoincrement,"
+                + ID_FIREBASE + " text,"
                 + CPF + " text,"
                 + NOME + " text,"
                 + EMAIL + " text,"

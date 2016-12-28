@@ -208,6 +208,15 @@
                     android:visibility="gone">
 
                     <Button
+                        android:id="@+id/btn_cancelar_pedido_antes_receb"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/borda_branca"
+                        android:padding="10dp"
+                        android:textColor="#fff"
+                        android:text="Cancelar pedido"/>
+
+                    <Button
                         android:id="@+id/btn_confirma_recebimento"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -227,7 +236,7 @@
                     android:visibility="gone">
 
                     <Button
-                        android:id="@+id/btn_cancelar_pedido"
+                        android:id="@+id/btn_cancelar_pedido_antes_resp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/borda_branca"

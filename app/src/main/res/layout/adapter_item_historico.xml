@@ -63,7 +63,7 @@
                 android:id="@+id/tv_data_pedido"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Data do pedido: "
+                android:text=""
                 android:textSize="10sp" />
 
         </LinearLayout>

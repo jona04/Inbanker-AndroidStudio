@@ -16,12 +16,23 @@
         android:padding="20dp"
         android:orientation="vertical">
 
-        <EditText
+        <!--<EditText
             android:id="@+id/et_entrar_cpf"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Informe seu CPF"
             android:inputType="number"
+            android:textSize="14sp"
+            android:imeOptions="actionNext"
+            android:singleLine="true"
+            android:textColor="#000"/>-->
+
+        <EditText
+            android:id="@+id/et_entrar_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Informe seu email"
+            android:inputType="textEmailAddress"
             android:textSize="14sp"
             android:imeOptions="actionNext"
             android:singleLine="true"

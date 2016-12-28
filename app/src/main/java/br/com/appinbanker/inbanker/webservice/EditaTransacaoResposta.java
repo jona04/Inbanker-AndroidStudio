@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import br.com.appinbanker.inbanker.VerPedidoEnviado;
 import br.com.appinbanker.inbanker.VerPedidoRecebido;
 import br.com.appinbanker.inbanker.entidades.Transacao;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 
 /**
  * Created by jonatassilva on 25/10/16.
@@ -22,16 +23,14 @@ import br.com.appinbanker.inbanker.entidades.Transacao;
 public class EditaTransacaoResposta extends AsyncTask<String, String, String> {
 
     private Transacao trans;
-    private VerPedidoRecebido vpr;
-    //private VerPedidoEnviado vpe;
+    private WebServiceReturnString ws;
     private String cpf_user2,cpf_user1;
 
-    public EditaTransacaoResposta(Transacao trans, String cpf_user1, String cpf_user2, VerPedidoRecebido vpr){
+    public EditaTransacaoResposta(Transacao trans, String cpf_user1, String cpf_user2, WebServiceReturnString ws){
         this.cpf_user2 = cpf_user2;
         this.cpf_user1 = cpf_user1;
         this.trans = trans;
-        this.vpr = vpr;
-        //this.vpe = vpe;
+        this.ws = ws;
 
     }
 
@@ -72,9 +71,6 @@ public class EditaTransacaoResposta extends AsyncTask<String, String, String> {
     protected void onPostExecute(String result) {
         Log.i("Script","onPostExecute result add trans ="+result);
 
-        if(vpr != null)
-            vpr.retornoEditaTransacao(result);
-       // else
-       //     vpe.retornoEditaTransacao(result);
+        ws.retornoStringWebService(result);
     }
 }

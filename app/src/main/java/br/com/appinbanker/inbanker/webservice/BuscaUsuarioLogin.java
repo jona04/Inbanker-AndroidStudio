@@ -54,7 +54,7 @@ public class BuscaUsuarioLogin extends AsyncTask<String,String,Usuario> {
         if(result!= null)
             Log.i("Script",result.getNome());
 
-        tl.retornoTaskUsuarioLogin(result);
+        //tl.retornoTaskUsuarioLogin(result);
 
     }
 }

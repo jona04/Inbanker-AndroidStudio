@@ -174,13 +174,19 @@
                         <TextView android:text="Valor total do juros:" android:textSize="11sp" android:textColor="#fff"/>
                         <TextView android:id="@+id/tv_juros_mes" android:textSize="11sp" android:textColor="#fff"/>
                     </TableRow>
-                    <TableRow android:id="@+id/tr_valor_multa" android:visibility="gone">
-                        <TextView android:text="Valor da multa:" android:textSize="11sp" android:textColor="#fff"/>
-                        <TextView android:id="@+id/tv_valor_multa" android:text="R$ 0,00" android:textSize="11sp" android:textColor="#fff"/>
-                    </TableRow>
+
                     <TableRow android:id="@+id/tr_taxa_servico">
                         <TextView android:text="Valor taxa de serviço:      " android:textSize="11sp" android:textColor="#fff"/>
                         <TextView android:id="@+id/tv_valor_taxa_servico" android:text="R$ 0,00" android:textSize="11sp" android:textColor="#fff"/>
+                    </TableRow>
+
+                    <TableRow android:id="@+id/tr_dias_atraso">
+                        <TextView android:text="Dias de atraso:      " android:textSize="11sp" android:textColor="#fff"/>
+                        <TextView android:id="@+id/tv_dias_atraso" android:text="0" android:textSize="11sp" android:textColor="#fff"/>
+                    </TableRow>
+                    <TableRow android:id="@+id/tr_multa_atraso">
+                        <TextView android:text="Valor multa por atraso:      " android:textSize="11sp" android:textColor="#fff"/>
+                        <TextView android:id="@+id/tv_multa_atraso" android:text="R$ 0,00" android:textSize="11sp" android:textColor="#fff"/>
                     </TableRow>
 
                     <TableRow>
@@ -191,16 +197,6 @@
                         <TextView android:text="Valor de seguro:" android:textSize="11sp" android:textColor="#fff"/>
                         <TextView android:id="@+id/tv_valor_seguro" android:textSize="11sp" android:textColor="#fff" android:text="R$ 0,00" />
                     </TableRow>
-                    <TableRow android:id="@+id/tr_cancelado" android:visibility="gone">
-                        <TextView android:text="Data cancelamento:"/>
-                        <TextView android:id="@+id/tv_data_cancelamento" />
-                    </TableRow>
-                    <!--<TableRow android:id="@+id/tr_pagamento" android:visibility="gone">
-                        <TextView android:text="Data confirmação quitação:"/>
-                        <TextView android:id="@+id/tv_data_pagamento" />
-                    </TableRow>-->
-
-
 
                 </TableLayout>
 

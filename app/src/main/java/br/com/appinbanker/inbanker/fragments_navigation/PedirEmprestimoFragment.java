@@ -156,20 +156,6 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 
-
-        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                //Log.i("Script", "onScrollStateChanged");
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                //Log.i("Script", "onScrolled");
-            }
-        });
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
 
@@ -362,6 +348,9 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         usu.setUrlImgFace(url_picture);
         usu.setNomeFace(name);
         usu.setIdFace(id);
+
+        //atualiza dados do face no banco sqlite
+        crud.alteraRegistroFace(cpf,id,name,url_picture);
 
         //fazemos a chamada a classe responsavel por realizar a tarefa de webservice em doinbackground
         new AtualizaUsuario(usu,PedirEmprestimoFragment.this).execute();

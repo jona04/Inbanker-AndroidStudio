@@ -51,10 +51,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 String cpf = AllSharedPreferences.getPreferences(AllSharedPreferences.CPF, getApplication());
                 if (id_face != null || cpf != null) {
                     if (id_face != "" || cpf != "")
-                        sendNotification(trans, remoteMessage.getData().get("title"), remoteMessage.getData().get("msg"));
+                        if(remoteMessage.getData().get("tipo").equals("notificacao")) {
+                            sendNotification(trans, remoteMessage.getData().get("title"), remoteMessage.getData().get("msg"));
+                        }else{
+                            Log.i("Notificatio","Notificacao de divida");
+                        }
 
                 }
-            }catch (Exception e){
+           }catch (Exception e){
                 Log.i("Notificatio","Excepition = "+e);
             }
         }
