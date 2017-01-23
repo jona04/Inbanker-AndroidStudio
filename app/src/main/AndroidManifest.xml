@@ -4,14 +4,12 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
-
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" /> <!-- somente nossa app recebe as nossas menssagens -->
+
 
     <!-- para vermos o deviceId nas activitys de indicação -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -21,18 +19,20 @@
 
     <permission
         android:name="br.com.appinbanker.inbanker.permission.C2D_MESSAGE"
-        android:protectionLevel="signature"/>
-    <uses-permission android:name="br.com.appinbanker.inbanker.permission.C2D_MESSAGE"/>
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="br.com.appinbanker.inbanker.permission.C2D_MESSAGE" />
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/icon"
+        android:icon="@drawable/logo"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/app_id" />
+
         <activity
             android:name=".SplashScreen"
             android:screenOrientation="portrait"
@@ -45,7 +45,7 @@
         </activity>
         <activity
             android:name=".Inicio"
-            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
             android:name=".NavigationDrawerActivity"
             android:label="@string/title_activity_navigation_drawer"
@@ -67,21 +67,26 @@
             android:label="@string/title_activity_historico"
             android:parentActivityName=".NavigationDrawerActivity" />
         <activity
+            android:name=".MinhaConta"
+            android:label="@string/title_activity_minha_conta"
+            android:parentActivityName=".NavigationDrawerActivity" />
+        <activity
             android:name=".VerPagamentoPendente"
             android:label="@string/title_activity_ver_pagamento"
             android:parentActivityName=".NavigationDrawerActivity" />
 
-        <service
-            android:name=".fcm.MyFirebaseMessagingService">
+        <activity android:name=".Ajuda"
+            android:label="@string/title_activity_ajuda"
+            android:parentActivityName=".NavigationDrawerActivity"/>
+
+        <service android:name=".fcm.MyFirebaseMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
-        <service
-            android:name=".fcm.MyFirebaseInstanceIDService">
+        <service android:name=".fcm.MyFirebaseInstanceIDService">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 

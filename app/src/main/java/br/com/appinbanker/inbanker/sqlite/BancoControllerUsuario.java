@@ -16,20 +16,11 @@ public class BancoControllerUsuario {
     private SQLiteDatabase db;
     private CriandoBanco banco;
 
-    private String nome;
-    private String email;
-    private String cpf;
-    private String senha;
-
-    private String id_face;
-    private String nome_face;
-    private String url_img_face;
-
     public BancoControllerUsuario(Context context){
         banco = new CriandoBanco(context);
     }
 
-    public String insereDado(String nome, String email, String cpf,String senha,String id_face,String nome_face,String url_img_face ){
+    public String insereDado(String nome, String email, String cpf,String senha,String id_face,String url_img_face,String token_gcm ,String device_id){
         ContentValues valores;
         long resultado;
 
@@ -40,8 +31,9 @@ public class BancoControllerUsuario {
         valores.put(CriandoBanco.CPF, cpf);
         valores.put(CriandoBanco.SENHA, senha);
         valores.put(CriandoBanco.ID_FACE, id_face);
-        valores.put(CriandoBanco.NOME_FACE, nome_face);
         valores.put(CriandoBanco.URL_IMG_FACE, url_img_face);
+        valores.put(CriandoBanco.TOKEN_FCM, token_gcm);
+        valores.put(CriandoBanco.DEVICE_ID, device_id);
 
         resultado = db.insert(CriandoBanco.TABELA, null, valores);
         db.close();
@@ -55,9 +47,10 @@ public class BancoControllerUsuario {
 
     public Cursor carregaDados(){
         Cursor cursor;
-        String[] campos =  {banco.NOME,banco.CPF,banco.SENHA,banco.ID_FACE,banco.NOME_FACE,banco.URL_IMG_FACE,banco.EMAIL};
+        String[] campos =  {banco.NOME,banco.CPF,banco.SENHA,banco.ID_FACE,banco.URL_IMG_FACE,banco.EMAIL,banco.TOKEN_FCM,banco.DEVICE_ID};
         db = banco.getReadableDatabase();
         cursor = db.query(banco.TABELA, campos, null, null, null, null, null, null);
+        //cursor = db.rawQuery("select * from "+banco.TABELA,null);
 
         if(cursor!=null){
             cursor.moveToFirst();
@@ -80,7 +73,7 @@ public class BancoControllerUsuario {
         return cursor;
     }
 
-    public void alteraRegistroFace(String cpf, String id_face, String nome_face, String url_img_face){
+    public void alteraRegistroFace(String cpf, String id_face, String nome, String url_img_face,String email,String senha){
         ContentValues valores;
         String where;
 
@@ -90,13 +83,15 @@ public class BancoControllerUsuario {
 
         valores = new ContentValues();
         valores.put(CriandoBanco.ID_FACE, id_face);
-        valores.put(CriandoBanco.NOME_FACE, nome_face);
+        valores.put(CriandoBanco.NOME, nome);
         valores.put(CriandoBanco.URL_IMG_FACE, url_img_face);
+        valores.put(CriandoBanco.EMAIL, email);
+        valores.put(CriandoBanco.SENHA, senha);
 
         db.update(CriandoBanco.TABELA,valores,where,null);
         db.close();
     }
-    public void alteraRegistroCpf(String id_face,String cpf,String senha,String email){
+    public void alteraRegistroCpf(String id_face,String cpf,String senha,String email,String gcm_token,String device_id,String nome){
         ContentValues valores;
         String where;
 
@@ -108,6 +103,9 @@ public class BancoControllerUsuario {
         valores.put(CriandoBanco.CPF, cpf);
         valores.put(CriandoBanco.SENHA, senha);
         valores.put(CriandoBanco.EMAIL, email);
+        valores.put(CriandoBanco.TOKEN_FCM, gcm_token);
+        valores.put(CriandoBanco.DEVICE_ID, device_id);
+        valores.put(CriandoBanco.NOME, nome);
 
         db.update(CriandoBanco.TABELA,valores,where,null);
         db.close();

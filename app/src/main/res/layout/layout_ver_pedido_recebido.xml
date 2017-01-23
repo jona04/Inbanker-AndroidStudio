@@ -178,8 +178,12 @@
                         <TextView android:text="Valor de rendimento:" android:textSize="11sp" android:textColor="#fff"/>
                         <TextView android:id="@+id/tv_rendimento" android:textSize="11sp" android:textColor="#fff"/>
                     </TableRow>
+                    <TableRow android:id="@+id/tr_dias_atraso" android:visibility="gone">
+                        <TextView android:text="Dias de atraso:" android:textSize="11sp" android:textColor="#fff"/>
+                        <TextView android:id="@+id/tv_dias_atraso" android:text="0" android:textSize="11sp" android:textColor="#fff"/>
+                    </TableRow>
                     <TableRow android:id="@+id/tr_valor_multa" android:visibility="gone">
-                        <TextView android:text="Valor da multa:" android:textSize="11sp" android:textColor="#fff"/>
+                        <TextView android:text="Valor multa por atraso:      " android:textSize="11sp" android:textColor="#fff"/>
                         <TextView android:id="@+id/tv_valor_multa" android:text="R$ 0,00" android:textSize="11sp" android:textColor="#fff"/>
                     </TableRow>
                     <TableRow android:id="@+id/tr_taxa_servico" android:visibility="gone">>

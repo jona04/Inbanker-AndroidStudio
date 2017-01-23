@@ -44,10 +44,11 @@ public class NavigationDrawerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final int MENU_INICIO = 0;
-    public static final int MENU_PEDIR_EMPRESTIMO = 1;
-    public static final int MENU_PEDIDOS_ENVIADOS = 2;
-    public static final int MENU_PAGAMENTOS_ABERTO = 3;
-    public static final int MENU_PEDIDOS_RECEBIDOS = 4;
+    public static final int MENU_PEDIR_EMPRESTIMO = 2;
+    public static final int MENU_PEDIDOS_ENVIADOS = 3;
+    public static final int MENU_PAGAMENTOS_ABERTO = 4;
+    public static final int MENU_PEDIDOS_RECEBIDOS = 5;
+    public static final int MENU_HISTORICO = 6;
 
     int menu = MENU_INICIO;
 
@@ -66,24 +67,6 @@ public class NavigationDrawerActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_navigation_drawer); //app_bar_navigation_drawer.xml
         setSupportActionBar(toolbar);
 
-        BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
-        Cursor cursor = crud.carregaDados();
-
-        Intent it = getIntent();
-        Bundle parametro = it.getExtras();
-        if(parametro!=null){
-            menu = parametro.getInt("menu_item");
-        }
-
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab); //app_bar_navigation_drawer.xml
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout); //activity_navigation_drawer.xml
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -96,29 +79,45 @@ public class NavigationDrawerActivity extends AppCompatActivity
         //usamos para obter a view do header dentro do navigationdrawer e assim poder editar a foto e nome do perfil do usuario
         View header = navigationView.getHeaderView(0);
 
-        String url = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE));
-        String nome_usu_logado = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME));
+        Intent it = getIntent();
+        Bundle parametro = it.getExtras();
+        Log.i("ParametroNavigation","Param 1 ="+parametro);
+        if(parametro!=null){
+            Log.i("ParametroNavigation","Param 2 ="+parametro);
+            menu = parametro.getInt("menu_item");
+        }
 
-        TextView tv_nome_usu = (TextView) header.findViewById(R.id.tv_nome_usu_logado);
-        tv_nome_usu.setText(nome_usu_logado);
+        BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
+        Cursor cursor = crud.carregaDados();
 
-        ImageView img_usu_logado = (ImageView) header.findViewById(R.id.img_usu_logado);
-        //Log.i("Facebook","url="+url);
-        if(url != null)
-            if(url.equals("")){}else {
-                Transformation transformation = new RoundedTransformationBuilder()
-                        .borderColor(Color.GRAY)
-                        .borderWidthDp(3)
-                        .cornerRadiusDp(70)
-                        .oval(false)
-                        .build();
+        if(cursor.getCount() > 0) {
+            String url = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE));
+            String nome_usu_logado = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME));
 
-                Picasso.with(getBaseContext())
-                        .load(url)
-                        .transform(transformation)
-                        .into(img_usu_logado);
-            }
+            TextView tv_nome_usu = (TextView) header.findViewById(R.id.tv_nome_usu_logado);
+            tv_nome_usu.setText(nome_usu_logado);
 
+            ImageView img_usu_logado = (ImageView) header.findViewById(R.id.img_usu_logado);
+            //Log.i("Facebook","url="+url);
+
+            Log.i("ParametroNavigation","url 1 ="+url);
+
+            if (url != null)
+                if (url.equals("")) {
+                } else {
+                    Transformation transformation = new RoundedTransformationBuilder()
+                            .borderColor(Color.GRAY)
+                            .borderWidthDp(3)
+                            .cornerRadiusDp(70)
+                            .oval(false)
+                            .build();
+
+                    Picasso.with(getBaseContext())
+                            .load(url)
+                            .transform(transformation)
+                            .into(img_usu_logado);
+                }
+        }
        //para iniciar com o primeiro item do menu navigation drawer (Inicio)
         //se tiver tiver algum parametro o menu é alterado
         onNavigationItemSelected(navigationView.getMenu().getItem(menu).setChecked(true));
@@ -168,14 +167,17 @@ public class NavigationDrawerActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.menu_notificacao) {
 
-            Log.i("Script","menu notificacao clicado");
+        if (id == R.id.menu_ajuda) {
+
+            Intent it = new Intent(this,Ajuda.class);
+            startActivity(it);
 
             return true;
         }else if (id == R.id.menu_minha_conta) {
 
-            Log.i("Script","menu nminha conta");
+            Intent it = new Intent(this,MinhaConta.class);
+            startActivity(it);
 
             return true;
         }else if (id == R.id.menu_sair) {
@@ -192,12 +194,8 @@ public class NavigationDrawerActivity extends AppCompatActivity
             String cpf = cursor.getString(cursor.getColumnIndexOrThrow("cpf"));
             crud.deletaRegistro(cpf);
 
-            //limpa preferences login
-            AllSharedPreferences.putPreferences(AllSharedPreferences.ID_FACE, "", NavigationDrawerActivity.this);
-            AllSharedPreferences.putPreferences(AllSharedPreferences.CPF,"", NavigationDrawerActivity.this);
-
             //deleta o token do usuario do banco de dados
-            String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);
+            //String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);
             //String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,NavigationDrawerActivity.this);
             //Usuario usu = new Usuario();
             //usu.setDevice_id(device_id);
@@ -244,12 +242,14 @@ public class NavigationDrawerActivity extends AppCompatActivity
             case R.id.nav_historico:
                 fragmentClass = HistoricoFragment.class;
                 break;
-            /*case R.id.nav_configuracoes:
-                //fragmentClass = ConfiguracoesFragment.class;
+            case R.id.nav_minha_conta:
+                Intent intent = new Intent(this,MinhaConta.class);
+                startActivity(intent);
                 break;
             case R.id.nav_ajuda:
-                //fragmentClass = AjudaFragment.class;
-                break;*/
+                Intent intent2 = new Intent(this,Ajuda.class);
+                startActivity(intent2);
+                break;
             case R.id.nav_sair:
 
                 //fragment qualquer para nao dar erro do try
@@ -264,10 +264,6 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 //deleta registro do usuario no sqlite
                 String cpf = cursor.getString(cursor.getColumnIndexOrThrow("cpf"));
                 crud.deletaRegistro(cpf);
-
-                //limpa preferences login
-                AllSharedPreferences.putPreferences(AllSharedPreferences.ID_FACE, "", NavigationDrawerActivity.this);
-                AllSharedPreferences.putPreferences(AllSharedPreferences.CPF,"", NavigationDrawerActivity.this);
 
                 //deleta o token do usuario do banco de dados
                 //String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);

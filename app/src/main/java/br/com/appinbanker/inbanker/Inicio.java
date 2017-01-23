@@ -1,6 +1,7 @@
 package br.com.appinbanker.inbanker;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
@@ -12,10 +13,12 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -25,16 +28,21 @@ import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.Normalizer;
+import java.util.Arrays;
 import java.util.List;
 
 import br.com.appinbanker.inbanker.entidades.Amigos;
@@ -52,17 +60,18 @@ import br.com.appinbanker.inbanker.util.CheckConection;
 import br.com.appinbanker.inbanker.util.CheckPlayServices;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AddUsuario;
+import br.com.appinbanker.inbanker.webservice.AddUsuarioFace;
 import br.com.appinbanker.inbanker.webservice.AtualizaTokenGcm;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioLogin;
 import br.com.appinbanker.inbanker.webservice.VerificaUsuarioCadastro;
 
-public class Inicio extends AppCompatActivity implements WebServiceReturnStringFace,WebServiceReturnUsuarioFace {
+public class Inicio extends AppCompatActivity implements WebServiceReturnStringFace,WebServiceReturnUsuarioFace,WebServiceReturnString {
 
 
     private CallbackManager callbackManager;
 
-    private LoginButton loginButton;
+    //private LoginButton loginButton;
     private ProgressBar progress_bar_inicio,progress_bar_entrar,progress_bar_cadastro;
 
     private String id="",email="",nome="",url_img="",cpf="",senha="";
@@ -72,9 +81,15 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
 
     private Dialog dialog;
 
+    private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+    private DatabaseReference usuarioReferencia = databaseReference.child("usuarios");
+
     //cadastro
     EditText et_nome_cadastro,et_email_cadastro,et_cpf_cadastro,et_senha_cadastro,et_senha_novamente_cadastro;
     Button btn_cadastrar,btn_voltar_cadastro;
+
+    Usuario usu_cadastro;
+    Usuario usu_cadastro_face;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,133 +97,52 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
 
         FacebookSdk.sdkInitialize(getApplicationContext());
 
+        callbackManager = CallbackManager.Factory.create();
+
+        LoginManager.getInstance().registerCallback(callbackManager,
+                new FacebookCallback<LoginResult>() {
+                    @Override
+                    public void onSuccess(LoginResult loginResult) {
+                        Log.d("Success", "Login");
+                        //Log.i("Facebook", "onSuceess - loingResult= "+loginResult);
+
+                        //chamamos o metedo graphFacebook para obter os dados do usuario logado
+                        //passando como parametro o accessToken gerado no login
+                        graphFacebook(loginResult.getAccessToken());
+                        progress_bar_inicio.setVisibility(View.VISIBLE);
+
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        Toast.makeText(Inicio.this, "Login Cancel", Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onError(FacebookException exception) {
+                        Toast.makeText(Inicio.this, exception.getMessage(), Toast.LENGTH_LONG).show();
+                        Log.i("Facebook", "onError - exception = "+exception);
+
+                        //progress_bar_inicio.setVisibility(View.GONE);
+                    }
+                });
+
 
         setContentView(R.layout.layout_inicio);
 
-
-        callbackManager = CallbackManager.Factory.create();
-
-        //já pegamos de agora o token do usuario para utilizar nas notificações
-        /*if (CheckConection.temConexao(this)){
-            if (CheckPlayServices.checkPlayServices(this)) {
-                Log.i("FCM", "esta no metodo que chama");
-                Intent it = new Intent(this, MyFirebaseInstanceIDService.class);
-                startService(it);
-            } else {
-                Log.i("playservice", "sem playservice");
-                mensagem("Alerta","Você precisa ter o Google Play instalado para utilizar todos os serviços do Inbanker.","Ok");
-            }
-        }else{
-            mensagem("Alerta","Você não esta conectado a uma rede de internet. Para utilizar todos os nosso servços conecte-se a uma rede local.","Ok");
-        }*/
-
         progress_bar_inicio = (ProgressBar) findViewById(R.id.progress_bar_inicio);
-        Button btn_cadastro_usuario = (Button) findViewById(R.id.btn_cadastro);
-        Button btn_entrar = (Button) findViewById(R.id.btn_entrar);
-        loginButton = (LoginButton) findViewById(R.id.fbLoginButton);
 
-        btn_cadastro_usuario.setOnClickListener(new View.OnClickListener() {
+        Button btn_facebook=(Button)findViewById(R.id.btn_fb);
+
+        btn_facebook.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
 
-                //Intent it = new Intent(Inicio.this, CadastroUsuario.class);
-                //startActivity(it);
-
-                //finish();
-
-                // custom dialog
-                final Dialog dialog = new Dialog(Inicio.this,R.style.AppThemeDialog);
-                dialog.setContentView(R.layout.dialog_cadastro_usuario_inicio);
-                dialog.setTitle("Cadastro");
-
-                progress_bar_cadastro = (ProgressBar) dialog.findViewById(R.id.progress_bar_cadastro);
-                et_nome_cadastro = (EditText) dialog.findViewById(R.id.et_nome);
-                et_email_cadastro = (EditText) dialog.findViewById(R.id.et_email);
-                et_cpf_cadastro = (EditText) dialog.findViewById(R.id.et_cpf);
-                et_senha_cadastro = (EditText) dialog.findViewById(R.id.et_senha);
-                et_senha_novamente_cadastro = (EditText) dialog.findViewById(R.id.et_senha_novamente);
-                btn_cadastrar = (Button) dialog.findViewById(R.id.btn_cadastrar_usuario);
-
-                btn_voltar_cadastro = (Button) dialog.findViewById(R.id.btn_voltar_cadastro);
-                btn_voltar_cadastro.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.dismiss();
-                    }
-                });
-                btn_cadastrar.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if(!CheckConection.temConexao(Inicio.this)){
-                            mensagem("Sem conexao!","Olá, para realizar o cadastro você precisa estar conectado em alguma rede.","Ok");
-                        }else {
-
-                            clickCadastrar();
-
-                        }
-                    }
-                });
-
-                dialog.show();
+                LoginManager.getInstance().logInWithReadPermissions(Inicio.this, Arrays.asList("public_profile","email", "user_friends"));
             }
         });
 
-        btn_entrar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Intent it = new Intent(Inicio.this, TelaLogin.class);
-                //startActivity(it);
-                //finish();
-
-                dialog = new Dialog(Inicio.this,R.style.AppThemeDialog);
-                dialog.setContentView(R.layout.dialog_login_usuario_inicio);
-                dialog.setTitle("Cadastro");
-
-                Button btn_voltar_login = (Button) dialog.findViewById(R.id.btn_voltar_login);
-                btn_voltar_login.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.dismiss();
-                    }
-                });
-
-                progress_bar_entrar = (ProgressBar) dialog.findViewById(R.id.progress_bar_entrar);
-                et_cpf = (EditText) dialog.findViewById(R.id.et_entrar_cpf);
-                et_senha = (EditText) dialog.findViewById(R.id.et_entrar_senha);
-
-                et_senha.setOnKeyListener(new View.OnKeyListener() {
-                    @Override
-                    public boolean onKey(View view, int keyCode, KeyEvent event) {
-                        if (keyCode == EditorInfo.IME_ACTION_SEARCH ||
-                                keyCode == EditorInfo.IME_ACTION_DONE ||
-                                event.getAction() == KeyEvent.ACTION_DOWN &&
-                                        event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-
-
-                            clickLogin();
-
-                            dialog.dismiss();
-
-                            return true;
-                        }
-                        return false;
-                    }
-                });
-
-                btn_entrar_usuario = (Button) dialog.findViewById(R.id.btn_entrar_usuario);
-                btn_entrar_usuario.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        clickLogin();
-
-                        dialog.dismiss();
-                    }
-                });
-
-                dialog.show();
-            }
-        });
+        /*loginButton = (LoginButton) findViewById(R.id.fbLoginButton);
 
         loginButton.setReadPermissions("email");
         loginButton.setReadPermissions("user_friends");
@@ -239,8 +173,114 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
                 //progress_bar_inicio.setVisibility(View.GONE);
             }
 
+        });*/
+
+    }
+
+    public void entrar(View view){
+
+        dialog = new Dialog(Inicio.this,R.style.AppThemeDialog);
+        dialog.setContentView(R.layout.dialog_login_usuario_inicio);
+        dialog.setTitle("Cadastro");
+
+        Button btn_voltar_login = (Button) dialog.findViewById(R.id.btn_voltar_login);
+        btn_voltar_login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
         });
 
+        progress_bar_entrar = (ProgressBar) dialog.findViewById(R.id.progress_bar_entrar);
+        et_cpf = (EditText) dialog.findViewById(R.id.et_entrar_cpf);
+        et_senha = (EditText) dialog.findViewById(R.id.et_entrar_senha);
+
+        et_senha.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int keyCode, KeyEvent event) {
+                if (keyCode == EditorInfo.IME_ACTION_SEARCH ||
+                        keyCode == EditorInfo.IME_ACTION_DONE ||
+                        event.getAction() == KeyEvent.ACTION_DOWN &&
+                                event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+
+
+                    clickLogin();
+
+                    //dialog.dismiss();
+
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        btn_entrar_usuario = (Button) dialog.findViewById(R.id.btn_entrar_usuario);
+        btn_entrar_usuario.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                clickLogin();
+
+                //dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+
+
+    }
+
+    public void cadastrarUsuario(View view) {
+
+        // custom dialog
+        final Dialog dialog = new Dialog(Inicio.this, R.style.AppThemeDialog);
+        dialog.setContentView(R.layout.dialog_cadastro_usuario_inicio);
+        dialog.setTitle("Cadastro");
+
+        progress_bar_cadastro = (ProgressBar) dialog.findViewById(R.id.progress_bar_cadastro);
+        et_nome_cadastro = (EditText) dialog.findViewById(R.id.et_nome);
+        et_email_cadastro = (EditText) dialog.findViewById(R.id.et_email);
+        et_cpf_cadastro = (EditText) dialog.findViewById(R.id.et_cpf);
+        et_senha_cadastro = (EditText) dialog.findViewById(R.id.et_senha);
+        et_senha_novamente_cadastro = (EditText) dialog.findViewById(R.id.et_senha_novamente);
+        btn_cadastrar = (Button) dialog.findViewById(R.id.btn_cadastrar_usuario);
+
+        btn_voltar_cadastro = (Button) dialog.findViewById(R.id.btn_voltar_cadastro);
+        btn_voltar_cadastro.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        btn_cadastrar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                esconderTeclado();
+
+                if (!CheckConection.temConexao(Inicio.this)) {
+                    mensagem("Sem conexao!", "Olá, para realizar o cadastro você precisa estar conectado em alguma rede.", "Ok");
+                } else {
+
+
+
+                    if (validaCadastrar()) {
+                        new VerificaUsuarioCadastro(et_email_cadastro.getText().toString(), et_cpf_cadastro.getText().toString(), Inicio.this).execute();
+                    }
+
+                }
+            }
+        });
+
+        dialog.show();
+    }
+
+    public void direcionarNavigationDrawer(){
+        Intent it = new Intent(Inicio.this, NavigationDrawerActivity.class);
+        startActivity(it);
+
+        //para encerrar a activity atual e todos os parent
+        finishAffinity();
     }
 
     public void graphFacebook(final AccessToken accessToken){
@@ -307,7 +347,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
                                 Log.i("Facebook","exception email = "+e);
                                 email = "";
                             }
-                            nome = object.getString("name");
+                            nome = removerAcentos(object.getString("name"));
 
                             JSONObject pic = object.getJSONObject("picture");
                             pic = pic.getJSONObject("data");
@@ -346,48 +386,47 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
         //se ja for cadastrado
         if(usu != null) {
 
-            if(usu.getToken_gcm()!=null){
-                if(!usu.getToken_gcm().equals(token)){
+            if(usu.getCpf()!=null) {
+                if(usu.getCpf().length()>3) {
+                    if (usu.getToken_gcm() != null) {
+                        if (!usu.getToken_gcm().equals(token)) {
 
-                    usu.setDevice_id(device_id);
-                    usu.setToken_gcm(token);
+                            usu.setDevice_id(device_id);
+                            usu.setToken_gcm(token);
 
-                    //atualizamos do token
-                    new AtualizaTokenGcm(usu).execute();
+                            usuarioReferencia.child(usu.getCpf()).child("token_gcm").setValue(token);
+
+                            //atualizamos do token
+                            new AtualizaTokenGcm(usu).execute();
+                        }
+                    }
                 }
-            }
 
-            //parametro null para informar que tem apenas o id_face
-            addPreferencesFaceAndCPF(null);
+
+            }
 
             BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
             //ordem de parametros - nome,email,cpf,senha,id_face,email_face,nome_face,url_img_face
-            String resultado = crud.insereDado(usu.getNome(),usu.getEmail(),usu.getCpf(),usu.getSenha(),usu.getIdFace(),usu.getNomeFace(),usu.getUrlImgFace());
+            String resultado = crud.insereDado(usu.getNome(),usu.getEmail(),usu.getCpf(),usu.getSenha(),usu.getId_face(),usu.getUrl_face(),token,device_id);
             //Log.i("Banco SQLITE","resultado = "+resultado);
 
-            Intent it = new Intent(Inicio.this, NavigationDrawerActivity.class);
-            startActivity(it);
-
-            //para encerrar a activity atual e todos os parent
-            finishAffinity();
+            direcionarNavigationDrawer();
         }else{
 
-            Usuario new_usu = new Usuario();
+            usu_cadastro_face = new Usuario();
 
-            new_usu.setToken_gcm(token);
-            new_usu.setDevice_id(device_id);
-            new_usu.setCpf("");
-            new_usu.setEmail(email);
-            new_usu.setNome(nome);
-            new_usu.setSenha("");
+            usu_cadastro_face.setToken_gcm(token);
+            usu_cadastro_face.setDevice_id(device_id);
+            usu_cadastro_face.setCpf("");
+            usu_cadastro_face.setEmail(email);
+            usu_cadastro_face.setNome(nome);
+            usu_cadastro_face.setSenha("");
 
-            new_usu.setIdFace(id);
-            new_usu.setNomeFace(nome);
-            new_usu.setUrlImgFace(url_img);
+            usu_cadastro_face.setId_face(id);
+            usu_cadastro_face.setUrl_face(url_img);
 
             //fazemos a chamada a classe responsavel por realizar a tarefa de webservice em doinbackground
-            new AddUsuario(new_usu,this,this).execute();
-
+            new AddUsuarioFace(usu_cadastro_face,this,this).execute();
 
         }
 
@@ -397,22 +436,22 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
     //metodo que sera invoca na classe de webserve veio do login face
     public void retornoStringWebServiceFace(String msg){
 
+        String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,Inicio.this);
+        String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,Inicio.this);
+
         if(msg!=null) {
             if (msg.equals("sucesso")) {
 
-                //parametro null para informar que tem apenas o id_face
-                addPreferencesFaceAndCPF(null);
-
                 BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
                 //ordem de parametros - nome,email,cpf,senha,id_face,email_face,nome_face,url_img_face
-                String resultado = crud.insereDado(nome, email, cpf,senha, id, nome, url_img);
-                Log.i("Banco SQLITE", "resultado = " + resultado);
+                String resultado = crud.insereDado(nome, email, cpf,senha, id, url_img,token,device_id);
+                Log.i("Banco SQLITE", " face resultado = " + resultado);
 
-                Intent it = new Intent(Inicio.this, NavigationDrawerActivity.class);
-                startActivity(it);
+                //so adicionaremos no firebase usuarios com cadastro completo
+                //add usuario no firebase
+                //usu_cadastro_face.salvar();
 
-                //para encerrar a activity atual e todos os parent
-                finishAffinity();
+                direcionarNavigationDrawer();
             } else {
                 mensagem("Houve um erro!", "Olá, parece que houve um problema de conexão. Favor tente novamente!", "Ok");
             }
@@ -423,6 +462,9 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
     }
 
     public void clickLogin(){
+
+        esconderTeclado();
+
         boolean campos_ok = true;
 
         boolean email_valido = Validador.isCPF(et_cpf.getText().toString());
@@ -447,6 +489,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
         if(campos_ok) {
             progress_bar_entrar.setVisibility(View.VISIBLE);
             btn_entrar_usuario.setEnabled(false);
+
             new BuscaUsuarioLogin(et_cpf.getText().toString(), this, this).execute();
         }
 
@@ -455,18 +498,19 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
     public void retornoTaskUsuarioLogin(Usuario usu){
 
         if(usu != null){
+
             if(usu.getSenha().equals(et_senha.getText().toString())) {
 
                 String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,Inicio.this);
                 String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,Inicio.this);
-
-                addPreferencesFaceAndCPF(usu.getCpf());
 
                 if(usu.getToken_gcm()!=null){
                     if(!usu.getToken_gcm().equals(token)){
 
                         usu.setDevice_id(device_id);
                         usu.setToken_gcm(token);
+
+                        usuarioReferencia.child(usu.getCpf()).child("token_gcm").setValue(token);
 
                         //atualizamos do token
                         new AtualizaTokenGcm(usu).execute();
@@ -475,14 +519,12 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
 
                 BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
                 //ordem de parametros - nome,email,cpf,senha,id_face,email_face,nome_face,url_img_face
-                String resultado = crud.insereDado(usu.getNome(),usu.getEmail(),usu.getCpf(),usu.getSenha(),usu.getIdFace(),usu.getNomeFace(),usu.getUrlImgFace());
-                Log.i("Banco SQLITE","resultado = "+resultado);
+                String resultado = crud.insereDado(usu.getNome(),usu.getEmail(),usu.getCpf(),usu.getSenha(),usu.getId_face(),usu.getUrl_face(),token,device_id);
+                Log.i("Banco SQLITE","resultado login inicio = "+resultado);
 
-                Intent it = new Intent(Inicio.this, NavigationDrawerActivity.class);
-                startActivity(it);
+                direcionarNavigationDrawer();
 
-                //para encerrar a activity atual e todos os parent
-                finishAffinity();
+                dialog.dismiss();
             }else{
                 mensagem("Houve um erro!","Olá, a senha digita está incorreta. Favor tente novamente!","oK");
 
@@ -491,6 +533,9 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
                 progress_bar_entrar.setVisibility(View.GONE);
             }
         }else{
+
+            dialog.dismiss();
+
             mensagem("Houve um erro!","Olá, parece que houve um problema no login ou o seu CPF não está cadastrado. Favor tente novamente!","oK");
 
             btn_entrar_usuario.setEnabled(true);
@@ -499,7 +544,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
 
     }
 
-    public void clickCadastrar(){
+    public boolean validaCadastrar(){
 
         boolean campos_ok = true;
 
@@ -530,6 +575,14 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
             campos_ok = false;
         }
 
+        if(et_senha_cadastro.getText().toString().length()<6) {
+            et_senha_cadastro.setError("Mínimo de 6 letras");
+            et_senha_cadastro.setFocusable(true);
+            et_senha_cadastro.requestFocus();
+
+            campos_ok = false;
+        }
+
         boolean valida_senha = Validador.validateNotNull(et_senha_cadastro.getText().toString());
         if(!valida_senha){
             et_senha_cadastro.setError("Campo Vazio");
@@ -555,8 +608,14 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
                 btn_cadastrar.setEnabled(false);
                 progress_bar_cadastro.setVisibility(View.VISIBLE);
 
-                new VerificaUsuarioCadastro(et_email_cadastro.getText().toString(), et_cpf_cadastro.getText().toString(), Inicio.this).execute();
+                //new VerificaUsuarioCadastro(et_email_cadastro.getText().toString(), et_cpf_cadastro.getText().toString(), Inicio.this).execute();
+
+
+                return true;
+            }else{
+                return false;
             }
+
 
         } else {
 
@@ -564,20 +623,18 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
             et_senha_novamente_cadastro.setFocusable(true);
             et_senha_novamente_cadastro.requestFocus();
 
-            campos_ok = false;
+            return false;
         }
     }
 
     public void retornoTaskVerificaCadastro(String result){
 
-        Usuario usu = new Usuario();
+        usu_cadastro = new Usuario();
 
         if(result == null){
 
             String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,Inicio.this);
             String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,Inicio.this);
-
-            addPreferencesFaceAndCPF(cpf);
 
             //adicionamos os valores as variaveis globais para serem adicionadas corretamente no sqlite la no metido retornoStringWebService
             nome = et_nome_cadastro.getText().toString();
@@ -585,20 +642,20 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
             cpf = et_cpf_cadastro.getText().toString();
             senha = et_senha_cadastro.getText().toString();
 
-            usu.setToken_gcm(token);
-            usu.setDevice_id(device_id);
-            usu.setCpf(cpf);
-            usu.setEmail(email);
-            usu.setNome(nome);
-            usu.setSenha(senha);
+            usu_cadastro.setToken_gcm(token);
+            usu_cadastro.setDevice_id(device_id);
+            usu_cadastro.setCpf(cpf);
+            usu_cadastro.setEmail(email);
+            usu_cadastro.setNome(nome);
+            usu_cadastro.setSenha(senha);
 
             //setamos esse valores vazio para nao dar problema na hora de serializacao e posteriormente erro no rest de cadastro no banco
-            usu.setIdFace("");
-            usu.setNomeFace("");
-            usu.setUrlImgFace("");
+            usu_cadastro.setId_face("");
+            usu_cadastro.setUrl_face("");
 
             //fazemos a chamada a classe responsavel por realizar a tarefa de webservice em doinbackground
-            new AddUsuario(usu, Inicio.this,this).execute();
+            new AddUsuario(usu_cadastro, Inicio.this,this).execute();
+
         }else {
 
             btn_cadastrar.setEnabled(true);
@@ -610,6 +667,32 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
             else if (result.equals("cpf"))
                 mensagem("Houve um erro!", "Olá, o CPF informado já existe, por favor informe outro, ou tente recuperar sua senha", "Ok");
         }
+    }
+
+    //metodo que sera invoca na classe de webserve veio do cadastro
+    public void retornoStringWebService(String msg){
+
+        String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,Inicio.this);
+        String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,Inicio.this);
+
+        if(msg!=null) {
+            if (msg.equals("sucesso")) {
+
+                BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
+                //ordem de parametros - nome,email,cpf,senha,id_face,email_face,nome_face,url_img_face
+                String resultado = crud.insereDado(nome, email, cpf,senha, id, url_img,token,device_id);
+                Log.i("Banco SQLITE", "cadastro normal resultado = " + resultado);
+
+                usu_cadastro.salvar();
+
+                direcionarNavigationDrawer();
+            } else {
+                mensagem("Houve um erro!", "Olá, parece que houve um problema de conexão. Favor tente novamente!", "Ok");
+            }
+        }else{
+            mensagem("Houve um erro!", "Olá, parece que houve um problema de conexão. Favor tente novamente!", "Ok");
+        }
+
     }
 
     @Override
@@ -628,16 +711,13 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
         mensagem.show();
     }
 
-    public void addPreferencesFaceAndCPF(String cpf){
+    public void esconderTeclado() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+        inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+    }
 
-        if(id!=null) {
-            //add id face no preferences
-            AllSharedPreferences.putPreferences(AllSharedPreferences.ID_FACE, id, Inicio.this);
-        }
-        if(cpf!=null) {
-            //add id face no preferences
-            AllSharedPreferences.putPreferences(AllSharedPreferences.CPF,cpf, Inicio.this);
-        }
-
+    public static String removerAcentos(String str) {
+        return Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
     }
 }

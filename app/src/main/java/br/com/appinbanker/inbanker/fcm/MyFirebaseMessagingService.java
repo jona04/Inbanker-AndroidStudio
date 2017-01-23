@@ -4,6 +4,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,6 +24,8 @@ import br.com.appinbanker.inbanker.VerPagamentoPendente;
 import br.com.appinbanker.inbanker.VerPedidoEnviado;
 import br.com.appinbanker.inbanker.VerPedidoRecebido;
 import br.com.appinbanker.inbanker.entidades.Transacao;
+import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
+import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 
 /**
@@ -40,21 +45,29 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
 
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonInString = remoteMessage.getData().get("transacao");
-            Transacao trans = new Transacao();
+
             try {
+                ObjectMapper mapper = new ObjectMapper();
+                String jsonInString = remoteMessage.getData().get("transacao");
+                Transacao trans = new Transacao();
+
                 //JSON from String to Object
                 trans = mapper.readValue(jsonInString, Transacao.class);
 
-                String id_face = AllSharedPreferences.getPreferences(AllSharedPreferences.ID_FACE, getApplication());
-                String cpf = AllSharedPreferences.getPreferences(AllSharedPreferences.CPF, getApplication());
-                if (id_face != null || cpf != null) {
-                    if (id_face != "" || cpf != "")
-                        sendNotification(trans, remoteMessage.getData().get("title"), remoteMessage.getData().get("msg"));
+                //faz a verificacao para saber se existe cpf - sabendo disso saberemos se o usuario esta online ou nao, para receber ou nao a notificacao
+                BancoControllerUsuario crud = new BancoControllerUsuario(this);
+                Cursor cursor = crud.carregaDados();
+                String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+                if (cpf != null) {
+                    if (cpf != "")
+                        if(remoteMessage.getData().get("tipo").equals("notificacao")) {
+                            sendNotification(trans, remoteMessage.getData().get("title"), remoteMessage.getData().get("msg"));
+                        }else{
+                            Log.i("Notificatio","Notificacao de divida");
+                        }
 
                 }
-            }catch (Exception e){
+           }catch (Exception e){
                 Log.i("Notificatio","Excepition = "+e);
             }
         }
@@ -71,9 +84,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     //It is same as we did in earlier posts
     private void sendNotification(Transacao trans,String title,String msg) {
 
+        Bitmap rawBitmap = BitmapFactory.decodeResource(getResources(),
+                R.drawable.logo);
+
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.icon)
+                .setSmallIcon(R.drawable.logo)
+                .setLargeIcon(rawBitmap)
                 .setContentTitle(title)
                 .setContentText(msg)
                 .setAutoCancel(true)
@@ -94,45 +111,39 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         int status_transacao = Integer.parseInt(trans.getStatus_transacao());
 
-        Class classe;
+        int menu_item;
 
         switch (status_transacao){
             case Transacao.AGUARDANDO_RESPOSTA:
-                Log.i("Script","Notifca aguardando esposta");
-                classe = VerPedidoRecebido.class;
+                menu_item = NavigationDrawerActivity.MENU_PEDIDOS_RECEBIDOS;
                 break;
             case Transacao.PEDIDO_ACEITO:
-                Log.i("Script","Notifca aguardando esposta");
-                classe = VerPedidoEnviado.class;
+                menu_item = NavigationDrawerActivity.MENU_INICIO;
                 break;
             case Transacao.PEDIDO_RECUSADO:
-                Log.i("Script","Notifca PEDIDO_RECUSADO");
-                classe = VerHistorico.class;
+                menu_item = NavigationDrawerActivity.MENU_HISTORICO;
                 break;
             case Transacao.CONFIRMADO_RECEBIMENTO:
-                Log.i("Script","Notifca CONFIRMADO_RECEBIMENTO");
-                classe = VerPedidoRecebido.class;
+                menu_item = NavigationDrawerActivity.MENU_PEDIDOS_RECEBIDOS;
                 break;
             case Transacao.QUITACAO_SOLICITADA:
-                Log.i("Script","Notifca QUITACAO_SOLICITADA");
-                classe = VerPedidoRecebido.class;
+                menu_item = NavigationDrawerActivity.MENU_INICIO;
                 break;
             case Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA:
-                Log.i("Script","Notifca RESP_QUITACAO_SOLICITADA_RECUSADA");
-                classe = VerPagamentoPendente.class;
+                menu_item = NavigationDrawerActivity.MENU_PAGAMENTOS_ABERTO;
                 break;
             case Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA:
-                Log.i("Script","Notifca RESP_QUITACAO_SOLICITADA_CONFIRMADA");
-                classe = VerHistorico.class;
+                menu_item = NavigationDrawerActivity.MENU_HISTORICO;
                 break;
             default:
-                Log.i("Notificacao", "default notificacao");
-                classe = NavigationDrawerActivity.class;
+                menu_item = NavigationDrawerActivity.MENU_INICIO;
                 break;
         }
 
-        Intent it = new Intent(this,classe);
-        it.putExtra("transacao",trans);
+        Log.i("Notification Menu","Menu item = "+menu_item);
+
+        Intent it = new Intent(this,NavigationDrawerActivity.class);
+        it.putExtra("menu_item",menu_item);
 
         it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, it,

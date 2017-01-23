@@ -7,6 +7,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate;
 
 import br.com.appinbanker.inbanker.Inicio;
+import br.com.appinbanker.inbanker.MinhaConta;
 import br.com.appinbanker.inbanker.SimuladorResultado;
 
 /**
@@ -19,6 +20,7 @@ public class VerificaUsuarioCadastro extends AsyncTask<String,String,String> {
     private String email;
     private String cpf;
     private SimuladorResultado sr;
+    private MinhaConta mc;
 
     public VerificaUsuarioCadastro(String email,String cpf, Inicio tl){
         this.tl = tl;
@@ -29,6 +31,13 @@ public class VerificaUsuarioCadastro extends AsyncTask<String,String,String> {
 
     public VerificaUsuarioCadastro(String email,String cpf, SimuladorResultado sr){
         this.sr = sr;
+        this.email = email;
+        this.cpf = cpf;
+
+    }
+
+    public VerificaUsuarioCadastro(String email,String cpf, MinhaConta mc){
+        this.mc = mc;
         this.email = email;
         this.cpf = cpf;
 
@@ -60,6 +69,8 @@ public class VerificaUsuarioCadastro extends AsyncTask<String,String,String> {
             tl.retornoTaskVerificaCadastro(result);
         else if (sr != null)
             sr.retornoTaskVerificaCadastro(result);
+        else if(mc != null)
+            mc.retornoTaskVerificaCadastro(result);
     }
 
 }

@@ -13,10 +13,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import br.com.appinbanker.inbanker.R;
@@ -24,6 +26,8 @@ import br.com.appinbanker.inbanker.VerHistorico;
 import br.com.appinbanker.inbanker.VerPedidoEnviado;
 import br.com.appinbanker.inbanker.adapters.ListaHistoricoAdapter;
 import br.com.appinbanker.inbanker.adapters.ListaTransacaoAdapter;
+import br.com.appinbanker.inbanker.adapters.TransacaoHistoricoAdapter;
+import br.com.appinbanker.inbanker.adapters.TransacaoPendenteAdapter;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
@@ -32,11 +36,14 @@ import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioHistoricoCPF;
 
-public class HistoricoFragment extends Fragment implements RecyclerViewOnClickListenerHack {
+public class HistoricoFragment extends Fragment{
 
-    private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLinearLayoutManager;
-    private List<Transacao> mList;
+    private int lastExpandedPosition = -1;
+
+    private TransacaoHistoricoAdapter listAdapter;
+    private ExpandableListView expListView;
+    ArrayList<Transacao> listDataHeader;
+    HashMap<String,Transacao> listDataChild;
 
     private BancoControllerUsuario crud;
     private Cursor cursor;
@@ -82,13 +89,19 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
         }
 
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_historico);
+        expListView = (ExpandableListView) view.findViewById(R.id.transacaoList);
 
-        mLinearLayoutManager = new LinearLayoutManager(getActivity());
-        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        expListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
 
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(mLinearLayoutManager);
+            @Override
+            public void onGroupExpand(int groupPosition) {
+                if (lastExpandedPosition != -1
+                        && groupPosition != lastExpandedPosition) {
+                    expListView.collapseGroup(lastExpandedPosition);
+                }
+                lastExpandedPosition = groupPosition;
+            }
+        });
 
         return view;
     }
@@ -96,47 +109,41 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
     public void retornoBuscaUsuario(Usuario usu){
 
         progress_lista_historico.setVisibility(View.GONE);
-
         if(usu != null){
 
             //iremos adicionar a uma nova lista apenas as trasacoes de status 2 (historico), para posteriormente adicionarmos no adapter
-            ArrayList<Transacao> list = new ArrayList<Transacao>();
+            ArrayList<Transacao> list = new ArrayList<>();
 
             if(usu.getTransacoes_enviadas() != null) {
-                mList = usu.getTransacoes_enviadas();
 
-
-                for(int i = 0; i < mList.size(); i++){
-                    int status = Integer.parseInt(mList.get(i).getStatus_transacao());
-                    if(status == 2 || status == 6){
-                        list.add(mList.get(i));
+                for(int i = 0; i < usu.getTransacoes_enviadas().size(); i++){
+                    int status = Integer.parseInt(usu.getTransacoes_enviadas().get(i).getStatus_transacao());
+                    if(status == 2 || status >= 6){
+                        list.add(usu.getTransacoes_enviadas().get(i));
                     }
                 }
 
             }
 
             if(usu.getTransacoes_recebidas() != null) {
-                mList = usu.getTransacoes_recebidas();
-
-                //Log.i("webservice", "lista hist rec = " + mList);
-
-
-                for(int i = 0; i < mList.size(); i++){
+                for(int i = 0; i < usu.getTransacoes_recebidas().size(); i++){
                     //Log.i("webservice", "lista list = " + i+" - "+mList.get(i).getStatus_transacao());
-                    int status = Integer.parseInt(mList.get(i).getStatus_transacao());
-                    if(status == 2 || status == 6){
-                        list.add(mList.get(i));
+                    int status = Integer.parseInt(usu.getTransacoes_recebidas().get(i).getStatus_transacao());
+                    if(status == 2 || status >= 6){
+                        list.add(usu.getTransacoes_recebidas().get(i));
                     }
                 }
 
             }
 
             if(list.size() > 0) {
-                mList = list;
-                mRecyclerView.setVisibility(View.VISIBLE);
-                ListaHistoricoAdapter adapter = new ListaHistoricoAdapter(getActivity(), list,cpf);
-                adapter.setRecyclerViewOnClickListenerHack(this);
-                mRecyclerView.setAdapter(adapter);
+                expListView.setVisibility(View.VISIBLE);
+
+                setValue(list);
+
+                listAdapter = new TransacaoHistoricoAdapter(getActivity(),listDataHeader, listDataChild);
+                // setting list adapter
+                expListView.setAdapter(listAdapter);
             }else{
                 msg_lista_historico.setVisibility(View.VISIBLE);
             }
@@ -155,14 +162,18 @@ public class HistoricoFragment extends Fragment implements RecyclerViewOnClickLi
         mensagem.show();
     }
 
-    @Override
-    public void onClickListener(View view, int position) {
+    private void setValue(List<Transacao> forums) {
 
-        //Log.i("Script", "Click tste inicio =" + mList.get(position));
+        //List generalList = new ArrayList();
+        Transacao f = new Transacao();
 
-        Intent it = new Intent(getActivity(), VerHistorico.class);
-        it.putExtra("transacao",mList.get(position));
-        startActivity(it);
+        listDataHeader = new ArrayList<Transacao>();
+        listDataChild = new HashMap<String,Transacao>();
+
+        for (int i = 0; i < forums.size(); i++) {
+            listDataHeader.add(forums.get(i));
+            listDataChild.put(listDataHeader.get(i).getId_trans(), forums.get(i));
+        }
 
     }
 

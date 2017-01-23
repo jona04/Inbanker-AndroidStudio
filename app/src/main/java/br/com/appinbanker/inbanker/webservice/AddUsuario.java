@@ -25,9 +25,9 @@ public class AddUsuario extends AsyncTask<String, String, String> {
 
     private Usuario usuario;
     private Context context;
-    private WebServiceReturnStringFace rs;
+    private WebServiceReturnString rs;
 
-    public AddUsuario(Usuario usu, Context context, WebServiceReturnStringFace rs) {
+    public AddUsuario(Usuario usu, Context context, WebServiceReturnString rs) {
         this.usuario = usu;
         this.rs = rs;
         this.context = context;
@@ -70,7 +70,7 @@ public class AddUsuario extends AsyncTask<String, String, String> {
     protected void onPostExecute(String result) {
         Log.i("Script","resultado = "+result);
 
-        rs.retornoStringWebServiceFace(result);
+        rs.retornoStringWebService(result);
     }
 
 

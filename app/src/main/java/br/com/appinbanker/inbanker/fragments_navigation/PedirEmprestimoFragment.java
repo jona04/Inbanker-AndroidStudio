@@ -33,6 +33,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,6 +51,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -63,18 +65,19 @@ import br.com.appinbanker.inbanker.adapters.ListaAmigosAdapter;
 import br.com.appinbanker.inbanker.entidades.Amigos;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringFace;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.util.MaskMoney;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AtualizaUsuario;
+import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
+import br.com.appinbanker.inbanker.webservice.DeletaUsuarioFace;
 
-public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnClickListenerHack {
-
-    public static String FIREBASE_URL = "https://inbanker-3f061.firebaseio.com/";
-    // Create a storage reference from our app
-    FirebaseDatabase database;
-    DatabaseReference amigosRef;
+public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnClickListenerHack,WebServiceReturnUsuarioFace,WebServiceReturnString,WebServiceReturnStringFace{
 
     private EditText et_calendario,et_valor;
 
@@ -91,13 +94,14 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
     private boolean usuario_logado = false;
 
-    //atualizamos os dados do usuario que esta no sqlite com os dados dele que acabaram de ser logados no facebook
-    BancoControllerUsuario crud;
+    String id_face,nome_face,url_face,email;
+
+    private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+    private DatabaseReference usuarioReferencia = databaseReference.child("usuarios");
 
     public PedirEmprestimoFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,10 +109,6 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
         if (getArguments() != null) {
         }
-
-        crud = new BancoControllerUsuario(getActivity());
-
-        database = FirebaseDatabase.getInstance();
     }
 
     @Override
@@ -156,20 +156,6 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 
-
-        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                //Log.i("Script", "onScrollStateChanged");
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                //Log.i("Script", "onScrolled");
-            }
-        });
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
 
@@ -210,15 +196,11 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
             }
 
         });
-
         return view;
-
     }
 
     public void graphFacebook(final AccessToken accessToken){
         try{
-
-
 
             // App code
             GraphRequest request = GraphRequest.newMeRequest(
@@ -271,13 +253,13 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
                             JSONObject object = response.getJSONObject();
 
-                            String id = object.getString("id");
+                            id_face = object.getString("id");
                             //String email = object.getString("email");
-                            String name = object.getString("name");
+                            nome_face = removerAcentos(object.getString("name"));
 
                             JSONObject pic = object.getJSONObject("picture");
                             pic = pic.getJSONObject("data");
-                            String url_picture = pic.getString("url");
+                            url_face= pic.getString("url");
 
                             object = object.getJSONObject("friends");
                             JSONArray friends_list = object.getJSONArray("data");
@@ -307,7 +289,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
                             amigosRef.child(id).updateChildren(infos);*/
 
-                            listaAmigos(id,url_picture,name);
+                            buscaUSuario();
                         }
                         catch(Exception e){
                             Log.i("Facebook","exception = "+e);
@@ -322,7 +304,79 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
     }
 
-    public void listaAmigos(String id, String url, String name){
+    public void buscaUSuario(){
+        //verificamos se ja tem alguem logado com esse facebook
+        new BuscaUsuarioFace(id_face,getActivity(),this).execute();
+
+    }
+
+    @Override
+    public void retornoUsuarioWebServiceFace(Usuario usu) {
+
+        BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
+        Cursor cursor = crud.carregaDados();
+        String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+        String email_online = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.EMAIL));
+        String id_face_online = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
+
+        if(usu!=null) {
+
+            Log.i("CPF USU","face ="+usu.getCpf()+" - usu ="+cpf);
+
+            if(id_face_online.equals(usu.getId_face())){
+                Log.i("PedirEmprestimo", "Tipo 0");
+                listaAmigos();
+            }else {
+
+                email = usu.getEmail();
+
+                if (!cpf.equals("") && usu.getCpf().equals(cpf)) {
+                    Log.i("PedirEmprestimo", "Tipo 1");
+                    listaAmigos();
+                    atualizaDadosUsuario(id_face, url_face, nome_face, usu.getEmail());
+                } else if (cpf == null) {
+                    Log.i("PedirEmprestimo", "Tipo 2");
+                    listaAmigos();
+                    atualizaDadosUsuario(id_face, url_face, nome_face, usu.getEmail());
+                } else {
+                    Log.i("PedirEmprestimo", "Tipo 3");
+                    if (usu.getCpf() != null) {
+                        Log.i("PedirEmprestimo", "Tipo 3.1");
+                        if (usu.getCpf() == "") {
+                            Log.i("PedirEmprestimo", "Tipo 3.1.1");
+                            listaAmigos();
+
+                            //deletamos o usuario que esta com o login de facebook vazio
+                            new DeletaUsuarioFace(usu, getActivity(), this).execute();
+                        } else {
+                            Log.i("PedirEmprestimo", "Tipo 3.1.2");
+                            //faz o logout do usuario logado facebook
+                            LoginManager.getInstance().logOut();
+
+                            mRecyclerView.setVisibility(View.GONE);
+                            pb.setVisibility(View.GONE);
+
+                            mensagem("Erro login!", "Olá, esse usuario de Facebook já esta conectado com outra conta. Por tanto " +
+                                    "tente fazer o login diretamente da tela inicial do aplicativo.", "Ok");
+
+
+                        }
+                    }
+                }
+            }
+        }else{
+
+            if(!cpf.equals("")){
+                listaAmigos();
+                atualizaDadosUsuario(id_face, url_face, nome_face, email_online);
+            }
+
+
+            mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","Ok");
+        }
+    }
+
+    public void listaAmigos(){
 
        // Log.i("Facebook","metodo Lista amigos");
 
@@ -335,21 +389,30 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
             adapter.setRecyclerViewOnClickListenerHack(this);
             mRecyclerView.setAdapter(adapter);
         }
-        //atualizamos os dados do usuario logado caso seja o primeiro login dele no face
-        Cursor cursor = crud.carregaDados();
-        String id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
-        //Log.i("Facebook","id_face = "+id_face);
-        if(id_face == null || id_face.equals(""))
-            atualizaDadosUsuario(id,url,name);
-
     }
 
-    public void atualizaDadosUsuario(String id, String url_picture,String name){
+    @Override
+    public void retornoStringWebServiceFace(String result) {
+        if(result.equals("sucesso_edit")){
+            Log.i("AtualizaDados","Atualzia dados usuario");
+            atualizaDadosUsuario(id_face,url_face,nome_face,email);
+        }else{
+            mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","Ok");
+        }
+    }
+
+    public void atualizaDadosUsuario(String id, String url_picture, String name,String email){
+
+        Log.i("PedirEmprestimo","Esta atualizando dados");
 
         //atualizamos os dados do usuario que esta no sqlite com os dados dele que acabaram de ser cadastrador - cpf e senha
         BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
         Cursor cursor = crud.carregaDados();
         String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+        String token_gcm = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,getActivity());
+
+
+        Log.i("PedirEmprestimo","Esta atualizando dados cpf = "+cpf);
 
         Usuario usu = new Usuario();
 
@@ -359,17 +422,27 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         usu.setSenha("");
 
         usu.setCpf(cpf);
-        usu.setUrlImgFace(url_picture);
-        usu.setNomeFace(name);
-        usu.setIdFace(id);
+        usu.setUrl_face(url_picture);
+        usu.setNome(name);
+        usu.setId_face(id);
+        usu.setEmail(email);
+
+        //atualiza dados do face no banco sqlite
+        crud.alteraRegistroFace(cpf,id,name,url_picture,email,"");
+
+        usuarioReferencia.child(cpf).child("url_face").setValue(url_picture);
+        usuarioReferencia.child(cpf).child("nome_face").setValue(name);
+        usuarioReferencia.child(cpf).child("id_face").setValue(id);
+        usuarioReferencia.child(cpf).child("token_gcm").setValue(token_gcm);
 
         //fazemos a chamada a classe responsavel por realizar a tarefa de webservice em doinbackground
-        new AtualizaUsuario(usu,PedirEmprestimoFragment.this).execute();
+        new AtualizaUsuario(usu,this,"cpf").execute();
 
     }
 
-    public void retornoAtualizaUsuario(String result){
-        Log.i("Webservice","retorno = "+result);
+    @Override
+    public void retornoStringWebService(String result) {
+        Log.i("Webservice", "retorno = " + result);
     }
 
     @Override
@@ -405,7 +478,8 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if ( (actionId == EditorInfo.IME_ACTION_DONE) || ((event.getKeyCode() == KeyEvent.KEYCODE_ENTER) && (event.getAction() == KeyEvent.ACTION_DOWN ))){
-                    Log.i("Script","apertou eba");
+                    //Log.i("Script","apertou eba");
+                    esconderTeclado();
                     mostraCalendario();
                     return true;
                 }
@@ -441,6 +515,8 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         btnCalendar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                esconderTeclado();
 
                 mostraCalendario();
 
@@ -482,7 +558,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                  if (campos) {
 
                      String valor_normal_ = valor_normal.substring(0, valor_normal.length() - 2);
-                     if (Double.parseDouble(valor_normal_) < 500) {
+                     if (Double.parseDouble(valor_normal_) < 1001) {
 
                          DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
                          DateTime hoje = new DateTime();
@@ -505,7 +581,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                          dialog.dismiss();
                      } else {
                          //Log.i("Scrip", "valor normal = " + valor_normal_);
-                         mensagem("InBanker", "Olá, no momento só é permitido valores menores que R$ 500,00. Por favor informe um valor menor.", "Ok");
+                         mensagem("InBanker", "Olá, no momento só é permitido valores menores que R$ 1.000,00. Por favor insira um valor menor.", "Ok");
                      }
                  }
              }
@@ -536,10 +612,11 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
 
-                        String data = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year;
+                        String data = checkDigit(dayOfMonth) + "/" + checkDigit((monthOfYear + 1)) + "/" + year;
 
                         // Display Selected date in textbox
                         et_calendario.setText(data);
+
                     }
                 }, mYear, mMonth, mDay);
 
@@ -567,4 +644,18 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         mensagem.show();
     }
 
+    public String checkDigit(int number)
+    {
+        return number<=9?"0"+number:String.valueOf(number);
+    }
+
+    public void esconderTeclado() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+        inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+    }
+
+    public static String removerAcentos(String str) {
+        return Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+    }
 }

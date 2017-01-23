@@ -54,7 +54,7 @@
                 android:padding="10dp"
                 android:textColor="#fff"
                 android:textSize="13sp"
-                android:text="Abaixo estão as informaçães referente ao pedido de empréstimo."/>
+                android:text="Abaixo estão as informações referente ao pedido de empréstimo."/>
 
 
             <LinearLayout
@@ -179,10 +179,10 @@
                         <TextView android:text="Valor de IOF:" android:textSize="11sp" android:textColor="#fff"/>
                         <TextView android:id="@+id/tv_valor_iof" android:textSize="11sp" android:textColor="#fff" android:text="R$ 0,00" />
                     </TableRow>
-                    <TableRow>
+                    <!--<TableRow>
                         <TextView android:text="Valor de seguro:" android:textSize="11sp" android:textColor="#fff"/>
                         <TextView android:id="@+id/tv_valor_seguro" android:textSize="11sp" android:textColor="#fff" android:text="R$ 0,00" />
-                    </TableRow>
+                    </TableRow> -->
 
 
                 </TableLayout>

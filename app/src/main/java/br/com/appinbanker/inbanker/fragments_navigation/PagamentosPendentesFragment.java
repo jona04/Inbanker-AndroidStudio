@@ -9,18 +9,23 @@ import android.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import br.com.appinbanker.inbanker.R;
 import br.com.appinbanker.inbanker.VerPagamentoPendente;
 import br.com.appinbanker.inbanker.adapters.ListaTransacaoAdapter;
+import br.com.appinbanker.inbanker.adapters.TransacaoEnvAdapter;
+import br.com.appinbanker.inbanker.adapters.TransacaoPendenteAdapter;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
@@ -31,11 +36,16 @@ import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 
-public class PagamentosPendentesFragment extends Fragment implements RecyclerViewOnClickListenerHack,WebServiceReturnUsuario {
+public class PagamentosPendentesFragment extends Fragment implements WebServiceReturnUsuario {
 
-    private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLinearLayoutManager;
-    private List<Transacao> mList;
+    //private List<Transacao> mList;
+
+    private int lastExpandedPosition = -1;
+
+    private TransacaoPendenteAdapter listAdapter;
+    private ExpandableListView expListView;
+    ArrayList<Transacao> listDataHeader;
+    HashMap<String,Transacao> listDataChild;
 
     private BancoControllerUsuario crud;
     private Cursor cursor;
@@ -73,29 +83,22 @@ public class PagamentosPendentesFragment extends Fragment implements RecyclerVie
             if(!cpf.equals(""))
                 new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
         }catch (Exception e){
-
+            Log.i("Exception","Excessao Pedido pagamento pendente cpf = "+e);
         }
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_pagamentos);
+        expListView = (ExpandableListView) view.findViewById(R.id.transacaoList);
 
-        mLinearLayoutManager = new LinearLayoutManager(getActivity());
-        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-
-        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                //Log.i("Script", "onScrollStateChanged");
-            }
+        expListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
 
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                //Log.i("Script", "onScrolled");
+            public void onGroupExpand(int groupPosition) {
+                if (lastExpandedPosition != -1
+                        && groupPosition != lastExpandedPosition) {
+                    expListView.collapseGroup(lastExpandedPosition);
+                }
+                lastExpandedPosition = groupPosition;
             }
         });
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(mLinearLayoutManager);
 
         return view;
     }
@@ -110,22 +113,36 @@ public class PagamentosPendentesFragment extends Fragment implements RecyclerVie
             ArrayList<Transacao> list = new ArrayList<Transacao>();
 
             if(usu.getTransacoes_enviadas() != null) {
-                mList = usu.getTransacoes_enviadas();
 
-                for(int i = 0; i < mList.size(); i++){
-                    int status = Integer.parseInt(mList.get(i).getStatus_transacao());
+                for(int i = 0; i < usu.getTransacoes_enviadas().size(); i++){
+                    int status = Integer.parseInt(usu.getTransacoes_enviadas().get(i).getStatus_transacao());
                     if(status >= 3 && status <= 5 ){
-                        list.add(mList.get(i));
+                        list.add(usu.getTransacoes_enviadas().get(i));
                     }
                 }
             }
 
+            if(usu.getTransacoes_recebidas() != null) {
+
+                for(int i = 0; i < usu.getTransacoes_recebidas().size(); i ++){
+                    int status = Integer.parseInt(usu.getTransacoes_recebidas().get(i).getStatus_transacao());
+
+                    if(status == 3 || status == 5)
+                        list.add(usu.getTransacoes_recebidas().get(i));
+                }
+
+            }
+
             if(list.size() > 0) {
-                mList = list;
-                mRecyclerView.setVisibility(View.VISIBLE);
-                ListaTransacaoAdapter adapter = new ListaTransacaoAdapter(getActivity(), list);
-                adapter.setRecyclerViewOnClickListenerHack(this);
-                mRecyclerView.setAdapter(adapter);
+
+                expListView.setVisibility(View.VISIBLE);
+
+                setValue(list);
+
+                listAdapter = new TransacaoPendenteAdapter(getActivity(),listDataHeader, listDataChild);
+                // setting list adapter
+                expListView.setAdapter(listAdapter);
+
             }else{
                 msg_lista_pagamentos.setVisibility(View.VISIBLE);
             }
@@ -145,7 +162,7 @@ public class PagamentosPendentesFragment extends Fragment implements RecyclerVie
         mensagem.show();
     }
 
-    @Override
+    /*@Override
     public void onClickListener(View view, int position) {
 
         //Log.i("Script", "Click tste inicio =" + mList.get(position));
@@ -155,6 +172,36 @@ public class PagamentosPendentesFragment extends Fragment implements RecyclerVie
         startActivity(it);
 
 
+    }*/
+
+    private void setValue(List<Transacao> forums) {
+
+        //List generalList = new ArrayList();
+        Transacao f = new Transacao();
+
+        listDataHeader = new ArrayList<Transacao>();
+        listDataChild = new HashMap<String,Transacao>();
+
+        String previous_header = null;
+        for (int i = 0; i < forums.size(); i++) {
+            //String header = forums.get(i).getNome_usu1();
+            //if (!header.equals(previous_header)) {
+                listDataHeader.add(forums.get(i));
+            //}
+            //if (header.equals("General")) {
+            //    generalList.add(forums.get(i));
+            //} else
+
+            listDataChild.put(listDataHeader.get(i).getId_trans(), forums.get(i));
+            //previous_header = header;
+        }
+
+        //listDataChild.put(listDataHeader.get(0), generalList);
+
     }
+
+
+    @Override
+    public void retornoUsuarioWebServiceAuxInicioToken(Usuario usu){}
 
 }

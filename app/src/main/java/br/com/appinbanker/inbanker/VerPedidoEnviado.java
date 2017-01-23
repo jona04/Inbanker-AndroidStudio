@@ -34,12 +34,14 @@ import java.util.Locale;
 
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.EditaTransacao;
+import br.com.appinbanker.inbanker.webservice.EditaTransacaoResposta;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 
-public class VerPedidoEnviado extends AppCompatActivity implements WebServiceReturnUsuario {
+public class VerPedidoEnviado extends AppCompatActivity implements WebServiceReturnUsuario,WebServiceReturnString {
 
     //private String id,nome2,cpf1,cpf2,data_pedido,nome1,valor,vencimento,img1,img2;
 
@@ -50,11 +52,11 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
 
     private int status_transacao;
 
-    private LinearLayout ll_confirma_recebimento;
+    private LinearLayout ll_confirma_recebimento,ll_cancelar_pedido;
 
     //private TableRow tr_dias_corridos;
 
-    private Button btn_confirma_recebimento;
+    private Button btn_confirma_recebimento,btn_cancelar_pedido_antes_receb, btn_cancelar_pedido_antes_resp;
 
     private ProgressBar progress_bar_btn;
 
@@ -85,25 +87,35 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
 
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
 
-        Transformation transformation = new RoundedTransformationBuilder()
-                .borderColor(Color.GRAY)
-                .borderWidthDp(3)
-                .cornerRadiusDp(70)
-                .oval(false)
-                .build();
-
-        Picasso.with(getBaseContext())
-                .load(trans_atual.getUrl_img_usu2())
-                .transform(transformation)
-                .into(img);
+        try {
+            Transformation transformation = new RoundedTransformationBuilder()
+                    .borderColor(Color.GRAY)
+                    .borderWidthDp(3)
+                    .cornerRadiusDp(70)
+                    .oval(false)
+                    .build();
+            Picasso.with(getBaseContext())
+                    .load(trans_atual.getUrl_img_usu2())
+                    .error(R.drawable.icon)
+                    .transform(transformation)
+                    .into(img);
+        }catch (Exception e)
+        {
+            Log.i("Excpetion","Imagem pedido = "+ e);
+        }
 
         TextView tv = (TextView) findViewById(R.id.nome_amigo);
         tv.setText(trans_atual.getNome_usu2());
 
         ll_confirma_recebimento = (LinearLayout) findViewById(R.id.ll_confirma_recebimento);
+        ll_cancelar_pedido = (LinearLayout) findViewById(R.id.ll_cancelar_pedido);
 
         progress_bar_btn = (ProgressBar) findViewById(R.id.progress_bar_btn);
+
         btn_confirma_recebimento = (Button) findViewById(R.id.btn_confirma_recebimento);
+        btn_cancelar_pedido_antes_receb = (Button) findViewById(R.id.btn_cancelar_pedido_antes_receb);
+        btn_cancelar_pedido_antes_resp = (Button) findViewById(R.id.btn_cancelar_pedido_antes_resp);
+
         //tr_dias_corridos = (TableRow) findViewById(R.id.tr_dias_corridos);
         msg_ver_pedido = (TextView) findViewById(R.id.msg_ver_pedido);
         tv_valor = (TextView) findViewById(R.id.tv_valor);
@@ -136,7 +148,7 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
         //if(dias_corridos >0)
         //     dias_corridos = dias_corridos -1;
 
-        DecimalFormat decimal = new DecimalFormat( "0.00" );
+        //DecimalFormat decimal = new DecimalFormat( "0.00" );
 
         double juros_mensal = Double.parseDouble(trans_atual.getValor()) * (0.00066333 * dias);
 
@@ -145,6 +157,7 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
         switch (status_transacao){
             case Transacao.AGUARDANDO_RESPOSTA:
                 msg_ver_pedido.setText("Você esta aguardando o seu pedido de empréstimo ser respondido.");
+                ll_cancelar_pedido.setVisibility(View.VISIBLE);
                 break;
             case Transacao.PEDIDO_ACEITO:
                 msg_ver_pedido.setText("Seu pedido de empréstimo foi aceito! Quando o valor solicitado estiver em suas mãos, você deve confirmar o recebimento do mesmo no botão abaixo, para dar continuidade a transação.");
@@ -180,18 +193,82 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
                 trans.setId_trans(trans_atual.getId_trans());
                 trans.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
 
-                new EditaTransacao(trans,trans_atual.getUsu1(),trans_atual.getUsu2(),null,VerPedidoEnviado.this,null).execute();
+                //esse valor sera passado para o metodo notificacao
+                status_transacao = Transacao.CONFIRMADO_RECEBIMENTO;
+
+                metodoEditaTrans(trans);
 
                 progress_bar_btn.setVisibility(View.VISIBLE);
                 btn_confirma_recebimento.setEnabled(false);
+                btn_cancelar_pedido_antes_receb.setEnabled(false);
+
+            }
+        });
+
+        btn_cancelar_pedido_antes_receb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //data do cancelamento
+                DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
+                DateTime hoje = new DateTime();
+                String hoje_string = fmt.print(hoje);
+
+                Transacao trans = new Transacao();
+                trans.setId_trans(trans_atual.getId_trans());
+                trans.setStatus_transacao(String.valueOf(Transacao.ENVIO_CANCELADO_ANTES_RECEBIMENTO));
+                trans.setData_recusada(hoje_string);
+                trans.setData_pagamento("");
+
+                //esse valor sera passado para o metodo notificacao
+                status_transacao = Transacao.ENVIO_CANCELADO_ANTES_RECEBIMENTO;
+
+                metodoEditaTransResp(trans);
+
+                progress_bar_btn.setVisibility(View.VISIBLE);
+                btn_confirma_recebimento.setEnabled(false);
+                btn_cancelar_pedido_antes_receb.setEnabled(false);
+            }
+        });
+
+        btn_cancelar_pedido_antes_resp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //data do cancelamento
+                DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
+                DateTime hoje = new DateTime();
+                String hoje_string = fmt.print(hoje);
+
+                Transacao trans = new Transacao();
+                trans.setId_trans(trans_atual.getId_trans());
+                trans.setStatus_transacao(String.valueOf(Transacao.ENVIO_CANCELADO_ANTES_RESPOSTA));
+                trans.setData_recusada(hoje_string);
+                trans.setData_pagamento("");
+
+                //esse valor sera passado para o metodo notificacao
+                status_transacao = Transacao.ENVIO_CANCELADO_ANTES_RESPOSTA;
+
+                metodoEditaTransResp(trans);
+
+                progress_bar_btn.setVisibility(View.VISIBLE);
+                btn_confirma_recebimento.setEnabled(false);
+                btn_cancelar_pedido_antes_resp.setEnabled(false);
 
             }
         });
 
     }
 
+    public void metodoEditaTrans(Transacao trans){
+        new EditaTransacao(trans,trans_atual.getUsu1(),trans_atual.getUsu2(),this).execute();
+    }
 
-    public void retornoEditaTransacao(String result){
+    public void metodoEditaTransResp(Transacao trans){
+        new EditaTransacaoResposta(trans,trans_atual.getUsu1(),trans_atual.getUsu2(),this).execute();
+    }
+
+    public void retornoStringWebService(String result){
 
         Log.i("webservice","resultado edita transao = "+result);
 
@@ -217,8 +294,7 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
 
         trans.setNome_usu1(trans_atual.getNome_usu1());
         trans.setNome_usu2(trans_atual.getNome_usu2());
-        trans.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
-
+        trans.setStatus_transacao(String.valueOf(status_transacao));
         trans.setId_trans(trans_atual.getId_trans());
         trans.setUsu1(trans_atual.getUsu1());
         trans.setUsu2(trans_atual.getUsu2());
@@ -232,9 +308,14 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
         //envia notificacao
         new EnviaNotificacao(trans,usu.getToken_gcm()).execute();
 
-        mensagemIntent("InBanker","Parabéns, você confirmou o recebimento do valor solicitado. Ao efetuar o pagamento de quitação, peça que seu amigo(a) " + trans_atual.getNome_usu2() + " confirme o recebimento do valor.", "Ok");
-
+        if(status_transacao == Transacao.CONFIRMADO_RECEBIMENTO)
+            mensagemIntent("InBanker","Parabéns, você confirmou o recebimento do valor solicitado. Ao efetuar o pagamento de quitação, peça que seu amigo(a) " + trans_atual.getNome_usu2() + " confirme o recebimento do valor.", "Ok");
+        else if(status_transacao == Transacao.ENVIO_CANCELADO_ANTES_RESPOSTA)
+            mensagemIntent("InBanker","Você acaba de cancelar o pedido que foi enviado ao seu amigo(a) " + trans_atual.getNome_usu2()+".", "Ok");
+        else if(status_transacao == Transacao.ENVIO_CANCELADO_ANTES_RECEBIMENTO)
+            mensagemIntent("InBanker","Você acaba de cancelar o pedido que foi enviado ao seu amigo(a) " + trans_atual.getNome_usu2()+".", "Ok");
     }
+
     public void mensagem(String titulo,String corpo,String botao)
     {
         AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
@@ -285,5 +366,10 @@ public class VerPedidoEnviado extends AppCompatActivity implements WebServiceRet
         }
 
         return false;
+    }
+
+    @Override
+    public void retornoUsuarioWebServiceAuxInicioToken(Usuario usu){
+
     }
 }

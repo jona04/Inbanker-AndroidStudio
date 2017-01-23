@@ -43,12 +43,13 @@
                 android:layout_gravity="center"/>
         </LinearLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_list_historico"
-            android:scrollbars="horizontal"
+        <ExpandableListView
+            android:id="@+id/transacaoList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="invisible"/>
+            android:childDivider="#00000000"
+            android:visibility="gone"
+            />
 
     </LinearLayout>
 

@@ -55,7 +55,7 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
 
     @Override
     public ListaHistoricoAdapter.MyViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        Log.i("Script", "Inicio historico adapter onCreateViewHolder ");
+        //Log.i("Script", "Inicio historico adapter onCreateViewHolder ");
         View v = mLayoutInflater.inflate(R.layout.adapter_item_historico, viewGroup,false);
         ListaHistoricoAdapter.MyViewHolder mvh = new ListaHistoricoAdapter.MyViewHolder(v);
 
@@ -64,7 +64,7 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
 
     @Override
     public void onBindViewHolder(ListaHistoricoAdapter.MyViewHolder holder, int position) {
-        Log.i("Script", "Inicio historico adapter onBindViewHolder ");
+        //Log.i("Script", "Inicio historico adapter onBindViewHolder ");
 
         //Context context = holder.imagem.getContext();
         //Uri uri;
@@ -74,7 +74,7 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
         String valor_formatado = nf.format (Double.parseDouble(mList.get(position).getValor()));
 
         //concatenamos a string atual com a nova que capturamos
-        holder.tv_data_pedido.setText(holder.tv_data_pedido.getText().toString()+mList.get(position).getDataPedido());
+        holder.tv_data_pedido.setText(c.getString(R.string.tv_data_pedido)+mList.get(position).getDataPedido());
 
         if(meu_cpf.equals(mList.get(position).getUsu1().toString())) {
             holder.tv_valor_pedido.setText("- "+valor_formatado);
@@ -88,16 +88,22 @@ public class ListaHistoricoAdapter extends RecyclerView.Adapter<ListaHistoricoAd
             //Picasso.with(context).load(uri).into(holder.imagem);
         }
 
-        if(mList.get(position).getData_pagamento().length()>5) {
-            String data_enc = mList.get(position).getData_pagamento().substring(0, mList.get(position).getData_pagamento().length()-5);
-            holder.tv_data_finalizado.setText(data_enc);
-            //holder.tv_status_pedido.setText("Pedido completado");
-            //holder.tv_status_pedido.setTextColor(c.getResources().getColor(R.color.colorGreen));
-        }else {
-            String data_enc = mList.get(position).getData_recusada().substring(0, mList.get(position).getData_recusada().length()-5);
-            holder.tv_data_finalizado.setText(data_enc);
-            //holder.tv_status_pedido.setText("Pedido cancelado");
-            //holder.tv_status_pedido.setTextColor(c.getResources().getColor(R.color.colorRed));
+        Log.i("Lista Historico",""+mList.get(position).getData_recusada());
+
+        if(mList.get(position).getData_pagamento() != null) {
+            if (mList.get(position).getData_pagamento().length() > 5) {
+                String data_enc = mList.get(position).getData_pagamento().substring(0, mList.get(position).getData_pagamento().length() - 5);
+                holder.tv_data_finalizado.setText(data_enc);
+                //holder.tv_status_pedido.setText("Pedido completado");
+                //holder.tv_status_pedido.setTextColor(c.getResources().getColor(R.color.colorGreen));
+            } else {
+                if (mList.get(position).getData_recusada() != null) {
+                    String data_enc = mList.get(position).getData_recusada().substring(0, mList.get(position).getData_recusada().length()-5);
+                    holder.tv_data_finalizado.setText(data_enc);
+                    //holder.tv_status_pedido.setText("Pedido cancelado");
+                    //holder.tv_status_pedido.setTextColor(c.getResources().getColor(R.color.colorRed));
+                }
+            }
         }
     }
 

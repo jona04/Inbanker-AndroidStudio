@@ -75,26 +75,30 @@ public class VerHistorico extends AppCompatActivity {
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
         TextView tv = (TextView) findViewById(R.id.nome_amigo);
 
-        Transformation transformation = new RoundedTransformationBuilder()
-                .borderColor(Color.GRAY)
-                .borderWidthDp(3)
-                .cornerRadiusDp(70)
-                .oval(false)
-                .build();
+        try {
+            Transformation transformation = new RoundedTransformationBuilder()
+                    .borderColor(Color.GRAY)
+                    .borderWidthDp(3)
+                    .cornerRadiusDp(70)
+                    .oval(false)
+                    .build();
 
-        //identicamos qual é o usuario 1 e 2 na transacao, para exibir os dados corretoa na tela
-        if(cpf.equals(trans_atual.getUsu1())) {
-            Picasso.with(getBaseContext())
-                    .load(trans_atual.getUrl_img_usu2())
-                    .transform(transformation)
-                    .into(img);
-            tv.setText(trans_atual.getNome_usu2());
-        }else {
-            Picasso.with(getBaseContext())
-                    .load(trans_atual.getUrl_img_usu1())
-                    .transform(transformation)
-                    .into(img);
-            tv.setText(trans_atual.getNome_usu1());
+            //identicamos qual é o usuario 1 e 2 na transacao, para exibir os dados corretoa na tela
+            if (cpf.equals(trans_atual.getUsu1())) {
+                Picasso.with(getBaseContext())
+                        .load(trans_atual.getUrl_img_usu2())
+                        .transform(transformation)
+                        .into(img);
+                tv.setText(trans_atual.getNome_usu2());
+            } else {
+                Picasso.with(getBaseContext())
+                        .load(trans_atual.getUrl_img_usu1())
+                        .transform(transformation)
+                        .into(img);
+                tv.setText(trans_atual.getNome_usu1());
+            }
+        }catch (Exception e){
+            Log.i("Excpetion","Imagem pedido = "+ e);
         }
 
         tv_valor = (TextView) findViewById(R.id.tv_valor);

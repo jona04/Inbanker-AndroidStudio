@@ -25,15 +25,18 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.util.Locale;
 
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.util.CheckConection;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AddTransacao;
@@ -43,12 +46,12 @@ import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 import br.com.appinbanker.inbanker.webservice.VerificaUsuarioCadastro;
 
-public class SimuladorResultado extends AppCompatActivity implements WebServiceReturnUsuario,WebServiceReturnUsuarioFace {
+public class SimuladorResultado extends AppCompatActivity implements WebServiceReturnUsuario,WebServiceReturnString,WebServiceReturnUsuarioFace {
 
     double valor;
     String id,nome,vencimento,url_img;
     int dias;
-    TextView tv_nome,tv_valor,tv_vencimento,tv_dias_pagamento,tv_juros_mes,tv_valor_total,tv_valor_juros;
+    TextView tv_nome,tv_valor,tv_vencimento,tv_dias_pagamento,tv_juros_mes,tv_valor_total,tv_valor_juros,tv_valor_servico;
     Transacao trans;
     ProgressBar progress_bar_simulador;
     Button btn_fazer_pedido;
@@ -76,7 +79,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         Intent it = getIntent();
         Bundle parametro = it.getExtras();
         id = parametro.getString("id");
-        nome = parametro.getString("nome");
+        nome = removerAcentos(parametro.getString("nome"));
         //valor = Double.parseDouble(parametro.getString("valor"));
         vencimento = parametro.getString("vencimento");
         dias = parametro.getInt("dias");
@@ -112,18 +115,18 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         tv_valor = (TextView) findViewById(R.id.tv_valor);
         tv_valor_total = (TextView) findViewById(R.id.tv_valor_total);
         tv_vencimento = (TextView) findViewById(R.id.tv_vencimento);
-        //tv_valor_servico = (TextView) findViewById(R.id.tv_valor_servico);
+        tv_valor_servico = (TextView) findViewById(R.id.tv_valor_servico);
 
         btn_fazer_pedido = (Button) findViewById(R.id.btn_fazer_pedido);
 
         Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
         String valor_formatado = nf.format (valor);
-        //String taxa_fixa_formatado = nf.format (taxa_fixa);
+        String taxa_fixa_formatado = nf.format (0.0);
         String juros_mensal_formatado = nf.format (juros_mensal);
         String valor_total_formatado = nf.format (valor_total);
 
-       // tv_valor_servico.setText(taxa_fixa_formatado);
+        tv_valor_servico.setText(taxa_fixa_formatado);
         tv_nome.setText(nome);
         tv_dias_pagamento.setText(String.valueOf(dias));
         tv_valor_juros.setText(juros_mensal_formatado);
@@ -170,8 +173,6 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
                             }else {
 
                                 clickCadastrar();
-
-                                dialog_cadastro.dismiss();
 
                             }
                         }
@@ -269,6 +270,14 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
             campos_ok = false;
         }
 
+        if(et_senha_cadastro.getText().toString().length()<6) {
+            et_senha_cadastro.setError("Mínimo de 6 letras");
+            et_senha_cadastro.setFocusable(true);
+            et_senha_cadastro.requestFocus();
+
+            campos_ok = false;
+        }
+
         boolean valida_senha = Validador.validateNotNull(et_senha_cadastro.getText().toString());
         if(!valida_senha){
             et_senha_cadastro.setError("Campo Vazio");
@@ -340,6 +349,9 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
     public void atualizaUsuario(){
 
+        String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,this);
+        String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,this);
+
         Usuario usu = new Usuario();
 
         BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
@@ -347,35 +359,39 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
         //atualizamos os dados do usuario que esta no sqlite com os dados dele que acabaram de ser logados no facebook
         String id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
-        crud.alteraRegistroCpf(id_face,et_cpf_cadastro.getText().toString(),et_senha_cadastro.getText().toString(),et_email_cadastro.getText().toString());
+        crud.alteraRegistroCpf(id_face,et_cpf_cadastro.getText().toString(),et_senha_cadastro.getText().toString(),et_email_cadastro.getText().toString(),token,device_id,et_nome_cadastro.getText().toString());
 
-        usu.setCpf(et_cpf_cadastro.getText().toString());
-        usu.setEmail(et_email_cadastro.getText().toString());
-        usu.setNome(et_nome_cadastro.getText().toString());
-        usu.setSenha(et_senha_cadastro.getText().toString());
+        cursor = crud.carregaDados();
 
-        //setamos esse valores vazio para nao dar problema na hora de serializacao e posteriormente erro no rest de cadastro no banco
-        usu.setIdFace(id_face);
-        usu.setNomeFace("");
-        usu.setUrlImgFace("");
+        usu.setCpf(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF)));
+        usu.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.EMAIL)));
+        usu.setNome(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME)));
+        usu.setSenha(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.SENHA)));
+        usu.setId_face(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE)));
+        usu.setUrl_face(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE)));
+        usu.setToken_gcm(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.TOKEN_FCM)));
+        usu.setDevice_id(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.DEVICE_ID)));
+
+        usu.salvar();
 
         //fazemos a chamada a classe responsavel por realizar a tarefa de webservice em doinbackground
-        new AtualizaUsuario(usu,SimuladorResultado.this).execute();
+        new AtualizaUsuario(usu,this,"face").execute();
     }
 
-    public void retornoAtualizaUsuario(String result){
-
+    @Override
+    public void retornoStringWebService(String result) {
         Log.i("Webservice","retorno = "+result);
 
         if(result.equals("sucesso_edit")){
             dialog_cadastro.dismiss();
-            mensagem("InBanker", "Seus dados foram atualizados com sucesso.", "Ok");
+
+            mensagem("InBanker", "Parabéns, você já pode realizar o pedido de empréstimo.", "Ok");
         }else{
             dialog_cadastro.dismiss();
             mensagem("Houve um erro!", "Olá, parece que tivemos algum problema de conexão, por favor tente novamente.", "Ok");
         }
-
     }
+
 
     @Override
     public void retornoUsuarioWebService(Usuario usu){
@@ -406,9 +422,9 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
                 trans.setUsu2(usu.getCpf());
                 trans.setValor(String.valueOf(valor));
                 trans.setVencimento(vencimento);
-                trans.setNome_usu2(nome);
+                trans.setNome_usu2(usu.getNome());
+                trans.setNome_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME)));
                 trans.setUrl_img_usu2(url_img);
-                trans.setNome_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME_FACE)));
                 trans.setUrl_img_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE)));
                 trans.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
                 //enviamos null para criamos um id aleatorio
@@ -457,9 +473,9 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
                 trans.setUsu2(usu.getCpf());
                 trans.setValor(String.valueOf(valor));
                 trans.setVencimento(vencimento);
-                trans.setNome_usu2(nome);
+                trans.setNome_usu2(usu.getNome());
+                trans.setNome_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME)));
                 trans.setUrl_img_usu2(url_img);
-                trans.setNome_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME_FACE)));
                 trans.setUrl_img_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE)));
                 trans.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
                 //enviamos null para criamos um id aleatorio
@@ -526,5 +542,11 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         mensagem.setMessage(corpo);
         mensagem.setNeutralButton(botao,null);
         mensagem.show();
+    }
+    @Override
+    public void retornoUsuarioWebServiceAuxInicioToken(Usuario usu){}
+
+    public static String removerAcentos(String str) {
+        return Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
     }
 }

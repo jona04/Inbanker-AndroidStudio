@@ -1,7 +1,11 @@
 package br.com.appinbanker.inbanker.entidades;
 
+import android.util.Log;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
@@ -20,13 +24,11 @@ public class Usuario {
     private String senha;
 
     @JsonProperty("id_face")
-    private String idFace;
+    private String id_face;
 
-    @JsonProperty("nome_face")
-    private String nomeFace;
 
     @JsonProperty("url_face")
-    private String urlImgFace;
+    private String url_face;
 
     @JsonProperty("token_gcm")
     private String token_gcm;
@@ -57,6 +59,19 @@ public class Usuario {
         this.transacoes_enviadas = transacoes_enviadas;
     }
 
+    private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+    private DatabaseReference usuarioReferencia = databaseReference.child("usuarios");
+
+
+    public void salvar(){
+        Log.i("Cadastro","cpf = "+getCpf());
+        if(getCpf().length() > 3) {
+            usuarioReferencia.child(getCpf()).setValue(this);
+            Log.i("Cadastro","Pelo cpf");
+        }
+    }
+
+
     public void setDevice_id(String device_id){this.device_id = device_id;}
     public void setToken_gcm(String token_gcm){this.token_gcm = token_gcm;}
     public void setTransacao(List<Transacao> trans){this.transacao = trans;}
@@ -72,14 +87,14 @@ public class Usuario {
     public void setSenha(String senha){
         this.senha = senha;
     }
-    public void setIdFace(String idFace){
-        this.idFace = idFace;
+
+    public void setId_face(String id_face) {
+        this.id_face = id_face;
     }
-    public void setNomeFace(String nome_face){
-        this.nomeFace = nome_face;
-    }
-    public void setUrlImgFace(String url_img){
-        this.urlImgFace = url_img;
+
+
+    public void setUrl_face(String url_ace) {
+        this.url_face = url_ace;
     }
 
     public String getDevice_id(){return this.device_id;}
@@ -97,14 +112,12 @@ public class Usuario {
     public String getSenha(){
         return this.senha;
     }
-    public String getIdFace(){
-        return this.idFace;
-    }
-    public String getNomeFace(){
-        return this.nomeFace;
-    }
-    public String getUrlImgFace(){
-        return this.urlImgFace;
+
+    public String getId_face() {
+        return id_face;
     }
 
+    public String getUrl_face() {
+        return url_face;
+    }
 }

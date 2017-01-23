@@ -16,17 +16,38 @@
         android:padding="20dp"
         android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/et_entrar_cpf"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Informe seu CPF"
-            android:inputType="number"
-            android:textSize="14sp"
-            android:imeOptions="actionNext"
-            android:singleLine="true"
-            android:textColor="#000"/>
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:src="@drawable/icon_login"
+                android:layout_weight="2"/>
 
+            <EditText
+                android:id="@+id/et_entrar_cpf"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Informe seu CPF"
+                android:inputType="number"
+                android:textSize="14sp"
+                android:imeOptions="actionNext"
+                android:lines="1"
+                android:layout_weight="1"
+                android:textColor="#000"/>
+        </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:src="@drawable/icon_seguranca"
+            android:layout_weight="2"/>
 
         <EditText
             android:id="@+id/et_entrar_senha"
@@ -37,9 +58,10 @@
             android:inputType="textPassword"
             android:textColor="#000"
             android:imeOptions="actionNext"
-            android:singleLine="true"/>
+            android:layout_weight="1"
+            android:lines="1"/>
 
-
+    </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"

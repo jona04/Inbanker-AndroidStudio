@@ -15,8 +15,6 @@ public class SplashScreen extends Activity {
     private Thread mSplashThread;
     private boolean mblnClicou = false;
 
-    private Cursor cursor;
-    private boolean usu_logado = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +31,7 @@ public class SplashScreen extends Activity {
                         //o usuário tocar na tela
                         wait(2000);
 
-                        //verificamos se usuario ja esta logado antes de mostrar a tela de login
-                        BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
-                        cursor = crud.carregaDados();
-                        if (cursor.getCount() > 0) {
-                            usu_logado = true;
-                        }
-                        Log.i("BancoSQLite","resultado banco = "+ cursor.getCount());
+                        Log.i("Splash","2 segundo");
 
                         mblnClicou = true;
                     }
@@ -49,35 +41,43 @@ public class SplashScreen extends Activity {
 
                 if (mblnClicou){
 
+                    Log.i("Splash","vai inicio");
+
                     vaiInicio();
 
                 }
             }
         };
 
-        //chama função que dura 2 segundo antes de ir para inicio(menu principal)
-        mSplashThread.start();
-
-    }
-
-    public void vaiInicio(){
 
         //verificamos se usuario ja esta logado antes de mostrar a tela de login
-        if (usu_logado == true) {
+        BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
+        Cursor cursor = crud.carregaDados();
+        if (cursor.getCount() > 0) {
+
             Intent it = new Intent(SplashScreen.this, NavigationDrawerActivity.class);
             startActivity(it);
 
             //encerra splash e evitar voltar
             finish();
-        }else {
 
-            //Carrega a Activity Principal
-            Intent i = new Intent();
-            i.setClass(SplashScreen.this, Inicio.class);
-            startActivity(i);
-            //encerra splash e evitar voltar
-            finish();
+        }else{
+            Log.i("Splash","chama splash");
+            //chama função que dura 2 segundo antes de ir para inicio(menu principal)
+            mSplashThread.start();
         }
+
+    }
+
+    public void vaiInicio(){
+
+        Log.i("Splash","vai inicio 2");
+
+        Intent it = new Intent(SplashScreen.this, Inicio.class);
+        startActivity(it);
+
+        //encerra splash e evitar voltar
+        finish();
     }
 
     //serve para pegar o id unico do aparelho e armazenar no banco, para podermos bloquear algum aparelho caso queiramos

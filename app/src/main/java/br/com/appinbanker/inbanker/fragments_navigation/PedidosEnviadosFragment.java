@@ -1,39 +1,42 @@
 package br.com.appinbanker.inbanker.fragments_navigation;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import br.com.appinbanker.inbanker.R;
-import br.com.appinbanker.inbanker.VerPedidoEnviado;
-import br.com.appinbanker.inbanker.adapters.ListaTransacaoAdapter;
+import br.com.appinbanker.inbanker.adapters.TransacaoEnvAdapter;
+import br.com.appinbanker.inbanker.adapters.TransacaoPendenteAdapter;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
-import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
-import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 
 
-public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnClickListenerHack,WebServiceReturnUsuario {
+public class PedidosEnviadosFragment extends Fragment implements WebServiceReturnUsuario{
 
-    private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLinearLayoutManager;
     private List<Transacao> mList;
+
+    private int lastExpandedPosition = -1;
+
+    private TransacaoEnvAdapter listAdapter;
+    private ExpandableListView expListView;
+    ArrayList<Transacao> listDataHeader;
+    HashMap<String,Transacao> listDataChild;
 
     private BancoControllerUsuario crud;
     private Cursor cursor;
@@ -74,29 +77,22 @@ public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnC
             if(!cpf.equals(""))
                 new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
         }catch (Exception e){
-
+            Log.i("Exception","Excessao Pedido enviado cpf = "+e);
         }
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_pedidos_env);
+        expListView = (ExpandableListView) view.findViewById(R.id.transacaoList);
 
-        mLinearLayoutManager = new LinearLayoutManager(getActivity());
-        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-
-        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                //Log.i("Script", "onScrollStateChanged");
-            }
+        expListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
 
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                //Log.i("Script", "onScrolled");
+            public void onGroupExpand(int groupPosition) {
+                if (lastExpandedPosition != -1
+                        && groupPosition != lastExpandedPosition) {
+                    expListView.collapseGroup(lastExpandedPosition);
+                }
+                lastExpandedPosition = groupPosition;
             }
         });
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(mLinearLayoutManager);
 
         return view;
 
@@ -105,6 +101,7 @@ public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnC
     public void retornoUsuarioWebService(Usuario usu){
 
         progress_lista_pedidos_enviados.setVisibility(View.GONE);
+        expListView.setVisibility(View.VISIBLE);
 
         if(usu != null){
 
@@ -129,10 +126,15 @@ public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnC
 
             if(list.size() > 0) {
                 mList = list;
-                mRecyclerView.setVisibility(View.VISIBLE);
-                ListaTransacaoAdapter adapter = new ListaTransacaoAdapter(getActivity(), list);
-                adapter.setRecyclerViewOnClickListenerHack(this);
-                mRecyclerView.setAdapter(adapter);
+
+                expListView.setVisibility(View.VISIBLE);
+
+                setValue(mList);
+
+                listAdapter = new TransacaoEnvAdapter(getActivity(),listDataHeader, listDataChild);
+                // setting list adapter
+                expListView.setAdapter(listAdapter);
+
             }else{
                 msg_lista_pedidos.setVisibility(View.VISIBLE);
             }
@@ -152,17 +154,23 @@ public class PedidosEnviadosFragment extends Fragment implements RecyclerViewOnC
         mensagem.show();
     }
 
+    private void setValue(List<Transacao> forums) {
+
+        //List generalList = new ArrayList();
+        Transacao f = new Transacao();
+
+        listDataHeader = new ArrayList<Transacao>();
+        listDataChild = new HashMap<String,Transacao>();
+
+        for (int i = 0; i < forums.size(); i++) {
+
+            listDataHeader.add(forums.get(i));
+
+            listDataChild.put(listDataHeader.get(i).getId_trans(), forums.get(i));
+        }
+    }
 
     @Override
-    public void onClickListener(View view, int position) {
-
-        //Log.i("Script", "Click tste inicio =" + mList.get(position));
-
-        Intent it = new Intent(getActivity(), VerPedidoEnviado.class);
-        it.putExtra("transacao",mList.get(position));
-        startActivity(it);
-
-
-    }
+    public void retornoUsuarioWebServiceAuxInicioToken(Usuario usu){}
 
 }

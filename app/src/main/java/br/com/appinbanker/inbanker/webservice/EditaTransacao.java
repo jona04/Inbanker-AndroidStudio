@@ -15,6 +15,7 @@ import br.com.appinbanker.inbanker.VerPagamentoPendente;
 import br.com.appinbanker.inbanker.VerPedidoEnviado;
 import br.com.appinbanker.inbanker.VerPedidoRecebido;
 import br.com.appinbanker.inbanker.entidades.Transacao;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 
 /**
  * Created by jonatassilva on 25/10/16.
@@ -23,18 +24,14 @@ import br.com.appinbanker.inbanker.entidades.Transacao;
 public class EditaTransacao extends AsyncTask<String, String, String> {
 
     private Transacao trans;
-    private VerPedidoRecebido vpr;
-    private VerPedidoEnviado vpe;
-    private VerPagamentoPendente vpp;
+    private WebServiceReturnString ws;
     private String cpf_user2,cpf_user1;
 
-    public EditaTransacao(Transacao trans, String cpf_user1, String cpf_user2, VerPedidoRecebido vpr, VerPedidoEnviado vpe, VerPagamentoPendente vpp){
+    public EditaTransacao(Transacao trans, String cpf_user1, String cpf_user2,WebServiceReturnString ws){
         this.cpf_user2 = cpf_user2;
         this.cpf_user1 = cpf_user1;
         this.trans = trans;
-        this.vpr = vpr;
-        this.vpe = vpe;
-        this.vpp = vpp;
+        this.ws = ws;
 
     }
 
@@ -75,11 +72,6 @@ public class EditaTransacao extends AsyncTask<String, String, String> {
     protected void onPostExecute(String result) {
         Log.i("Script","onPostExecute result edita trans ="+result);
 
-        if(vpr != null)
-            vpr.retornoEditaTransacao(result);
-        else if(vpe != null)
-            vpe.retornoEditaTransacao(result);
-        else if(vpp != null)
-            vpp.retornoEditaTransacao(result);
+        ws.retornoStringWebService(result);
     }
 }

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:background="#fff">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/tv_msg_dialog_cadastro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Utilize os campos abaixo para atualizar seus dados."
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#ccc"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_below="@id/tv_msg_dialog_cadastro"
+            />
+
+        <LinearLayout
+            android:layout_below="@+id/tv_msg_dialog_cadastro"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/et_edita_nome"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Informe seu nome completo"
+                android:textColor="#000"
+                android:imeOptions="actionNext"
+                android:textSize="13sp"
+                android:lines="1"/>
+
+            <EditText
+                android:id="@+id/et_edita_email"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Informe seu email"
+                android:textSize="13sp"
+                android:inputType="textEmailAddress"
+                android:textColor="#000"
+                android:imeOptions="actionNext"
+                android:lines="1"/>
+
+            <EditText
+                android:id="@+id/et_edita_cpf"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Informe seu CPF"
+                android:inputType="number"
+                android:textSize="13sp"
+                android:imeOptions="actionNext"
+                android:lines="1"
+                android:textColor="#000"/>
+
+            <EditText
+                android:id="@+id/et_edita_senha"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Digite sua senha"
+                android:textSize="12sp"
+                android:inputType="textPassword"
+                android:textColor="#000"
+                android:imeOptions="actionNext"
+                android:lines="1"/>
+
+
+            <EditText
+                android:id="@+id/et_edita_senha_novamente"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Digite sua senha novamente"
+                android:textSize="12sp"
+                android:inputType="textPassword"
+                android:textColor="#000"
+                android:lines="1"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="30dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_cancela_editar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:text="Voltar"
+                    android:textColor="#3e3e3e"
+                    android:textSize="13sp"
+                    />
+
+                <Button
+                    android:id="@+id/btn_atualiza_usuario"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#3e3e3e"
+                    android:background="@drawable/borda_cinza"
+                    android:layout_marginLeft="20dp"
+                    android:textSize="15sp"
+                    android:padding="10dp"
+                    android:text="Atualizar"
+                    />
+
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progress_bar_atualiza"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:visibility="invisible"
+                />
+        </LinearLayout>
+
+    </RelativeLayout>
+</ScrollView>

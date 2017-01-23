@@ -13,10 +13,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import br.com.appinbanker.inbanker.R;
@@ -24,6 +26,8 @@ import br.com.appinbanker.inbanker.VerPedidoEnviado;
 import br.com.appinbanker.inbanker.VerPedidoRecebido;
 import br.com.appinbanker.inbanker.adapters.ListaTransacaoAdapter;
 import br.com.appinbanker.inbanker.adapters.ListaTransacaoRecAdapter;
+import br.com.appinbanker.inbanker.adapters.TransacaoEnvAdapter;
+import br.com.appinbanker.inbanker.adapters.TransacaoRecebidaAdapter;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
@@ -36,9 +40,14 @@ import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 
 public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOnClickListenerHack, WebServiceReturnUsuario {
 
-    private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLinearLayoutManager;
     private List<Transacao> mList;
+
+    private int lastExpandedPosition = -1;
+
+    private TransacaoRecebidaAdapter listAdapter;
+    private ExpandableListView expListView;
+    ArrayList<Transacao> listDataHeader;
+    HashMap<String,Transacao> listDataChild;
 
     private BancoControllerUsuario crud;
     private Cursor cursor;
@@ -77,29 +86,22 @@ public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOn
             if(!cpf.equals(""))
                 new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
         }catch (Exception e){
-
+            Log.i("Exception","Excessao Pedido recebido cpf = "+e);
         }
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_pedidos_rec);
+        expListView = (ExpandableListView) view.findViewById(R.id.transacaoList);
 
-        mLinearLayoutManager = new LinearLayoutManager(getActivity());
-        mLinearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-
-        mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                //Log.i("Script", "onScrollStateChanged");
-            }
+        expListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
 
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                //Log.i("Script", "onScrolled");
+            public void onGroupExpand(int groupPosition) {
+                if (lastExpandedPosition != -1
+                        && groupPosition != lastExpandedPosition) {
+                    expListView.collapseGroup(lastExpandedPosition);
+                }
+                lastExpandedPosition = groupPosition;
             }
         });
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(mLinearLayoutManager);
 
         return view;
     }
@@ -120,18 +122,23 @@ public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOn
 
                 for(int i = 0; i < mList.size(); i++){
                     int status = Integer.parseInt(mList.get(i).getStatus_transacao());
-                    if(status != 2 && status < 6){
+                    if(status  < 2){
                         list.add(mList.get(i));
                     }
                 }
 
             }
             if(list.size() > 0) {
+                mList.clear();
                 mList = list;
-                mRecyclerView.setVisibility(View.VISIBLE);
-                ListaTransacaoRecAdapter adapter = new ListaTransacaoRecAdapter(getActivity(), list);
-                adapter.setRecyclerViewOnClickListenerHack(this);
-                mRecyclerView.setAdapter(adapter);
+
+                expListView.setVisibility(View.VISIBLE);
+
+                setValue(list);
+
+                listAdapter = new TransacaoRecebidaAdapter(getActivity(),listDataHeader, listDataChild);
+                // setting list adapter
+                expListView.setAdapter(listAdapter);
             }else{
                 msg_lista_pedidos.setVisibility(View.VISIBLE);
             }
@@ -161,5 +168,29 @@ public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOn
         startActivity(it);
 
     }
+
+    private void setValue(List<Transacao> forums) {
+
+        //List generalList = new ArrayList();
+        //Transacao f = new Transacao();
+
+        Log.i("Tamanho forum","tamanho eh "+forums.size());
+
+        listDataHeader = new ArrayList<Transacao>();
+        listDataChild = new HashMap<String,Transacao>();
+
+        //String previous_header = null;
+        for (int i = 0; i < forums.size(); i++) {
+
+            listDataHeader.add(forums.get(i));
+            listDataChild.put(listDataHeader.get(i).getId_trans(), forums.get(i));
+        }
+
+        //listDataChild.put(listDataHeader.get(0), generalList);
+
+    }
+
+    @Override
+    public void retornoUsuarioWebServiceAuxInicioToken(Usuario usu){}
 
 }

@@ -23,6 +23,8 @@ import java.io.IOException;
 import br.com.appinbanker.inbanker.SimuladorResultado;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.fragments_navigation.PedirEmprestimoFragment;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.client.HttpClient;
 import cz.msebera.android.httpclient.client.methods.HttpPost;
@@ -37,17 +39,13 @@ import cz.msebera.android.httpclient.util.EntityUtils;
 public class AtualizaUsuario extends AsyncTask<String, String, String> {
 
     private Usuario usuario;
-    private PedirEmprestimoFragment pef;
-    private SimuladorResultado sr;
+    private WebServiceReturnString usu_return;
+    private String tipo;
 
-    public AtualizaUsuario(Usuario usu,PedirEmprestimoFragment pef){
-        this.usuario = usu;
-        this.pef = pef;
-
-    }
-    public AtualizaUsuario(Usuario usu,SimuladorResultado sr){
-        this.usuario = usu;
-        this.sr = sr;
+    public AtualizaUsuario(Usuario usuario,WebServiceReturnString usu,String tipo){
+        this.usuario = usuario;
+        this.usu_return = usu;
+        this.tipo = tipo;
 
     }
 
@@ -57,10 +55,10 @@ public class AtualizaUsuario extends AsyncTask<String, String, String> {
         try {
 
             String url = null;
-            if (pef != null)
-                url = Host.host+"appinbanker/rest/usuario/editUserbyCPF/"+ usuario.getCpf();
-            else if (sr != null)
-                url = Host.host+"appinbanker/rest/usuario/editUserbyFace/"+ usuario.getIdFace();
+            if (tipo.equals("cpf"))
+                url = Host.host+"appinbanker/rest/usuario/editUserByCPF/"+ usuario.getCpf();
+            else if (tipo.equals("face"))
+                url = Host.host+"appinbanker/rest/usuario/editUserByFace/"+ usuario.getId_face();
 
             //Log.i("WebService", "url atualiza = " + url);
             //Log.i("webservice", "id name e senha" + usuario.getIdFace() + " - " + usuario.getNomeFace() + " - " + usuario.getUrlImgFace());
@@ -131,9 +129,6 @@ public class AtualizaUsuario extends AsyncTask<String, String, String> {
     protected void onPostExecute(String result) {
         Log.i("Script","onPostExecute result atualiza usuario ="+result);
 
-        if (pef != null)
-            pef.retornoAtualizaUsuario(result);
-        else if (sr != null)
-            sr.retornoAtualizaUsuario(result);
+        usu_return.retornoStringWebService(result);
     }
 }

@@ -3,8 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="br.com.appinbanker.inbanker.fragments_navigation.PedidosEnviadosFragment">
 
@@ -45,12 +43,20 @@
                 android:layout_gravity="center"/>
         </LinearLayout>
 
-        <android.support.v7.widget.RecyclerView
+        <ExpandableListView
+            android:id="@+id/transacaoList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:childDivider="#00000000"
+            android:visibility="gone"
+            >
+        </ExpandableListView>
+        <!--<android.support.v7.widget.RecyclerView
             android:id="@+id/rv_list_pedidos_env"
             android:scrollbars="horizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"/>
+            android:visibility="gone"/>-->
 
     </LinearLayout>
 </FrameLayout>

@@ -32,19 +32,20 @@ import java.util.Locale;
 
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.EditaTransacao;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 
-public class VerPagamentoPendente extends AppCompatActivity implements WebServiceReturnUsuario {
+public class VerPagamentoPendente extends AppCompatActivity implements WebServiceReturnUsuario,WebServiceReturnString {
 
     //private String id,nome2,cpf1,cpf2,data_pedido,nome1,valor,vencimento,img1,img2;
 
     //esse objeto ira receber a transacao atual, vinda da lista ou da notificacao
     private Transacao trans_atual;
 
-    private TextView tv_valor,tv_data_pedido,tv_vencimento,tv_juros_mes,tv_valor_total,tv_dias_corridos,msg_ver_pedido;
+    private TextView tv_valor,tv_data_pedido,tv_vencimento,tv_juros_mes,tv_valor_total,tv_dias_corridos,msg_ver_pedido,tv_multa_atraso,tv_dias_atraso;
 
     private int status_transacao;
 
@@ -81,17 +82,22 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
 
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
 
-        Transformation transformation = new RoundedTransformationBuilder()
-                .borderColor(Color.GRAY)
-                .borderWidthDp(3)
-                .cornerRadiusDp(70)
-                .oval(false)
-                .build();
-
-        Picasso.with(getBaseContext())
-                .load(trans_atual.getUrl_img_usu2())
-                .transform(transformation)
-                .into(img);
+        try {
+            Transformation transformation = new RoundedTransformationBuilder()
+                    .borderColor(Color.GRAY)
+                    .borderWidthDp(3)
+                    .cornerRadiusDp(70)
+                    .oval(false)
+                    .build();
+            Picasso.with(getBaseContext())
+                    .load(trans_atual.getUrl_img_usu2())
+                    .error(R.drawable.icon)
+                    .transform(transformation)
+                    .into(img);
+        }catch (Exception e)
+        {
+            Log.i("Excpetion","Imagem pedido = "+ e);
+        }
 
         TextView tv = (TextView) findViewById(R.id.nome_amigo);
         tv.setText(trans_atual.getNome_usu2());
@@ -105,10 +111,10 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
         tv_vencimento = (TextView) findViewById(R.id.tv_vencimento);
         tv_juros_mes = (TextView) findViewById(R.id.tv_juros_mes);
         tv_valor_total = (TextView) findViewById(R.id.tv_valor_total);
+        tv_multa_atraso = (TextView) findViewById(R.id.tv_multa_atraso);
+        tv_dias_atraso = (TextView) findViewById(R.id.tv_dias_atraso);
         tv_dias_corridos = (TextView) findViewById(R.id.tv_dias_corridos);
         tv_data_pedido = (TextView) findViewById(R.id.tv_data_pedido);
-
-
     }
 
     public void configView(){
@@ -130,10 +136,30 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
 
         }
 
+        //utilizado para converter numeros em modelo monetario (Real)
+        Locale ptBr = new Locale("pt", "BR");
+        NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
+
         //calculamos a diferença de dias entre a data atual ate a data do pedido para calcularmos o juros
         DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
         DateTime hoje = new DateTime();
         DateTime data_pedido_parse = fmt.parseDateTime(trans_atual.getDataPedido());
+
+        double multa_atraso = 0;
+        int dias_atraso = 0;
+        DateTime data_vencimento_parse = fmt.parseDateTime(trans_atual.getVencimento());
+        if(hoje.isAfter(data_vencimento_parse)){
+
+            Days d_atraso = Days.daysBetween(data_vencimento_parse, hoje);
+            dias_atraso = d_atraso.getDays();
+
+            Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
+
+            multa_atraso = Double.parseDouble(trans_atual.getValor())*0.1;
+            tv_multa_atraso.setText(String.valueOf(nf.format(multa_atraso)));
+            tv_dias_atraso.setText(String.valueOf(dias_atraso));
+
+        }
 
         //calculamos o total de dias para mostramos na tela inicial antes do usuario-2 aceitar ou recusar o pedido recebido
         Days d = Days.daysBetween(data_pedido_parse, hoje);
@@ -143,13 +169,12 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
         //if(dias_corridos >0)
         //     dias_corridos = dias_corridos -1;
 
-        DecimalFormat decimal = new DecimalFormat( "0.00" );
+        Double taxa_atraso = Double.parseDouble(trans_atual.getValor()) * (0.00066333 * dias_atraso);
+
         double juros_mensal = Double.parseDouble(trans_atual.getValor()) * (0.00066333 * dias_corridos);
 
-        double valor_total = juros_mensal +  Double.parseDouble(trans_atual.getValor());
+        double valor_total = multa_atraso + juros_mensal +  Double.parseDouble(trans_atual.getValor());
 
-        Locale ptBr = new Locale("pt", "BR");
-        NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
         String valor_formatado = nf.format (Double.parseDouble(trans_atual.getValor()));
         String juros_mensal_formatado = nf.format (juros_mensal);
         String valor_total_formatado = nf.format (valor_total);
@@ -169,7 +194,7 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
                 trans.setId_trans(trans_atual.getId_trans());
                 trans.setStatus_transacao(String.valueOf(Transacao.QUITACAO_SOLICITADA));
 
-                new EditaTransacao(trans,trans_atual.getUsu1(),trans_atual.getUsu2(),null,null,VerPagamentoPendente.this).execute();
+                metodoEditaTrans(trans);
 
                 progress_bar_btn.setVisibility(View.VISIBLE);
                 btn_confirma_quitacao.setEnabled(false);
@@ -180,10 +205,13 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
 
     }
 
+    public void metodoEditaTrans(Transacao trans){
+        new EditaTransacao(trans,trans_atual.getUsu1(),trans_atual.getUsu2(),this).execute();
+    }
 
-    public void retornoEditaTransacao(String result){
+    public void retornoStringWebService(String result){
 
-        //Log.i("webservice","resultado edita transao = "+result);
+        Log.i("webservice","resultado edita transao = "+result);
 
         progress_bar_btn.setVisibility(View.GONE);
         btn_confirma_quitacao.setEnabled(true);
@@ -275,4 +303,6 @@ public class VerPagamentoPendente extends AppCompatActivity implements WebServic
 
         return false;
     }
+    @Override
+    public void retornoUsuarioWebServiceAuxInicioToken(Usuario usu){}
 }
