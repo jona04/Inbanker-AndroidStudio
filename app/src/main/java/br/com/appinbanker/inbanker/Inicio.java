@@ -123,7 +123,6 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
                         Toast.makeText(Inicio.this, exception.getMessage(), Toast.LENGTH_LONG).show();
                         Log.i("Facebook", "onError - exception = "+exception);
 
-                        //progress_bar_inicio.setVisibility(View.GONE);
                     }
                 });
 
