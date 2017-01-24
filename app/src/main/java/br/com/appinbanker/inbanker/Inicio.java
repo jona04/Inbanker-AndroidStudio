@@ -646,7 +646,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
             usu_cadastro.setDevice_id(device_id);
             usu_cadastro.setCpf(cpf);
             usu_cadastro.setEmail(email);
-            usu_cadastro.setNome(nome);
+            usu_cadastro.setNome(removerAcentos(nome));
             usu_cadastro.setSenha(senha);
 
             //setamos esse valores vazio para nao dar problema na hora de serializacao e posteriormente erro no rest de cadastro no banco
