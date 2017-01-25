@@ -51,9 +51,9 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
     TextView tv_valor_taxa_servico_child;
     TextView tv_valor_total_child;
     //TextView tv_valor_pedido_child;
-    LinearLayout ll_cancelar_pedido_child;
-    LinearLayout ll_confirma_recebimento_child;
-    private Button btn_confirma_recebimento_child, btn_cancelar_pedido_antes_resp_child;
+    //LinearLayout ll_cancelar_pedido_child;
+    //LinearLayout ll_confirma_recebimento_child;
+    private Button btn_cancelar_pedido_antes_resp_child;
     ProgressBar progress_bar_btn;
 
     Transacao trans_global;
@@ -88,8 +88,8 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
             convertView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.adapter_transacao_env_child, parent, false);
         }
-        ll_confirma_recebimento_child = (LinearLayout) convertView.findViewById(R.id.ll_confirma_recebimento);
-        ll_cancelar_pedido_child = (LinearLayout) convertView.findViewById(R.id.ll_cancelar_pedido);
+        //ll_confirma_recebimento_child = (LinearLayout) convertView.findViewById(R.id.ll_confirma_recebimento);
+       // ll_cancelar_pedido_child = (LinearLayout) convertView.findViewById(R.id.ll_cancelar_pedido);
         //tv_data_pedido_child = (TextView)convertView.findViewById(R.id.tv_data_pedido);
         tv_data_pagamento_child  = (TextView) convertView.findViewById(R.id.tv_data_pagamento);
         //tv_nome_usuario_child  = (TextView) convertView.findViewById(R.id.tv_nome_usuario);
@@ -101,7 +101,7 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
         //tv_valor_pedido_child  = (TextView) convertView.findViewById(R.id.tv_valor_pedido);
         //btn_cancelar_pedido_antes_receb_child = (Button) convertView.findViewById(R.id.btn_cancelar_pedido_antes_receb);
         btn_cancelar_pedido_antes_resp_child = (Button) convertView.findViewById(R.id.btn_cancelar_pedido_antes_resp);
-        btn_confirma_recebimento_child = (Button) convertView.findViewById(R.id.btn_confirma_recebimento);
+       // btn_confirma_recebimento_child = (Button) convertView.findViewById(R.id.btn_confirma_recebimento);
         progress_bar_btn = (ProgressBar) convertView.findViewById(R.id.progress_bar_btn);
 
         configView(item);
@@ -222,40 +222,18 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
         tv_valor_total_child.setText(juros_total_formatado);
 
 
-        int status_transacao_local = Integer.parseInt(item.getStatus_transacao());
+        /*int status_transacao_local = Integer.parseInt(item.getStatus_transacao());
 
         switch (status_transacao_local){
             case Transacao.AGUARDANDO_RESPOSTA:
-                ll_cancelar_pedido_child.setVisibility(View.VISIBLE);
-                ll_confirma_recebimento_child.setVisibility(View.GONE);
+                //ll_cancelar_pedido_child.setVisibility(View.VISIBLE);
+                //ll_confirma_recebimento_child.setVisibility(View.GONE);
                 break;
             case Transacao.PEDIDO_ACEITO:
-                btn_confirma_recebimento_child.setVisibility(View.GONE);
-                ll_confirma_recebimento_child.setVisibility(View.VISIBLE);
+                //btn_confirma_recebimento_child.setVisibility(View.GONE);
+                //ll_confirma_recebimento_child.setVisibility(View.VISIBLE);
                 break;
-        }
-
-
-        btn_confirma_recebimento_child.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.i("Click","click 1");
-
-                Transacao trans = new Transacao();
-                trans.setId_trans(trans_global.getId_trans());
-                trans.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
-
-                //esse valor sera passado para o metodo notificacao
-                status_transacao = Transacao.CONFIRMADO_RECEBIMENTO;
-
-                metodoEditaTrans(trans);
-
-                progress_bar_btn.setVisibility(View.VISIBLE);
-                btn_confirma_recebimento_child.setEnabled(false);
-                //btn_cancelar_pedido_antes_receb_child.setEnabled(false);
-
-            }
-        });
+        }*/
 
         btn_cancelar_pedido_antes_resp_child.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -279,12 +257,32 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
                 metodoEditaTransResp(trans);
 
                 progress_bar_btn.setVisibility(View.VISIBLE);
-                btn_confirma_recebimento_child.setEnabled(false);
                 btn_cancelar_pedido_antes_resp_child.setEnabled(false);
 
             }
         });
-        /*
+
+        /*btn_confirma_recebimento_child.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i("Click","click 1");
+
+                Transacao trans = new Transacao();
+                trans.setId_trans(trans_global.getId_trans());
+                trans.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
+
+                //esse valor sera passado para o metodo notificacao
+                status_transacao = Transacao.CONFIRMADO_RECEBIMENTO;
+
+                metodoEditaTrans(trans);
+
+                progress_bar_btn.setVisibility(View.VISIBLE);
+                btn_confirma_recebimento_child.setEnabled(false);
+                //btn_cancelar_pedido_antes_receb_child.setEnabled(false);
+
+            }
+        });
+
         btn_cancelar_pedido_antes_receb_child.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -314,9 +312,9 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
 
     }
 
-     public void metodoEditaTrans(Transacao trans){
+    /*public void metodoEditaTrans(Transacao trans){
         new EditaTransacao(trans,trans_global.getUsu1(),trans_global.getUsu2(),this).execute();
-    }
+    }*/
 
     public void metodoEditaTransResp(Transacao trans){
         new EditaTransacaoResposta(trans,trans_global.getUsu1(),trans_global.getUsu2(),this).execute();
@@ -327,7 +325,7 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
         Log.i("webservice","resultado edita transao = "+result);
 
         progress_bar_btn.setVisibility(View.GONE);
-        btn_confirma_recebimento_child.setEnabled(true);
+        //btn_confirma_recebimento_child.setEnabled(true);
 
         if(result.equals("sucesso_edit")){
 

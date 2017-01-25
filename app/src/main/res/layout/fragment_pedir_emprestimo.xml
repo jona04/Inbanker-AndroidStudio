@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="20px"
-                android:text="Voce ainda nao possui amigos disponiveis para pedir emprestimos. Para poder realizar uma trasaçao basta que seu amigo baixe o aplicativo e faça o login no Facebook."/>
+                android:text="Você ainda não possui amigos disponiveis para pedir empréstimos. Para poder realizar uma trasação basta que seu amigo baixe o aplicativo e faça o login no Facebook."/>
         </LinearLayout>
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_list_amigos"

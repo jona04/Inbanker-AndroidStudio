@@ -23,7 +23,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="Voce ainda nao recebeu nenhum pedido de emprestimo."/>
+                android:text="Você ainda não recebeu nenhum pedido de empréstimo."/>
         </RelativeLayout>
 
         <LinearLayout
@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="20px"
-                android:text="Estamos verificando suas transaçoes..."/>
+                android:text="Estamos verificando suas transações..."/>
             <ProgressBar
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

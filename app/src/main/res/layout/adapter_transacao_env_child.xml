@@ -141,7 +141,7 @@
         android:visibility="gone"
         android:layout_gravity="center"/>
 
-    <LinearLayout
+    <!--<LinearLayout
         android:id="@+id/ll_confirma_recebimento"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -169,7 +169,8 @@
             android:layout_marginLeft="10dp"
             android:text="Confirmo recebimento"/>
 
-    </LinearLayout>
+    </LinearLayout> -->
+
     <LinearLayout
         android:id="@+id/ll_cancelar_pedido"
         android:layout_width="wrap_content"

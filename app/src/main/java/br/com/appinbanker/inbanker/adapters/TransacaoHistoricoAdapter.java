@@ -155,7 +155,7 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
         DateTime data_vencimento = fmt.parseDateTime(trans_global.getVencimento());
 
         //calculamos o total de dias para mostramos na tela inicial antes do usuario-2 aceitar ou recusar o pedido recebido
-        Days d;
+
         DateTime data_finalizado;
         if(!trans_global.getData_pagamento().equals("")){ // verifica se o pedido foi quitado ou cancelado
             data_finalizado = fmt.parseDateTime(trans_global.getData_pagamento());
@@ -176,9 +176,9 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
             multa_atraso = Double.parseDouble(trans_global.getValor())*0.1;
         }
 
-        Days dias_aux = Days.daysBetween(data_pedido_parse, data_vencimento);
-        int dias_vencimento = dias_aux.getDays();
-        double juros_mensal = Double.parseDouble(trans_global.getValor()) * (0.00066333 * dias_vencimento);
+        Days dias_aux = Days.daysBetween(data_pedido_parse, data_finalizado);
+        int dias_finalizado = dias_aux.getDays();
+        double juros_mensal = Double.parseDouble(trans_global.getValor()) * (0.00066333 * dias_finalizado);
 
         double redimento = juros_mora + multa_atraso + juros_mensal;
 
@@ -260,9 +260,9 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
             multa_atraso = Double.parseDouble(trans_global.getValor())*0.1;
         }
 
-        Days dias_aux = Days.daysBetween(data_pedido_parse, data_vencimento);
-        int dias_vencimento = dias_aux.getDays();
-        double juros_mensal = Double.parseDouble(trans_global.getValor()) * (0.00066333 * dias_vencimento);
+        Days dias_aux = Days.daysBetween(data_pedido_parse, data_finalizado);
+        int dias_finalizado = dias_aux.getDays();
+        double juros_mensal = Double.parseDouble(trans_global.getValor()) * (0.00066333 * dias_finalizado);
 
         double valor_total = Double.parseDouble(trans_global.getValor()) + juros_mora + multa_atraso + juros_mensal;
 
