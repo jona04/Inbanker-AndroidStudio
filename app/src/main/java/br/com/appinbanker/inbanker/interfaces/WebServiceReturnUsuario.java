@@ -8,6 +8,6 @@ import br.com.appinbanker.inbanker.entidades.Usuario;
 
 public interface WebServiceReturnUsuario {
     void retornoUsuarioWebService(Usuario usu);
-    void retornoUsuarioWebServiceAuxInicioToken(Usuario usu);
+    void retornoUsuarioWebServiceAux(Usuario usu);
 
 }

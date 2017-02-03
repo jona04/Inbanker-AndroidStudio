@@ -46,9 +46,7 @@ import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 
 public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
 
-    //TextView tv_data_pedido_child;
     TextView tv_data_pagamento_child ;
-    //TextView tv_nome_usuario_child;
     TextView tv_dias_corridos_child;
     TextView tv_taxa_juros_am_child;
     TextView tv_valor_multa_child;
@@ -56,9 +54,6 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
     TextView tv_valor_total_child;
 
     TextView tv_tipo_finalizado_child;
-
-    Transacao trans_global;
-    private int status_transacao;
 
     private Context _context;
     private List<Transacao> _listDataHeader; // header titles
@@ -89,16 +84,13 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
             convertView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.adapter_historico_child, parent, false);
         }
-        //tv_data_pedido_child = (TextView)convertView.findViewById(R.id.tv_data_pedido);
         tv_data_pagamento_child  = (TextView) convertView.findViewById(R.id.tv_data_pagamento);
-        //tv_nome_usuario_child  = (TextView) convertView.findViewById(R.id.tv_nome_usuario);
         tv_dias_corridos_child  = (TextView) convertView.findViewById(R.id.tv_dias_corridos);
         tv_taxa_juros_am_child  = (TextView) convertView.findViewById(R.id.tv_taxa_juros_am);
         tv_valor_multa_child = (TextView) convertView.findViewById(R.id.tv_valor_multa);
         tv_valor_taxa_servico_child  = (TextView) convertView.findViewById(R.id.tv_valor_taxa_servico);
         tv_valor_total_child  = (TextView) convertView.findViewById(R.id.tv_valor_total);
         tv_tipo_finalizado_child  = (TextView) convertView.findViewById(R.id.tv_tipo_finalizado);
-        //btn_cancelar_pedido_antes_receb_child = (Button) convertView.findViewById(R.id.btn_cancelar_pedido_antes_receb);
 
         configView(item);
 
@@ -128,7 +120,7 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
     public View getGroupView(int groupPosition, boolean isExpanded,
                              View convertView, ViewGroup parent) {
         //String headerTitle = (String) getGroup(groupPosition);
-        trans_global = (Transacao) getGroup(groupPosition);
+        Transacao trans_global = (Transacao) getGroup(groupPosition);
         if (convertView == null) {
             LayoutInflater infalInflater = (LayoutInflater) this._context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -144,30 +136,39 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
         TextView tv_valor_juros = (TextView) convertView.findViewById(R.id.tv_valor_juros);
         TextView tv_tipo_retorno = (TextView) convertView.findViewById(R.id.tv_tipo_retorno);
 
-        //tv_data_pedido.setTypeface(null, Typeface.BOLD);
-        tv_data_pedido.setText(trans_global.getDataPedido().substring(0, trans_global.getDataPedido().length() - 5));
-        tv_nome_usuario.setText(trans_global.getNome_usu2());
-        tv_valor_pedido.setText(nf.format(Double.parseDouble(trans_global.getValor())));
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        DateTimeFormatter dtfOut = DateTimeFormat.forPattern("dd/MM/yyyy");
+        DateTimeFormatter dtfOut_hora = DateTimeFormat.forPattern("HH:mm:ss");
 
-        //calculamos a diferença de dias entre a data atual ate a data do pedido para calcularmos o juros
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
-        DateTime data_pedido_parse = fmt.parseDateTime(trans_global.getDataPedido());
-        DateTime data_vencimento = fmt.parseDateTime(trans_global.getVencimento());
+        DateTime hora_pedido_parse = fmt.parseDateTime(trans_global.getDataPedido());
+        DateTime vencimento_parse_utc = fmt.parseDateTime(trans_global.getVencimento());
+        DateTime data_pedido_parse_utc = fmt.parseDateTime(trans_global.getDataPedido());
+
+        String vencimento_parse_string = dtfOut.print(vencimento_parse_utc);
+        String data_pedido_parse_string = dtfOut.print(data_pedido_parse_utc);
+        String hora_pedido = dtfOut_hora.print(hora_pedido_parse);
+
+        DateTime vencimento_parse = dtfOut.parseDateTime(vencimento_parse_string);
+        DateTime data_pedido_parse = dtfOut.parseDateTime(data_pedido_parse_string);
 
         //calculamos o total de dias para mostramos na tela inicial antes do usuario-2 aceitar ou recusar o pedido recebido
 
         DateTime data_finalizado;
         if(!trans_global.getData_pagamento().equals("")){ // verifica se o pedido foi quitado ou cancelado
-            data_finalizado = fmt.parseDateTime(trans_global.getData_pagamento());
+            DateTime data_finalizado_parse_utc = fmt.parseDateTime(trans_global.getData_pagamento());
+            String data_finalizado_string = dtfOut.print(data_finalizado_parse_utc);
+            data_finalizado = dtfOut.parseDateTime(data_finalizado_string);
         }else{
-            data_finalizado = fmt.parseDateTime(trans_global.getData_recusada());
+            DateTime data_finalizado_parse_utc = fmt.parseDateTime(trans_global.getData_recusada());
+            String data_finalizado_string = dtfOut.print(data_finalizado_parse_utc);
+            data_finalizado = dtfOut.parseDateTime(data_finalizado_string);
         }
 
         Double multa_atraso = 0.0;
         Double juros_mora = 0.0;
-        if(data_finalizado.isAfter(data_vencimento.plusDays(1))) {
+        if(data_finalizado.isAfter(vencimento_parse.plusDays(1))) {
 
-            Days d_atraso = Days.daysBetween(data_vencimento, data_finalizado);
+            Days d_atraso = Days.daysBetween(vencimento_parse, data_finalizado);
             int dias_atraso = d_atraso.getDays();
 
             Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
@@ -188,6 +189,10 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
         String juros_total_formatado = nf.format (redimento);
 
         tv_valor_juros.setText(juros_total_formatado);
+        //tv_data_pedido.setTypeface(null, Typeface.BOLD);
+        tv_data_pedido.setText(data_pedido_parse_string.substring(0, data_pedido_parse_string.length() - 5));
+        tv_nome_usuario.setText(trans_global.getNome_usu2());
+        tv_valor_pedido.setText(nf.format(Double.parseDouble(trans_global.getValor())));
 
         //pega cpf do usuario online para fazer ajustes na lista
         BancoControllerUsuario crud = new BancoControllerUsuario(_context);
@@ -221,52 +226,65 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
 
     public void configView(final Transacao item){
 
-        //calculamos a diferença de dias entre a data atual ate a data do pedido para calcularmos o juros
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
-        DateTime hoje = new DateTime();
-        DateTime data_pedido_parse = fmt.parseDateTime(item.getDataPedido());
-        DateTime data_vencimento = fmt.parseDateTime(item.getVencimento());
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        DateTimeFormatter dtfOut = DateTimeFormat.forPattern("dd/MM/yyyy");
+        DateTimeFormatter dtfOut_hora = DateTimeFormat.forPattern("HH:mm:ss");
+
+        DateTime hora_pedido_parse = fmt.parseDateTime(item.getDataPedido());
+        DateTime vencimento_parse_utc = fmt.parseDateTime(item.getVencimento());
+        DateTime data_pedido_parse_utc = fmt.parseDateTime(item.getDataPedido());
+
+        String vencimento_parse_string = dtfOut.print(vencimento_parse_utc);
+        String data_pedido_parse_string = dtfOut.print(data_pedido_parse_utc);
+        String hora_pedido = dtfOut_hora.print(hora_pedido_parse);
+
+        DateTime vencimento_parse = dtfOut.parseDateTime(vencimento_parse_string);
+        DateTime data_pedido_parse = dtfOut.parseDateTime(data_pedido_parse_string);
 
         //calculamos o total de dias para mostramos na tela inicial antes do usuario-2 aceitar ou recusar o pedido recebido
         Days d;
         DateTime data_finalizado;
         int dias = 0;
-        if(!trans_global.getData_pagamento().equals("")){ //verifica se o pedido foi quitado ou cancelado
-            data_finalizado = fmt.parseDateTime(trans_global.getData_pagamento());
+        if(!item.getData_pagamento().equals("")){ //verifica se o pedido foi quitado ou cancelado
+            DateTime data_finalizado_parse_utc = fmt.parseDateTime(item.getData_pagamento());
+            String data_finalizado_string = dtfOut.print(data_finalizado_parse_utc);
+            data_finalizado = dtfOut.parseDateTime(data_finalizado_string);
             d = Days.daysBetween(data_pedido_parse, data_finalizado);
             dias = d.getDays();
 
-            tv_data_pagamento_child.setText(item.getData_pagamento().substring(0, item.getVencimento().length() - 5));
+            tv_data_pagamento_child.setText(data_finalizado_string.substring(0, data_finalizado_string.length() - 5));
             tv_tipo_finalizado_child.setText("Pagamento");
         }else{
-            data_finalizado = fmt.parseDateTime(trans_global.getData_recusada());
+            DateTime data_finalizado_parse_utc = fmt.parseDateTime(item.getData_recusada());
+            String data_finalizado_string = dtfOut.print(data_finalizado_parse_utc);
+            data_finalizado = dtfOut.parseDateTime(data_finalizado_string);
             d = Days.daysBetween(data_pedido_parse, data_finalizado);
             dias = d.getDays();
 
-            tv_data_pagamento_child.setText(item.getData_recusada().substring(0, item.getVencimento().length() - 5));
+            tv_data_pagamento_child.setText(data_finalizado_string.substring(0, data_finalizado_string.length() - 5));
             tv_tipo_finalizado_child.setText(" Recusado  ");
         }
 
         Double multa_atraso = 0.0;
         Double juros_mora = 0.0;
-        if(data_finalizado.isAfter(data_vencimento.plusDays(1))) {
+        if(data_finalizado.isAfter(vencimento_parse.plusDays(1))) {
 
-            Days d_atraso = Days.daysBetween(data_vencimento, data_finalizado);
+            Days d_atraso = Days.daysBetween(vencimento_parse, data_finalizado);
             int dias_atraso = d_atraso.getDays();
 
             Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
 
-            juros_mora = Double.parseDouble(trans_global.getValor()) * (0.00099667 * dias_atraso);
-            multa_atraso = Double.parseDouble(trans_global.getValor())*0.1;
+            juros_mora = Double.parseDouble(item.getValor()) * (0.00099667 * dias_atraso);
+            multa_atraso = Double.parseDouble(item.getValor())*0.1;
         }
 
         Days dias_aux = Days.daysBetween(data_pedido_parse, data_finalizado);
         int dias_finalizado = dias_aux.getDays();
-        double juros_mensal = Double.parseDouble(trans_global.getValor()) * (0.00066333 * dias_finalizado);
+        double juros_mensal = Double.parseDouble(item.getValor()) * (0.00066333 * dias_finalizado);
 
-        double valor_total = Double.parseDouble(trans_global.getValor()) + juros_mora + multa_atraso + juros_mensal;
+        double valor_total = Double.parseDouble(item.getValor()) + juros_mora + multa_atraso + juros_mensal;
 
-        if(!trans_global.getData_recusada().equals(""))
+        if(!item.getData_recusada().equals(""))
             valor_total = 0.0;
 
         Locale ptBr = new Locale("pt", "BR");

@@ -23,6 +23,7 @@ import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
+import java.net.InterfaceAddress;
 import java.text.Normalizer;
 
 import br.com.appinbanker.inbanker.entidades.Usuario;
@@ -32,13 +33,15 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.Validador;
+import br.com.appinbanker.inbanker.webservice.AddUsuario;
 import br.com.appinbanker.inbanker.webservice.AtualizaUsuario;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
+import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPFAux;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 import br.com.appinbanker.inbanker.webservice.EditaSenha;
 import br.com.appinbanker.inbanker.webservice.VerificaUsuarioCadastro;
 
-public class MinhaConta extends AppCompatActivity implements WebServiceReturnUsuario,WebServiceReturnString,WebServiceReturnUsuarioFace {
+public class MinhaConta extends AppCompatActivity implements WebServiceReturnUsuario,WebServiceReturnString {
 
     TextView tv_qtd_pedidos_env,tv_qtd_pedidos_rec,tv_nome_usu_minha_conta;
     LinearLayout progress_minha_conta,ll_principal_minha_conta;
@@ -55,11 +58,11 @@ public class MinhaConta extends AppCompatActivity implements WebServiceReturnUsu
     Dialog dialog;
     ProgressBar progress_bar_atualiza;
 
-    boolean verificaCpfEmail = false;
-    boolean verificaCpf = false;
-    boolean verificaEmail = false;
+    //boolean verificaCpfEmail = false;
+    //boolean verificaCpf = false;
+    //boolean verificaEmail = false;
 
-    boolean verificaFormCpfParaSenha = false;
+    boolean logado_com_face = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,13 +95,31 @@ public class MinhaConta extends AppCompatActivity implements WebServiceReturnUsu
 
             }else if(!id_face.equals("")){
                 Log.i("CPF","id_face = "+id_face);
-                new BuscaUsuarioFace(id_face,this,this).execute();
+                //new BuscaUsuarioFace(id_face,this,this).execute();
+
+                String token = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.TOKEN_FCM));
+                String device_id = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.DEVICE_ID));
+                String nome = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME));
+                String url_img = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE));
+
+                Usuario usu_face = new Usuario();
+
+                usu_face.setToken_gcm(token);
+                usu_face.setDevice_id(device_id);
+                usu_face.setCpf("");
+                usu_face.setEmail("");
+                usu_face.setNome(nome);
+                usu_face.setSenha("");
+                usu_face.setId_face(id_face);
+                usu_face.setUrl_face(url_img);
+
+                configConta(usu_face);
 
                 //para verificacao quando o usuario for atualizar senha
                 //significa que o usuario nao possui cpf cadastrado,
                 // logo se ele inserir algo no campo cpf, obrigatoriamente tera de inserir no campo senha tambem
                 //util tambem para saber se o usuario logado possui cpf ou nao
-                verificaFormCpfParaSenha = true;
+                logado_com_face = true;
             }
         }catch (Exception e){
             progress_minha_conta.setVisibility(View.GONE);
@@ -181,11 +202,8 @@ public class MinhaConta extends AppCompatActivity implements WebServiceReturnUsu
         Button btn_atualiza_usuario = (Button) dialog.findViewById(R.id.btn_atualiza_usuario);
 
         et_edita_nome.setText(usu_global.getNome());
-        if(!usu_global.getEmail().equals("")) {
-            et_edita_email.setText(usu_global.getEmail());
-            et_edita_email.setEnabled(false);
+        et_edita_email.setText(usu_global.getEmail());
 
-        }
         if(!usu_global.getCpf().equals("")) {
             et_edita_cpf.setText(usu_global.getCpf());
             et_edita_cpf.setEnabled(false);
@@ -207,64 +225,38 @@ public class MinhaConta extends AppCompatActivity implements WebServiceReturnUsu
 
                 progress_bar_atualiza.setVisibility(View.VISIBLE);
 
-                Log.i("MinhaConta","Edita usuario cpf = "+usu_global.getCpf().equals(""));
-
                 if(usu_global.getSenha().equals(""))
                     usu_global.setSenha(et_edita_senha.getText().toString());
 
-                //usuario esta editando cpf e email, por tanto é necessario verificacao
-                if(usu_global.getCpf().equals("") && usu_global.getEmail().equals("")) {
+                BancoControllerUsuario crud = new BancoControllerUsuario(MinhaConta.this);
+                Cursor cursor = crud.carregaDados();
+                String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+
+                //se usuario logado com face, entao realiza cadastro
+                if(logado_com_face) {
                     Log.i("MinhaConta","1");
 
-                    //o usuario que nao tem cpf cadastrado, esta cadastrando nesse momento, por isso verificamos se ja existe
-                    if(!et_edita_cpf.getText().toString().equals("") && !et_edita_email.getText().toString().equals("")){
-                        Log.i("MinhaConta","1.1");
-                        verificaCpfEmail = true;
-                        if(validaCadastrar())
-                            new VerificaUsuarioCadastro(et_edita_email.getText().toString(),et_edita_cpf.getText().toString(),MinhaConta.this).execute();
+                    Log.i("MinhaConta","1.1");
+                    //verificaCpfEmail = true;
 
-                    }
-                    //o usuario esta editando cpf ou o nome
-                }else if(usu_global.getCpf().equals("")){
-                    Log.i("MinhaConta","2");
+                    usu_global.setNome(et_edita_nome.getText().toString());
+                    usu_global.setEmail(et_edita_email.getText().toString());
+                    usu_global.setCpf(et_edita_cpf.getText().toString());
+                    usu_global.setSenha(et_edita_senha.getText().toString());
 
-                    if(!et_edita_cpf.getText().toString().equals("")){
-                        Log.i("MinhaConta","2.1");
-                        verificaCpf = true;
-                        if(validaCadastrar())
-                            new VerificaUsuarioCadastro(et_edita_email.getText().toString(),et_edita_cpf.getText().toString(),MinhaConta.this).execute();
-                    }else{
-                        Log.i("MinhaConta","2.2");
+                    if(validaCadastrar())
+                        verificaUsuario();
 
-                        usu_global.setEmail(removerAcentos(et_edita_email.getText().toString()));
-                        usu_global.setCpf(et_edita_cpf.getText().toString());
-                        usu_global.setNome(removerAcentos(et_edita_nome.getText().toString()));
-
-                        if(validaCadastrar())
-                            atualiza_tipo_face();
-                    }
-                }else if(usu_global.getEmail().equals("")){
-                    Log.i("MinhaConta","3");
-
-                    if(!et_edita_email.getText().toString().equals("")){
-                        Log.i("MinhaConta","3.1");
-                        verificaEmail = true;
-                        if(validaCadastrar())
-                            new VerificaUsuarioCadastro(et_edita_email.getText().toString(),et_edita_cpf.getText().toString(),MinhaConta.this).execute();
-                    }
+                //se usuario nao logado com face, entao atualiza
                 }else{
 
-                    Log.i("MinhaConta","4");
+                    Log.i("MinhaConta","2");
 
                     usu_global.setEmail(removerAcentos(et_edita_email.getText().toString()));
-                    usu_global.setCpf(et_edita_cpf.getText().toString());
                     usu_global.setNome(removerAcentos(et_edita_nome.getText().toString()));
 
                     if(validaCadastrar()) {
-                        if (!verificaFormCpfParaSenha)
-                            atualiza_tipo_cpf();
-                        else
-                            atualiza_tipo_face();
+                        verificaUsuarioApenasEmail();
                     }
                 }
 
@@ -273,78 +265,85 @@ public class MinhaConta extends AppCompatActivity implements WebServiceReturnUsu
 
         dialog.show();
     }
+
+    //nesse metodo, o usuario ja possui cpf, por tanto nao é necessario a verificacao no banco de dados, apenas do email
+    public void verificaUsuarioApenasEmail(){
+        new VerificaUsuarioCadastro(usu_global.getEmail(),"0",this).execute();
+    }
+
+    //nesse metodo, o usuario esta logado apenas com o facebook, por tanto é necessario verificar o cpf e email informado
+    public void verificaUsuario(){
+        new VerificaUsuarioCadastro(usu_global.getEmail(),usu_global.getCpf(),this).execute();
+    }
+
     public void atualiza_tipo_cpf(){
         new AtualizaUsuario(usu_global,this,"cpf").execute();
 
     }
-
-    public void atualiza_tipo_face(){
-        new AtualizaUsuario(usu_global,this,"face").execute();
+    public void add_usuario(){
+        new AddUsuario(usu_global,this,this).execute();
 
     }
 
-    public void retornoTaskVerificaCadastro(String result){
+    public void retornoTaskVerificaCadastro(String result) {
 
-        progress_bar_atualiza.setVisibility(View.GONE);
+        BancoControllerUsuario crud = new BancoControllerUsuario(this);
+        Cursor cursor = crud.carregaDados();
+        String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+        String email = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.EMAIL));
 
-        if(verificaCpfEmail == true) {
-            Log.i("MinhaConta","5");
-            //verifica se cpf ou email informado ja existe
-            if (result.equals("cpf")) {
-                Log.i("MinhaConta","5.1");
-                mensagem("CPF já existe", "Olá, o CPF informado já esta em uso, por favor tente outro, ou tente fazer o login por ele na tela inicial.", "Ok");
-            }else if (result.equals("email")) {
-                Log.i("MinhaConta","5.2");
+        Log.i("MinhaConta","5 - result = "+result);
+
+        //verifica se cpf ou email informado ja existe
+        if(result==null){
+            mensagem("Houve um erro!","Olá, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
+            progress_bar_atualiza.setVisibility(View.GONE);
+        //se o email ja existir
+        }else if(result.equals("email")) {
+            if (!usu_global.getEmail().equals("") && !usu_global.getEmail().equals(email)){ //se o email nao for o mesmo do usuario logado
+                Log.i("MinhaConta", "5.2");
                 mensagem("EMAIL já existe", "Olá, o EMAIL informado já esta em uso, por favor tente outro.", "Ok");
-            }else{
-                Log.i("MinhaConta","5.3");
-
+                progress_bar_atualiza.setVisibility(View.GONE);
+            }else{ //se o email for o mesmo do usuario logado, entao pode atualizar
+                Log.i("MinhaConta","5.2.1");
                 usu_global.setEmail(removerAcentos(et_edita_email.getText().toString()));
                 usu_global.setCpf(et_edita_cpf.getText().toString());
                 usu_global.setNome(removerAcentos(et_edita_nome.getText().toString()));
 
-                atualiza_tipo_face();
+                if(logado_com_face)
+                    add_usuario();
+                else
+                    atualiza_tipo_cpf();
             }
+        // lembrar usuario logado, nunca chegara nesse ponto, pois foi colocado 0 no valor do cpf como parametro para verificacao
+        //se cpf existir
+        }else if(result.equals("cpf")){
+            Log.i("MinhaConta", "5.3");
+            mensagem("CPF já existe", "Olá, o CPF informado já esta em uso, por favor tente outro, ou tente fazer o login por ele na tela inicial.", "Ok");
+            progress_bar_atualiza.setVisibility(View.GONE);
+
+        }else if(result.equals("vazio")){
+            Log.i("MinhaConta","5.4");
+
+            usu_global.setEmail(removerAcentos(et_edita_email.getText().toString()));
+            usu_global.setCpf(et_edita_cpf.getText().toString());
+            usu_global.setNome(removerAcentos(et_edita_nome.getText().toString()));
+
+            if(logado_com_face)
+                add_usuario();
+            else
+                atualiza_tipo_cpf();
         }
-        if(verificaCpf == true) {
-            Log.i("MinhaConta","6");
-            //verifica se cpf informado ja existe
-            if (result.equals("cpf")) {
-                Log.i("MinhaConta","6.1");
-                mensagem("CPF já existe", "Olá, o CPF informado já esta em uso, por favor tente outro, ou tente fazer o login por ele na tela inicial.", "Ok");
-            }else{
-                Log.i("MinhaConta","6.2");
 
-                usu_global.setEmail(removerAcentos(et_edita_email.getText().toString()));
-                usu_global.setCpf(et_edita_cpf.getText().toString());
-                usu_global.setNome(removerAcentos(et_edita_nome.getText().toString()));
-
-                atualiza_tipo_face();
-            }
-        }
-        if(verificaEmail == true) {
-            Log.i("MinhaConta","7");
-            //verifica se email informado ja existe
-            if (result.equals("email")) {
-                Log.i("MinhaConta","7.1");
-                mensagem("EMAIL já existe", "Olá, o EMAIL informado já esta em uso, por favor tente outro.", "Ok");
-            }else{
-                Log.i("MinhaConta","7.2");
-
-                usu_global.setEmail(removerAcentos(et_edita_email.getText().toString()));
-                usu_global.setCpf(et_edita_cpf.getText().toString());
-                usu_global.setNome(removerAcentos(et_edita_nome.getText().toString()));
-
-                atualiza_tipo_face();
-            }
-        }
     }
 
     @Override
     public void retornoStringWebService(String result) {
-        //Log.i("ReturnMinha Conta","resulta edit user = "+result);
+
+        progress_bar_atualiza.setVisibility(View.GONE);
+
         Log.i("MinhaConta","8");
-        if(result.equals("sucesso_edit")){
+        if(result.equals("sucesso_edit") || result.equals("sucesso")){
             Log.i("MinhaConta","8.1");
             mensagem("Dados Atualizados","Olá, seus dados foram atualizados com sucesso.","Ok");
 
@@ -352,7 +351,7 @@ public class MinhaConta extends AppCompatActivity implements WebServiceReturnUsu
 
             BancoControllerUsuario crud = new BancoControllerUsuario(this);
 
-            if(verificaFormCpfParaSenha){
+            if(logado_com_face){
                 crud.alteraRegistroCpf(usu_global.getId_face(),usu_global.getCpf(),usu_global.getSenha(), usu_global.getEmail(),usu_global.getToken_gcm(),usu_global.getDevice_id(),usu_global.getNome());
 
             }else{
@@ -435,12 +434,14 @@ public class MinhaConta extends AppCompatActivity implements WebServiceReturnUsu
     }
 
     @Override
-    public void retornoUsuarioWebServiceAuxInicioToken(Usuario usu) {}
+    public void retornoUsuarioWebServiceAux(Usuario usu) {
 
-    @Override
+    }
+
+    /*@Override
     public void retornoUsuarioWebServiceFace(Usuario usu) {
         configConta(usu);
-    }
+    }*/
 
     public void mensagem(String titulo, String corpo, String botao)
     {
@@ -508,7 +509,7 @@ public class MinhaConta extends AppCompatActivity implements WebServiceReturnUsu
         }
 
         //significa que o osuario nao possui cpf cadastrado, logo esses campos devem ser validados
-        if(verificaFormCpfParaSenha) {
+        if(logado_com_face) {
 
             if(et_edita_senha.getText().toString().length()<6) {
                 et_edita_senha.setError("Mínimo de 6 letras");

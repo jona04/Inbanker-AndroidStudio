@@ -7,4 +7,24 @@
     <color name="colorGreen">#11b413</color>
     <color name="colorNavigationDrawer">#395254</color>
     <color name="colorOrange">#c18e17</color>
+
+    <!-- dots inactive colors -->
+    <color name="dot_dark">#0f5108</color>
+
+    <!-- dots active colors -->
+    <color name="dot_light">#8df99a</color>
+
+    <array name="array_dot_active">
+        <item>@color/dot_light</item>
+        <item>@color/dot_light</item>
+        <item>@color/dot_light</item>
+        <item>@color/dot_light</item>
+    </array>
+
+    <array name="array_dot_inactive">
+        <item>@color/dot_dark</item>
+        <item>@color/dot_dark</item>
+        <item>@color/dot_dark</item>
+        <item>@color/dot_dark</item>
+    </array>
 </resources>

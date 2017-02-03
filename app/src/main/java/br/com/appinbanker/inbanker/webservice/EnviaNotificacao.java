@@ -36,7 +36,7 @@ public class EnviaNotificacao extends AsyncTask<String,String,String> {
         String result = null;
         try {
 
-            Log.i("webservice","teste token = "+token);
+            //Log.i("webservice","teste token = "+token);
 
             //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/findEmail/"+email;
             final String url = host+"appinbanker/gcm/notification/sendNotification/"+token;

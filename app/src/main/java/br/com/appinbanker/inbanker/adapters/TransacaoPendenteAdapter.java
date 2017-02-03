@@ -5,9 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
-import android.renderscript.Sampler;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.IntegerRes;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,12 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
-import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -32,17 +29,17 @@ import java.util.Locale;
 
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
-import br.com.appinbanker.inbanker.VerPagamentoPendente;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringHora;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
-import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.EditaTransacao;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
+import br.com.appinbanker.inbanker.webservice.ObterHora;
 
 /**
  * Created by jonatasilva on 29/12/16.
@@ -50,16 +47,12 @@ import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 
 public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implements WebServiceReturnUsuario, WebServiceReturnString {
 
-    //TextView tv_data_pedido_child;
     TextView tv_data_pagamento_child ;
-    //TextView tv_nome_usuario_child;
     TextView tv_dias_corridos_child;
     TextView tv_taxa_juros_am_child;
-    //TextView tv_taxa_juros_child;
     TextView tv_valor_multa_child;
     TextView tv_valor_taxa_servico_child;
     TextView tv_valor_total_child;
-    //TextView tv_valor_pedido_child;
     LinearLayout ll_solicita_quitacao_child;
     private Button btn_solicita_quitacao_child;
 
@@ -70,13 +63,16 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
     Transacao trans_global;
     int status_transacao;
 
+    private String hoje;
+
     private Context _context;
     private List<Transacao> _listDataHeader; // header titles
     private HashMap<String, Transacao> _listDataChild; // header child
-    public TransacaoPendenteAdapter(Context context, List<Transacao> listDataHeader, HashMap<String,Transacao> listDataChild) {
+    public TransacaoPendenteAdapter(Context context, List<Transacao> listDataHeader, HashMap<String,Transacao> listDataChild,String hoje) {
         this._context = context;
         this._listDataHeader = listDataHeader;
         this._listDataChild = listDataChild;
+        this.hoje = hoje;
     }
     @Override
     public Object getChild(int groupPosition, int childPosititon) {
@@ -99,14 +95,10 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
             convertView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.adapter_transacao_pendente_child, parent, false);
         }
-        //ll_confirma_recebimento_child = (LinearLayout) convertView.findViewById(R.id.ll_confirma_recebimento);
         ll_solicita_quitacao_child = (LinearLayout) convertView.findViewById(R.id.ll_solicita_quitacao);
-        //tv_data_pedido_child = (TextView)convertView.findViewById(R.id.tv_data_pedido);
         tv_data_pagamento_child  = (TextView) convertView.findViewById(R.id.tv_data_pagamento);
-        //tv_nome_usuario_child  = (TextView) convertView.findViewById(R.id.tv_nome_usuario);
         tv_dias_corridos_child  = (TextView) convertView.findViewById(R.id.tv_dias_corridos);
         tv_taxa_juros_am_child  = (TextView) convertView.findViewById(R.id.tv_taxa_juros_am);
-        //tv_taxa_juros_child  = (TextView) convertView.findViewById(R.id.tv_taxa_juros);
         tv_valor_multa_child  = (TextView) convertView.findViewById(R.id.tv_valor_multa);
         tv_valor_taxa_servico_child  = (TextView) convertView.findViewById(R.id.tv_valor_taxa_servico);
         tv_valor_total_child  = (TextView) convertView.findViewById(R.id.tv_valor_total);
@@ -158,28 +150,39 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
         Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
 
-        //tv_data_pedido.setTypeface(null, Typeface.BOLD);
-        tv_data_pedido.setText(item.getDataPedido().substring(0, item.getDataPedido().length() - 5));
-        tv_valor_pedido.setText(nf.format(Double.parseDouble(item.getValor())));
-
         //calculamos a diferença de dias entre a data atual ate a data do pedido para calcularmos o juros
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
-        DateTime hoje = new DateTime();
-        DateTime data_pedido_parse = fmt.parseDateTime(item.getDataPedido());
-        DateTime vencimento_parse = fmt.parseDateTime(item.getVencimento());
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        DateTimeFormatter dtfOut = DateTimeFormat.forPattern("dd/MM/yyyy");
+        DateTimeFormatter dtfOut_hora = DateTimeFormat.forPattern("HH:mm:ss");
+
+        DateTime hora_pedido_parse = fmt.parseDateTime(item.getDataPedido());
+        DateTime vencimento_parse_utc = fmt.parseDateTime(item.getVencimento());
+        DateTime data_pedido_parse_utc = fmt.parseDateTime(item.getDataPedido());
+        DateTime hoje_parse_utc = fmt.parseDateTime(hoje);
+
+        String vencimento_parse_string = dtfOut.print(vencimento_parse_utc);
+        String data_pedido_parse_string = dtfOut.print(data_pedido_parse_utc);
+        String hoje_parse_string = dtfOut.print(hoje_parse_utc);
+        String hora_pedido = dtfOut_hora.print(hora_pedido_parse);
+
+        DateTime vencimento_parse = dtfOut.parseDateTime(vencimento_parse_string);
+        DateTime data_pedido_parse = dtfOut.parseDateTime(data_pedido_parse_string);
+
+        //data do servidor, data global
+        DateTime hoje_parse = dtfOut.parseDateTime(hoje_parse_string);
 
         //calculamos o total de dias para mostramos na tela inicial antes do usuario-2 aceitar ou recusar o pedido recebido
-        Days d = Days.daysBetween(data_pedido_parse, hoje);
+        Days d = Days.daysBetween(data_pedido_parse, hoje_parse);
         int dias = d.getDays();
 
         Double multa_atraso = 0.0;
         Double juros_mora = 0.0;
-        if(hoje.isAfter(vencimento_parse.plusDays(1))) {
+        if(hoje_parse.isAfter(vencimento_parse.plusDays(1))) {
 
             d = Days.daysBetween(data_pedido_parse, vencimento_parse);
             dias = d.getDays();
 
-            Days d_atraso = Days.daysBetween(vencimento_parse, hoje);
+            Days d_atraso = Days.daysBetween(vencimento_parse, hoje_parse);
             int dias_atraso = d_atraso.getDays();
 
             Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
@@ -188,10 +191,12 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
             multa_atraso = Double.parseDouble(item.getValor())*0.1;
         }
 
-
         double redimento = juros_mora + multa_atraso + Double.parseDouble(item.getValor()) * (0.00066333 * dias);
         String juros_total_formatado = nf.format (redimento);
 
+        //tv_data_pedido.setTypeface(null, Typeface.BOLD);
+        tv_data_pedido.setText(data_pedido_parse_string.substring(0, data_pedido_parse_string.length() - 5));
+        tv_valor_pedido.setText(nf.format(Double.parseDouble(item.getValor())));
         tv_valor_juros.setText(juros_total_formatado);
 
         //pega cpf do usuario online para fazer ajustes na lista
@@ -199,7 +204,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
         Cursor cursor = crud.carregaDados();
         String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
 
-        //usamos para expandir a lista correta
+        //usamos para expandir automaticamente o item desejado
         //ExpandableListView mExpandableListView = (ExpandableListView) parent;
 
         if(cpf.equals(item.getUsu1())){
@@ -237,13 +242,28 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
     public void configView(final Transacao item){
 
         //calculamos a diferença de dias entre a data atual ate a data do pedido para calcularmos o juros
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
-        DateTime hoje = new DateTime();
-        DateTime data_pedido_parse = fmt.parseDateTime(item.getDataPedido());
-        DateTime vencimento_parse = fmt.parseDateTime(item.getVencimento());
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        DateTimeFormatter dtfOut = DateTimeFormat.forPattern("dd/MM/yyyy");
+        DateTimeFormatter dtfOut_hora = DateTimeFormat.forPattern("HH:mm:ss");
+
+        DateTime hora_pedido_parse = fmt.parseDateTime(item.getDataPedido());
+        DateTime vencimento_parse_utc = fmt.parseDateTime(item.getVencimento());
+        DateTime data_pedido_parse_utc = fmt.parseDateTime(item.getDataPedido());
+        DateTime hoje_parse_utc = fmt.parseDateTime(hoje);
+
+        String vencimento_parse_string = dtfOut.print(vencimento_parse_utc);
+        String data_pedido_parse_string = dtfOut.print(data_pedido_parse_utc);
+        String hoje_parse_string = dtfOut.print(hoje_parse_utc);
+        String hora_pedido = dtfOut_hora.print(hora_pedido_parse);
+
+        DateTime vencimento_parse = dtfOut.parseDateTime(vencimento_parse_string);
+        DateTime data_pedido_parse = dtfOut.parseDateTime(data_pedido_parse_string);
+
+        //data do servidor, data global
+        DateTime hoje_parse = dtfOut.parseDateTime(hoje_parse_string);
 
         //calculamos o total de dias para mostramos na tela inicial antes do usuario-2 aceitar ou recusar o pedido recebido
-        Days d = Days.daysBetween(data_pedido_parse, hoje);
+        Days d = Days.daysBetween(data_pedido_parse, hoje_parse);
         int dias = d.getDays();
 
         //botamos aqui em cima para nao sofre alteracao caso o usuario passe do prazo de vencimento, linha 257
@@ -254,12 +274,12 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
 
         Double multa_atraso = 0.0;
         Double juros_mora = 0.0;
-        if(hoje.isAfter(vencimento_parse.plusDays(1))) {
+        if(hoje_parse.isAfter(vencimento_parse.plusDays(1))) {
 
             d = Days.daysBetween(data_pedido_parse, vencimento_parse);
             dias = d.getDays();
 
-            Days d_atraso = Days.daysBetween(vencimento_parse, hoje);
+            Days d_atraso = Days.daysBetween(vencimento_parse, hoje_parse);
             int dias_atraso = d_atraso.getDays();
 
             Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
@@ -285,7 +305,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
 
 
 
-        tv_data_pagamento_child.setText(item.getVencimento().substring(0, item.getVencimento().length() - 5));
+        tv_data_pagamento_child.setText(vencimento_parse_string.substring(0, vencimento_parse_string.length() - 5));
 
         tv_taxa_juros_am_child.setText("1.99%");
 
@@ -330,7 +350,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
             switch (status_transacao) {
                 case Transacao.CONFIRMADO_RECEBIMENTO:
 
-                    if(hoje.isAfter(vencimento_parse)) {
+                    if(hoje_parse.isAfter(vencimento_parse)) {
 
                         //Days d_atraso = Days.daysBetween(item.getVencimento(), hoje);
                         //dias_atraso = d_atraso.getDays();
@@ -420,10 +440,14 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
 
         trans.setStatus_transacao(String.valueOf(Transacao.QUITACAO_SOLICITADA));
 
-        //envia notificacao
-        new EnviaNotificacao(trans,usu.getToken_gcm()).execute();
+        if(!usu.getToken_gcm().equals("")) {
+            //envia notificacao
+            new EnviaNotificacao(trans, usu.getToken_gcm()).execute();
+            mensagemIntent("InBanker","Você realizou a solicitação de quitação do empréstimo. Peça que seu amigo(a) "+trans_global.getNome_usu2()+" confirme o recebimento do valor.", "Ok");
 
-        mensagemIntent("InBanker","Você realizou a solicitação de quitação do empréstimo. Peça que seu amigo(a) "+trans_global.getNome_usu2()+" confirme o recebimento do valor.", "Ok");
+        }else{
+            mensagemIntent("InBanker","Você realizou a solicitação de quitação do empréstimo. Porém recomendamos entrar em contato pessoalmente com seu amigo(a) "+trans_global.getNome_usu2()+". Pois ele não receberá notifição de aviso por não estar logado.", "Ok");
+        }
 
     }
     public void mensagem(String titulo,String corpo,String botao)
@@ -452,6 +476,6 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
     }
 
     @Override
-    public void retornoUsuarioWebServiceAuxInicioToken(Usuario usu){}
+    public void retornoUsuarioWebServiceAux(Usuario usu){}
 
 }

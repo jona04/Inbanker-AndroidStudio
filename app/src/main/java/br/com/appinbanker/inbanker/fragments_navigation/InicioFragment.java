@@ -1,22 +1,17 @@
 package br.com.appinbanker.inbanker.fragments_navigation;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -27,39 +22,33 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.w3c.dom.Text;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import br.com.appinbanker.inbanker.Inicio;
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
-import br.com.appinbanker.inbanker.VerPedidoEnviado;
-import br.com.appinbanker.inbanker.VerPedidoRecebido;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
-import br.com.appinbanker.inbanker.gcm.RegistrationIntentService;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringHora;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
-import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
-import br.com.appinbanker.inbanker.util.AllSharedPreferences;
-import br.com.appinbanker.inbanker.util.CheckConection;
-import br.com.appinbanker.inbanker.util.CheckPlayServices;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
-import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPFAuxInicio;
-import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
+import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPFAux;
 import br.com.appinbanker.inbanker.webservice.EditaTransacao;
 import br.com.appinbanker.inbanker.webservice.EditaTransacaoResposta;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
+import br.com.appinbanker.inbanker.webservice.ObterHora;
 
-public class InicioFragment extends Fragment implements WebServiceReturnUsuario,WebServiceReturnString{
+public class InicioFragment extends Fragment implements WebServiceReturnStringHora,WebServiceReturnUsuario,WebServiceReturnString{
 
     TextView badge_notification_ped_rec,badge_notification_pag_pen,badge_notification_ped_env;
 
@@ -71,6 +60,8 @@ public class InicioFragment extends Fragment implements WebServiceReturnUsuario,
     Button btn_recusa_recebimento_dialog_enviado;
     Button btn_confirma_recebimento_dialog_enviado;
     Transacao trans_global;
+
+    private Transacao trans_global_ped_receb;
 
     private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
     private DatabaseReference usuarioReferencia = databaseReference.child("usuarios");
@@ -203,9 +194,19 @@ public class InicioFragment extends Fragment implements WebServiceReturnUsuario,
                     //if(status != 2 && status < 6) //trans recebida antiga
                     if(status < 2)
                         count_trans_rec++;
-                    if(status == 4)
-                        dialogTransRecebidas(usu.getTransacoes_recebidas().get(i));
-                        //mensagem("Alerta quitacao","Voce deve confirmar o recebimento da quitaca do valor que o osuaurio 1 pediu","Ok");
+                    if(status == 4) {
+
+
+                        //usuario global usado somente aqui
+                        trans_global_ped_receb = usu.getTransacoes_recebidas().get(i);
+
+                        //foi constatado que o usuario possui alerta de suas transacoes recebida
+                        //precisamos obter a data hoje atual servidor
+                        new ObterHora(this).execute();
+
+                    }
+
+
                     if(status ==3 || status == 5)
                         count_pag_pen++;
                 }
@@ -242,6 +243,14 @@ public class InicioFragment extends Fragment implements WebServiceReturnUsuario,
         }
 
     }
+
+
+    @Override
+    public void retornoObterHora(String hoje){
+        dialogTransRecebidas(trans_global_ped_receb,hoje);
+    }
+
+
 
     public void obterDadosUsuarioFireBase(String cpf) {
 
@@ -320,7 +329,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnUsuario,
         mensagem.show();
     }
 
-    public void dialogTransRecebidas(final Transacao trans){
+    public void dialogTransRecebidas(final Transacao trans,final String hoje){
         dialog = new Dialog(getActivity(),R.style.AppThemeDialog);
         dialog.setContentView(R.layout.dialog_confirma_quitacao_pedido);
         dialog.setTitle("Confirmação necessária");
@@ -335,21 +344,36 @@ public class InicioFragment extends Fragment implements WebServiceReturnUsuario,
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
 
         //calculamos a diferença de dias entre a data atual ate a data do pedido para calcularmos o juros
-        final DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
-        final DateTime hoje = new DateTime();
-        DateTime data_pedido_parse = fmt.parseDateTime(trans.getDataPedido());
-        DateTime vencimento_parse = fmt.parseDateTime(trans.getVencimento());
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+        DateTimeFormatter dtfOut = DateTimeFormat.forPattern("dd/MM/yyyy");
+        DateTimeFormatter dtfOut_hora = DateTimeFormat.forPattern("HH:mm:ss");
+
+        DateTime hora_pedido_parse = fmt.parseDateTime(trans.getDataPedido());
+        DateTime vencimento_parse_utc = fmt.parseDateTime(trans.getVencimento());
+        DateTime data_pedido_parse_utc = fmt.parseDateTime(trans.getDataPedido());
+        DateTime hoje_parse_utc = fmt.parseDateTime(hoje);
+
+        String vencimento_parse_string = dtfOut.print(vencimento_parse_utc);
+        String data_pedido_parse_string = dtfOut.print(data_pedido_parse_utc);
+        String hoje_parse_string = dtfOut.print(hoje_parse_utc);
+        String hora_pedido = dtfOut_hora.print(hora_pedido_parse);
+
+        DateTime vencimento_parse = dtfOut.parseDateTime(vencimento_parse_string);
+        DateTime data_pedido_parse = dtfOut.parseDateTime(data_pedido_parse_string);
+        DateTime hoje_parse = dtfOut.parseDateTime(hoje_parse_string);
 
         //calculamos os dias corridos para calcularmos o juros do redimento atual
-        final Days d_corridos = Days.daysBetween(data_pedido_parse, hoje);
+        Days d_corridos = Days.daysBetween(data_pedido_parse, hoje_parse);
         int dias_corridos = d_corridos.getDays();
 
         Double multa_atraso = 0.0;
+        Double juros_mora = 0.0;
+        if(hoje_parse.isAfter(vencimento_parse)){
 
-        if(hoje.isAfter(vencimento_parse)){
-
-            Days d_atraso = Days.daysBetween(vencimento_parse, hoje);
+            Days d_atraso = Days.daysBetween(vencimento_parse, hoje_parse);
             int dias_atraso = d_atraso.getDays();
+
+            juros_mora = Double.parseDouble(trans.getValor()) * (0.00099667 * dias_atraso);
 
             //Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
 
@@ -359,7 +383,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnUsuario,
 
         Double juros_mensal = Double.parseDouble(trans.getValor()) * (0.00066333 * dias_corridos);
 
-        Double valor_total = Double.parseDouble(trans.getValor()) + juros_mensal + multa_atraso;
+        Double valor_total = Double.parseDouble(trans.getValor()) + juros_mensal + multa_atraso + juros_mora;
 
         String valor_formatado = nf.format (valor_total);
 
@@ -387,14 +411,11 @@ public class InicioFragment extends Fragment implements WebServiceReturnUsuario,
             @Override
             public void onClick(View view) {
 
-                String hoje_string = fmt.print(hoje);
-
                 trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA));
                 trans.setData_recusada("");
-                trans.setData_pagamento(hoje_string);
+                trans.setData_pagamento(hoje);
 
                 metodoEditaTransResposta(trans);
-
 
                 progress_bar_dialog_enviados.setVisibility(View.VISIBLE);
                 btn_confirma_recebimento_dialog_enviado.setEnabled(false);
@@ -491,10 +512,10 @@ public class InicioFragment extends Fragment implements WebServiceReturnUsuario,
             //verificamos para qual usuario enviar a notificacao
             if(cpf.equals(trans_global.getUsu1())) {
                 //busca token do usuario 2 para enviarmos notificacao
-                new BuscaUsuarioCPFAuxInicio(trans_global.getUsu2(), getActivity(), this).execute();
+                new BuscaUsuarioCPFAux(trans_global.getUsu2(), getActivity(), this).execute();
             }else{
                 //busca token do usuario 1 para enviarmos notificacao
-                new BuscaUsuarioCPFAuxInicio(trans_global.getUsu1(), getActivity(), this).execute();
+                new BuscaUsuarioCPFAux(trans_global.getUsu1(), getActivity(), this).execute();
             }
         }else{
 
@@ -507,7 +528,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnUsuario,
     }
 
     @Override
-    public void retornoUsuarioWebServiceAuxInicioToken(Usuario usu){
+    public void retornoUsuarioWebServiceAux(Usuario usu){
 
         /*Transacao trans = new Transacao();
 
@@ -524,8 +545,10 @@ public class InicioFragment extends Fragment implements WebServiceReturnUsuario,
         trans.setUrl_img_usu2(trans_global.getUrl_img_usu2());*/
 
 
-        //envia notificacao
-        new EnviaNotificacao(trans_global,usu.getToken_gcm()).execute();
+        if(!usu.getToken_gcm().equals("")) {
+            //envia notificacao
+            new EnviaNotificacao(trans_global, usu.getToken_gcm()).execute();
+        }
 
         if(Integer.parseInt(trans_global.getStatus_transacao()) == Transacao.CONFIRMADO_RECEBIMENTO)
             mensagemIntent("InBanker","Parabéns, você confirmou o recebimento do valor solicitado. Ao efetuar o pagamento de quitação, peça que seu amigo(a) " + trans_global.getNome_usu2() + " confirme o recebimento do valor.", "Ok");

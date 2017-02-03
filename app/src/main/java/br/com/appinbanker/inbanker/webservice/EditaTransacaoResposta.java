@@ -11,8 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import br.com.appinbanker.inbanker.VerPedidoEnviado;
-import br.com.appinbanker.inbanker.VerPedidoRecebido;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 

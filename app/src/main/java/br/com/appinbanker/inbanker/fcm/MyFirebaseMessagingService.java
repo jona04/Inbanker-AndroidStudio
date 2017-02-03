@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -19,14 +18,9 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
-import br.com.appinbanker.inbanker.VerHistorico;
-import br.com.appinbanker.inbanker.VerPagamentoPendente;
-import br.com.appinbanker.inbanker.VerPedidoEnviado;
-import br.com.appinbanker.inbanker.VerPedidoRecebido;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
-import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 
 /**
  * Created by jonatassilva on 08/12/16.

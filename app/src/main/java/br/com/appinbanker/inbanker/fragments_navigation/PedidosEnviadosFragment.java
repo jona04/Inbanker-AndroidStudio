@@ -21,13 +21,15 @@ import br.com.appinbanker.inbanker.adapters.TransacaoEnvAdapter;
 import br.com.appinbanker.inbanker.adapters.TransacaoPendenteAdapter;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringHora;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
+import br.com.appinbanker.inbanker.webservice.ObterHora;
 
 
-public class PedidosEnviadosFragment extends Fragment implements WebServiceReturnUsuario{
+public class PedidosEnviadosFragment extends Fragment implements WebServiceReturnStringHora,WebServiceReturnUsuario{
 
     private List<Transacao> mList;
 
@@ -76,6 +78,10 @@ public class PedidosEnviadosFragment extends Fragment implements WebServiceRetur
             //Log.i("Sqlite","valor cpf = "+cpf+" valor id_face = "+id_face);
             if(!cpf.equals(""))
                 new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
+            else{
+                progress_lista_pedidos_enviados.setVisibility(View.GONE);
+                msg_lista_pedidos.setVisibility(View.VISIBLE);
+            }
         }catch (Exception e){
             Log.i("Exception","Excessao Pedido enviado cpf = "+e);
         }
@@ -131,9 +137,8 @@ public class PedidosEnviadosFragment extends Fragment implements WebServiceRetur
 
                 setValue(mList);
 
-                listAdapter = new TransacaoEnvAdapter(getActivity(),listDataHeader, listDataChild);
-                // setting list adapter
-                expListView.setAdapter(listAdapter);
+                //obter data atual do servidor para calcular os juros corretos
+                new ObterHora(this).execute();
 
             }else{
                 msg_lista_pedidos.setVisibility(View.VISIBLE);
@@ -143,6 +148,13 @@ public class PedidosEnviadosFragment extends Fragment implements WebServiceRetur
             mensagem();
         }
 
+    }
+
+    @Override
+    public void retornoObterHora(String hoje){
+        listAdapter = new TransacaoEnvAdapter(getActivity(),listDataHeader, listDataChild,hoje);
+        // setting list adapter
+        expListView.setAdapter(listAdapter);
     }
 
     public void mensagem()
@@ -171,6 +183,6 @@ public class PedidosEnviadosFragment extends Fragment implements WebServiceRetur
     }
 
     @Override
-    public void retornoUsuarioWebServiceAuxInicioToken(Usuario usu){}
+    public void retornoUsuarioWebServiceAux(Usuario usu){}
 
 }

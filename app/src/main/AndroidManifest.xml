@@ -34,12 +34,11 @@
             android:value="@string/app_id" />
 
         <activity
-            android:name=".SplashScreen"
+            android:name=".SlideInicial"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -51,33 +50,17 @@
             android:label="@string/title_activity_navigation_drawer"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".VerPedidoEnviado"
-            android:label="@string/title_activity_ver_pedido_enviado"
-            android:parentActivityName=".NavigationDrawerActivity" />
-        <activity
-            android:name=".VerPedidoRecebido"
-            android:label="@string/title_activity_ver_pedido_recebido"
-            android:parentActivityName=".NavigationDrawerActivity" />
-        <activity
             android:name=".SimuladorResultado"
             android:label="@string/title_activity_simulador_resultado"
-            android:parentActivityName=".NavigationDrawerActivity" />
-        <activity
-            android:name=".VerHistorico"
-            android:label="@string/title_activity_historico"
             android:parentActivityName=".NavigationDrawerActivity" />
         <activity
             android:name=".MinhaConta"
             android:label="@string/title_activity_minha_conta"
             android:parentActivityName=".NavigationDrawerActivity" />
         <activity
-            android:name=".VerPagamentoPendente"
-            android:label="@string/title_activity_ver_pagamento"
-            android:parentActivityName=".NavigationDrawerActivity" />
-
-        <activity android:name=".Ajuda"
+            android:name=".Ajuda"
             android:label="@string/title_activity_ajuda"
-            android:parentActivityName=".NavigationDrawerActivity"/>
+            android:parentActivityName=".NavigationDrawerActivity" />
 
         <service android:name=".fcm.MyFirebaseMessagingService">
             <intent-filter>
@@ -89,7 +72,6 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-
     </application>
 
 </manifest>

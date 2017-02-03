@@ -14,6 +14,17 @@
 
     <string name="app_id">379815145741560</string>
 
+    <!-- Slider inicial -->
+    <string name="btn_signin">Entrar</string>
+    <string name="btn_signup">Cadastrar</string>
+    <string name="slide_1_desc">Texto 1</string>
+    <string name="slide_2_desc">Texto 2</string>
+    <string name="slide_3_desc">Texto 3</string>
+    <string name="slide_4_desc">Texto 4</string>
+
+
+
+
     <!-- TITLES -->
     <string name="title_activity_inicio">Inicio</string>
     <string name="title_activity_navigation_drawer">InBanker</string>

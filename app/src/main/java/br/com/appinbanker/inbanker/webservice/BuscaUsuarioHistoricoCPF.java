@@ -1,22 +1,13 @@
 package br.com.appinbanker.inbanker.webservice;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import br.com.appinbanker.inbanker.VerPagamentoPendente;
-import br.com.appinbanker.inbanker.VerPedidoEnviado;
-import br.com.appinbanker.inbanker.VerPedidoRecebido;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.fragments_navigation.HistoricoFragment;
-import br.com.appinbanker.inbanker.fragments_navigation.InicioFragment;
-import br.com.appinbanker.inbanker.fragments_navigation.PagamentosPendentesFragment;
-import br.com.appinbanker.inbanker.fragments_navigation.PedidosEnviadosFragment;
-import br.com.appinbanker.inbanker.fragments_navigation.PedidosRecebidosFragment;
-import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 
 /**
  * Created by jonatassilva on 24/10/16.

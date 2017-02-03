@@ -1,14 +1,9 @@
 package br.com.appinbanker.inbanker.fragments_navigation;
 
-import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,21 +17,17 @@ import java.util.HashMap;
 import java.util.List;
 
 import br.com.appinbanker.inbanker.R;
-import br.com.appinbanker.inbanker.VerPagamentoPendente;
-import br.com.appinbanker.inbanker.adapters.ListaTransacaoAdapter;
-import br.com.appinbanker.inbanker.adapters.TransacaoEnvAdapter;
 import br.com.appinbanker.inbanker.adapters.TransacaoPendenteAdapter;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
-import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringHora;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
-import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
-import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
+import br.com.appinbanker.inbanker.webservice.ObterHora;
 
-public class PagamentosPendentesFragment extends Fragment implements WebServiceReturnUsuario {
+public class PagamentosPendentesFragment extends Fragment implements WebServiceReturnStringHora,WebServiceReturnUsuario {
 
     //private List<Transacao> mList;
 
@@ -82,6 +73,10 @@ public class PagamentosPendentesFragment extends Fragment implements WebServiceR
             String id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
             if(!cpf.equals(""))
                 new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
+            else{
+                progress_lista_pagamentos.setVisibility(View.GONE);
+                msg_lista_pagamentos.setVisibility(View.VISIBLE);
+            }
         }catch (Exception e){
             Log.i("Exception","Excessao Pedido pagamento pendente cpf = "+e);
         }
@@ -139,9 +134,8 @@ public class PagamentosPendentesFragment extends Fragment implements WebServiceR
 
                 setValue(list);
 
-                listAdapter = new TransacaoPendenteAdapter(getActivity(),listDataHeader, listDataChild);
-                // setting list adapter
-                expListView.setAdapter(listAdapter);
+                //obter data atual do servidor para calcular os juros corretos
+                new ObterHora(this).execute();
 
             }else{
                 msg_lista_pagamentos.setVisibility(View.VISIBLE);
@@ -153,6 +147,13 @@ public class PagamentosPendentesFragment extends Fragment implements WebServiceR
 
     }
 
+    @Override
+    public void retornoObterHora(String hoje){
+        listAdapter = new TransacaoPendenteAdapter(getActivity(),listDataHeader, listDataChild,hoje);
+        // setting list adapter
+        expListView.setAdapter(listAdapter);
+    }
+
     public void mensagem()
     {
         AlertDialog.Builder mensagem = new AlertDialog.Builder(getActivity());
@@ -162,46 +163,25 @@ public class PagamentosPendentesFragment extends Fragment implements WebServiceR
         mensagem.show();
     }
 
-    /*@Override
-    public void onClickListener(View view, int position) {
-
-        //Log.i("Script", "Click tste inicio =" + mList.get(position));
-
-        Intent it = new Intent(getActivity(), VerPagamentoPendente.class);
-        it.putExtra("transacao",mList.get(position));
-        startActivity(it);
-
-
-    }*/
-
     private void setValue(List<Transacao> forums) {
 
-        //List generalList = new ArrayList();
         Transacao f = new Transacao();
 
         listDataHeader = new ArrayList<Transacao>();
         listDataChild = new HashMap<String,Transacao>();
 
-        String previous_header = null;
         for (int i = 0; i < forums.size(); i++) {
-            //String header = forums.get(i).getNome_usu1();
-            //if (!header.equals(previous_header)) {
-                listDataHeader.add(forums.get(i));
-            //}
-            //if (header.equals("General")) {
-            //    generalList.add(forums.get(i));
-            //} else
+            listDataHeader.add(forums.get(i));
 
             listDataChild.put(listDataHeader.get(i).getId_trans(), forums.get(i));
-            //previous_header = header;
+
         }
 
-        //listDataChild.put(listDataHeader.get(0), generalList);
 
     }
 
 
     @Override
-    public void retornoUsuarioWebServiceAuxInicioToken(Usuario usu){}
+    public void retornoUsuarioWebServiceAux(Usuario usu){}
 
 }

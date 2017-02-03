@@ -1,14 +1,9 @@
 package br.com.appinbanker.inbanker.fragments_navigation;
 
-import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,22 +13,17 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
 import br.com.appinbanker.inbanker.R;
-import br.com.appinbanker.inbanker.VerHistorico;
-import br.com.appinbanker.inbanker.VerPedidoEnviado;
-import br.com.appinbanker.inbanker.adapters.ListaHistoricoAdapter;
-import br.com.appinbanker.inbanker.adapters.ListaTransacaoAdapter;
 import br.com.appinbanker.inbanker.adapters.TransacaoHistoricoAdapter;
-import br.com.appinbanker.inbanker.adapters.TransacaoPendenteAdapter;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
-import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
-import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioHistoricoCPF;
 
 public class HistoricoFragment extends Fragment{
@@ -83,6 +73,9 @@ public class HistoricoFragment extends Fragment{
                 progress_lista_historico.setVisibility(View.VISIBLE);
                 //busca pedidos enviados
                 new BuscaUsuarioHistoricoCPF(cpf, HistoricoFragment.this).execute();
+            }else{
+                progress_lista_historico.setVisibility(View.GONE);
+                msg_lista_historico.setVisibility(View.VISIBLE);
             }
         }catch (Exception e){
             Log.i("Webservice","-"+e);
@@ -141,9 +134,12 @@ public class HistoricoFragment extends Fragment{
 
                 setValue(list);
 
+                Collections.sort(listDataHeader, new CustomComparator());
                 listAdapter = new TransacaoHistoricoAdapter(getActivity(),listDataHeader, listDataChild);
-                // setting list adapter
                 expListView.setAdapter(listAdapter);
+
+                //listAdapter = new TransacaoHistoricoAdapter(getActivity(),listDataHeader, listDataChild);
+                //expListView.setAdapter(listAdapter);
             }else{
                 msg_lista_historico.setVisibility(View.VISIBLE);
             }
@@ -151,6 +147,13 @@ public class HistoricoFragment extends Fragment{
             mensagem();
         }
 
+    }
+
+    public class CustomComparator implements Comparator<Transacao> {// may be it would be Model
+        @Override
+        public int compare(Transacao obj1, Transacao obj2) {
+            return obj1.getDataPedido().compareTo(obj2.getDataPedido());// compare two objects
+        }
     }
 
     public void mensagem()

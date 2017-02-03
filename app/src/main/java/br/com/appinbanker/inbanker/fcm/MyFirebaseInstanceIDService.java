@@ -7,7 +7,6 @@ import android.util.Log;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
-import br.com.appinbanker.inbanker.gcm.RegistrationIntentService;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 
 /**

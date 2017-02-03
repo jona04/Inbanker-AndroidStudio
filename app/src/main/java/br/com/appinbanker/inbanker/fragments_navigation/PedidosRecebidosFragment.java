@@ -1,14 +1,10 @@
 package br.com.appinbanker.inbanker.fragments_navigation;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,23 +18,18 @@ import java.util.HashMap;
 import java.util.List;
 
 import br.com.appinbanker.inbanker.R;
-import br.com.appinbanker.inbanker.VerPedidoEnviado;
-import br.com.appinbanker.inbanker.VerPedidoRecebido;
-import br.com.appinbanker.inbanker.adapters.ListaTransacaoAdapter;
-import br.com.appinbanker.inbanker.adapters.ListaTransacaoRecAdapter;
-import br.com.appinbanker.inbanker.adapters.TransacaoEnvAdapter;
 import br.com.appinbanker.inbanker.adapters.TransacaoRecebidaAdapter;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringHora;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
-import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
-import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
+import br.com.appinbanker.inbanker.webservice.ObterHora;
 
-public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOnClickListenerHack, WebServiceReturnUsuario {
+public class PedidosRecebidosFragment extends Fragment implements WebServiceReturnStringHora,WebServiceReturnUsuario {
 
     private List<Transacao> mList;
 
@@ -85,6 +76,10 @@ public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOn
             String id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
             if(!cpf.equals(""))
                 new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
+            else{
+                progress_lista_pedidos_recebidos.setVisibility(View.GONE);
+                msg_lista_pedidos.setVisibility(View.VISIBLE);
+            }
         }catch (Exception e){
             Log.i("Exception","Excessao Pedido recebido cpf = "+e);
         }
@@ -136,9 +131,9 @@ public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOn
 
                 setValue(list);
 
-                listAdapter = new TransacaoRecebidaAdapter(getActivity(),listDataHeader, listDataChild);
-                // setting list adapter
-                expListView.setAdapter(listAdapter);
+                //obter data atual do servidor para calcular os juros corretos
+                new ObterHora(this).execute();
+
             }else{
                 msg_lista_pedidos.setVisibility(View.VISIBLE);
             }
@@ -148,6 +143,13 @@ public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOn
 
     }
 
+    @Override
+    public void retornoObterHora(String hoje){
+        listAdapter = new TransacaoRecebidaAdapter(getActivity(),listDataHeader, listDataChild,hoje);
+        // setting list adapter
+        expListView.setAdapter(listAdapter);
+    }
+
     public void mensagem()
     {
         AlertDialog.Builder mensagem = new AlertDialog.Builder(getActivity());
@@ -155,18 +157,6 @@ public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOn
         mensagem.setMessage("Olá, parece que houve um problema de conexao. Favor tente novamente!");
         mensagem.setNeutralButton("OK",null);
         mensagem.show();
-    }
-
-
-    @Override
-    public void onClickListener(View view, int position) {
-
-        //Log.i("Script", "Click tste inicio =" + mList.get(position));
-
-        Intent it = new Intent(getActivity(), VerPedidoRecebido.class);
-        it.putExtra("transacao",mList.get(position));
-        startActivity(it);
-
     }
 
     private void setValue(List<Transacao> forums) {
@@ -191,6 +181,6 @@ public class PedidosRecebidosFragment extends Fragment implements RecyclerViewOn
     }
 
     @Override
-    public void retornoUsuarioWebServiceAuxInicioToken(Usuario usu){}
+    public void retornoUsuarioWebServiceAux(Usuario usu){}
 
 }

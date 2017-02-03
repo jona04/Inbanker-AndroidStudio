@@ -195,14 +195,14 @@ public class NavigationDrawerActivity extends AppCompatActivity
             crud.deletaRegistro(cpf);
 
             //deleta o token do usuario do banco de dados
-            //String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);
+            String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);
             //String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,NavigationDrawerActivity.this);
-            //Usuario usu = new Usuario();
-            //usu.setDevice_id(device_id);
-            //usu.setToken_gcm("");
-            //usu.setCpf(cpf);
+            Usuario usu = new Usuario();
+            usu.setDevice_id(device_id);
+            usu.setToken_gcm("");
+            usu.setCpf(cpf);
 
-            //new AtualizaTokenGcm(usu).execute();
+            new AtualizaTokenGcm(usu).execute();
 
 
             Intent it = new Intent(NavigationDrawerActivity.this, Inicio.class);
@@ -266,14 +266,14 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 crud.deletaRegistro(cpf);
 
                 //deleta o token do usuario do banco de dados
-                //String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);
+                String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);
                 //String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,NavigationDrawerActivity.this);
-                //Usuario usu = new Usuario();
-                //usu.setDevice_id(device_id);
-                //usu.setToken_gcm("");
-                //usu.setCpf(cpf);
+                Usuario usu = new Usuario();
+                usu.setDevice_id(device_id);
+                usu.setToken_gcm("");
+                usu.setCpf(cpf);
 
-                //new AtualizaTokenGcm(usu).execute();
+                new AtualizaTokenGcm(usu).execute();
 
 
                 Intent it = new Intent(NavigationDrawerActivity.this, Inicio.class);

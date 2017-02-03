@@ -22,6 +22,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -32,6 +33,7 @@ import java.util.Locale;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringHora;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
@@ -44,9 +46,10 @@ import br.com.appinbanker.inbanker.webservice.AddUsuario;
 import br.com.appinbanker.inbanker.webservice.AtualizaUsuario;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
+import br.com.appinbanker.inbanker.webservice.ObterHora;
 import br.com.appinbanker.inbanker.webservice.VerificaUsuarioCadastro;
 
-public class SimuladorResultado extends AppCompatActivity implements WebServiceReturnUsuario,WebServiceReturnString,WebServiceReturnUsuarioFace {
+public class SimuladorResultado extends AppCompatActivity implements WebServiceReturnStringHora,WebServiceReturnString,WebServiceReturnUsuarioFace {
 
     double valor;
     String id,nome,vencimento,url_img;
@@ -66,6 +69,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
     private Button btn_cadastrar,btn_voltar_cadastro;
     private ProgressBar progress_bar_cadastro;
 
+    private Usuario usu_add_trasacao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +146,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
                 BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
                 Cursor cursor = crud.carregaDados();
                 String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+                String nome = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME));
                 //se usuario nao tiver o cpf cadastrado, mostramos o dialog para cadastrar, se nao continuamos o pedido mostramos o dialog de senha
                 if(cpf.equals("")){
 
@@ -157,6 +162,8 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
                     et_senha_cadastro = (EditText) dialog_cadastro.findViewById(R.id.et_senha);
                     et_senha_novamente_cadastro = (EditText) dialog_cadastro.findViewById(R.id.et_senha_novamente);
                     btn_cadastrar = (Button) dialog_cadastro.findViewById(R.id.btn_cadastrar_usuario);
+
+                    et_nome_cadastro.setText(nome);
 
                     btn_voltar_cadastro = (Button) dialog_cadastro.findViewById(R.id.btn_voltar_cadastro);
                     btn_voltar_cadastro.setOnClickListener(new View.OnClickListener() {
@@ -235,6 +242,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
     }
 
+    //buscamos pelo face, pois só temos o id_face do usuario
     public void buscaUsuarioFace() {
         new BuscaUsuarioFace(id, SimuladorResultado.this, this).execute();
     }
@@ -318,36 +326,25 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
     public void retornoTaskVerificaCadastro(String result){
 
-        //utilizamo para verificarmos o email no banco de dados
-        BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
-        Cursor cursor = crud.carregaDados();
-        String email;
-
         if(result == null){
-
-            atualizaUsuario();
-
-        }else {
+            mensagem("Houve um erro!", "Olá, o CPF informado já existe, por favor informe outro, ou tente recuperar sua senha", "Ok");
+        }else{
 
             progress_bar_cadastro.setVisibility(View.INVISIBLE);
             btn_cadastrar.setEnabled(true);
             btn_voltar_cadastro.setEnabled(true);
 
             //verificamos o resultado da verificação e continuamos o cadastro, mas antes vemos tambem se o email é o mesmo do ja existente no banco atras do login no facebook
-            if (result.equals("email")) {
-
-                email = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.EMAIL));
-                if(email.equals(et_email_cadastro.getText().toString())){
-                    atualizaUsuario();
-                }else {
-                    mensagem("Houve um erro!", "Olá, o EMAIL informado já existe, se você esqueceu sua senha tente recupará-la na sessão anterior.", "Ok");
-                }
-            }else if (result.equals("cpf"))
+            if (result.equals("email"))
+                mensagem("Houve um erro!", "Olá, o EMAIL informado já existe, se você esqueceu sua senha tente recupará-la na sessão anterior.", "Ok");
+            else if (result.equals("cpf"))
                 mensagem("Houve um erro!", "Olá, o CPF informado já existe, por favor informe outro, ou tente recuperar sua senha", "Ok");
+            else
+                addUsuario();
         }
     }
 
-    public void atualizaUsuario(){
+    public void addUsuario(){
 
         String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,this);
         String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,this);
@@ -375,14 +372,14 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         usu.salvar();
 
         //fazemos a chamada a classe responsavel por realizar a tarefa de webservice em doinbackground
-        new AtualizaUsuario(usu,this,"face").execute();
+        new AddUsuario(usu,this,this).execute();
     }
 
     @Override
     public void retornoStringWebService(String result) {
         Log.i("Webservice","retorno = "+result);
 
-        if(result.equals("sucesso_edit")){
+        if(result.equals("sucesso")){
             dialog_cadastro.dismiss();
 
             mensagem("InBanker", "Parabéns, você já pode realizar o pedido de empréstimo.", "Ok");
@@ -392,57 +389,6 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         }
     }
 
-
-    @Override
-    public void retornoUsuarioWebService(Usuario usu){
-
-        if(usu != null) {
-            if(usu.getCpf().equals("")){
-                mensagem("Falha no envio!", "Olá, seu amigo(a) "+usu.getNome()+" ainda não completou o cadastro. Solicite que ele vá em configurações e atualize seus dados.", "Ok");
-
-                //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
-                progress_bar_simulador.setVisibility(View.GONE);
-                btn_fazer_pedido.setEnabled(true);
-
-            }else {
-                //pegamos o token do usuario para usar na notificação
-                token_user2 = usu.getToken_gcm();
-
-                //data do pedido
-                DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
-                DateTime hoje = new DateTime();
-                final String hoje_string = fmt.print(hoje);
-
-                BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
-                Cursor cursor = crud.carregaDados();
-
-                //adicionamos a trasacao em ambas as contas
-                trans.setDataPedido(hoje_string);
-                trans.setUsu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF)));
-                trans.setUsu2(usu.getCpf());
-                trans.setValor(String.valueOf(valor));
-                trans.setVencimento(vencimento);
-                trans.setNome_usu2(usu.getNome());
-                trans.setNome_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME)));
-                trans.setUrl_img_usu2(url_img);
-                trans.setUrl_img_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE)));
-                trans.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
-                //enviamos null para criamos um id aleatorio
-                trans.setId_trans(null);
-
-                new AddTransacao(trans, SimuladorResultado.this).execute();
-            }
-        }else{
-            mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","OK");
-
-            //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
-            progress_bar_simulador.setVisibility(View.GONE);
-            btn_fazer_pedido.setEnabled(true);
-
-        }
-
-
-    }
 
     @Override
     public void retornoUsuarioWebServiceFace(Usuario usu){
@@ -456,32 +402,12 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
                 btn_fazer_pedido.setEnabled(true);
 
             }else {
-                //pegamos o token do usuario para usar na notificação
-                token_user2 = usu.getToken_gcm();
 
-                //data do pedido
-                DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
-                DateTime hoje = new DateTime();
-                final String hoje_string = fmt.print(hoje);
+                usu_add_trasacao = usu;
 
-                BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
-                Cursor cursor = crud.carregaDados();
+                //obter hora do servidor para adicionar na trasacao
+                new ObterHora(this).execute();
 
-                //adicionamos a trasacao em ambas as contas
-                trans.setDataPedido(hoje_string);
-                trans.setUsu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF)));
-                trans.setUsu2(usu.getCpf());
-                trans.setValor(String.valueOf(valor));
-                trans.setVencimento(vencimento);
-                trans.setNome_usu2(usu.getNome());
-                trans.setNome_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME)));
-                trans.setUrl_img_usu2(url_img);
-                trans.setUrl_img_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE)));
-                trans.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
-                //enviamos null para criamos um id aleatorio
-                trans.setId_trans(null);
-
-                new AddTransacao(trans, SimuladorResultado.this).execute();
             }
         }else{
             mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","OK");
@@ -495,6 +421,61 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
     }
 
+    @Override
+    public void retornoObterHora(String hoje){
+
+        if(hoje!=null) {
+            if (hoje.equals("error")) {
+                mensagem("Houve um erro!", "Parece que houve um erro de conexão, por favor tente novamente.", "Ok");
+
+                //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
+                progress_bar_simulador.setVisibility(View.GONE);
+                btn_fazer_pedido.setEnabled(true);
+
+            } else {
+
+                Log.i("SimuladorResultado","Hora seridor = "+hoje);
+
+
+                //pegamos o token do usuario para usar na notificação
+                token_user2 = usu_add_trasacao.getToken_gcm();
+
+                //data vencimento, convertendo para padrao utc
+                DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
+                DateTime jodatime = fmt.parseDateTime(vencimento);
+                DateTimeFormatter dtfOut = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+                String vencimento_utf = dtfOut.print(jodatime);
+
+                BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
+                Cursor cursor = crud.carregaDados();
+
+                //adicionamos a trasacao em ambas as contas
+                trans.setDataPedido(hoje);
+                trans.setUsu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF)));
+                trans.setUsu2(usu_add_trasacao.getCpf());
+                trans.setValor(String.valueOf(valor));
+                trans.setVencimento(vencimento_utf);
+                trans.setNome_usu2(usu_add_trasacao.getNome());
+                trans.setNome_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME)));
+                trans.setUrl_img_usu2(url_img);
+                trans.setUrl_img_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE)));
+                trans.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
+                //enviamos null para criamos um id aleatorio
+                trans.setId_trans(null);
+
+                new AddTransacao(trans, SimuladorResultado.this).execute();
+
+            }
+        }else{
+            mensagem("Erro crítico!", "Parece que houve um erro de conexão, por favor tente novamente.", "Ok");
+
+            //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
+            progress_bar_simulador.setVisibility(View.GONE);
+            btn_fazer_pedido.setEnabled(true);
+        }
+    }
+
+
     public void retornoAddTransacao(String result){
 
         //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
@@ -504,11 +485,15 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
             if (result.equals("sucesso_edit")) {
 
 
-                //envia notificação
-                new EnviaNotificacao(trans, token_user2).execute();
+                if(!token_user2.equals("")) {
+                    //envia notificação
+                    new EnviaNotificacao(trans, token_user2).execute();
 
-                //aletar e redirecionamento para tela inicial
-                mensagemIntent("InBanker", "Pedido enviado, aguarde a resposta de seu amigo(a) " + nome, "Ok");
+                    //aletar e redirecionamento para tela inicial
+                    mensagemIntent("InBanker", "Pedido enviado, aguarde a resposta de seu amigo(a) " + nome, "Ok");
+                }else{
+                    mensagemIntent("InBanker","Pedido enviado! Porém recomendamos entrar em contato pessoalmente com seu amigo(a) "+nome+". Pois ele não receberá notifição de aviso por não estar logado.", "Ok");
+                }
             } else {
                 mensagem("Houve um erro!", "Parece que houve um erro de conexão, por favor tente novamente.", "Ok");
             }
@@ -543,8 +528,6 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         mensagem.setNeutralButton(botao,null);
         mensagem.show();
     }
-    @Override
-    public void retornoUsuarioWebServiceAuxInicioToken(Usuario usu){}
 
     public static String removerAcentos(String str) {
         return Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");

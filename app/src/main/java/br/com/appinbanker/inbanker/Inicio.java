@@ -47,8 +47,6 @@ import java.util.List;
 
 import br.com.appinbanker.inbanker.entidades.Amigos;
 import br.com.appinbanker.inbanker.entidades.Usuario;
-import br.com.appinbanker.inbanker.fcm.MyFirebaseInstanceIDService;
-import br.com.appinbanker.inbanker.gcm.RegistrationIntentService;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringFace;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
@@ -66,7 +64,7 @@ import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioLogin;
 import br.com.appinbanker.inbanker.webservice.VerificaUsuarioCadastro;
 
-public class Inicio extends AppCompatActivity implements WebServiceReturnStringFace,WebServiceReturnUsuarioFace,WebServiceReturnString {
+public class Inicio extends AppCompatActivity implements WebServiceReturnUsuarioFace,WebServiceReturnString {
 
 
     private CallbackManager callbackManager;
@@ -255,7 +253,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
             @Override
             public void onClick(View view) {
 
-                esconderTeclado();
+                //esconderTeclado();
 
                 if (!CheckConection.temConexao(Inicio.this)) {
                     mensagem("Sem conexao!", "Olá, para realizar o cadastro você precisa estar conectado em alguma rede.", "Ok");
@@ -264,7 +262,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
 
 
                     if (validaCadastrar()) {
-                        new VerificaUsuarioCadastro(et_email_cadastro.getText().toString(), et_cpf_cadastro.getText().toString(), Inicio.this).execute();
+                        new VerificaUsuarioCadastro(et_email_cadastro.getText().toString(),et_cpf_cadastro.getText().toString(), Inicio.this).execute();
                     }
 
                 }
@@ -393,7 +391,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
                             usu.setDevice_id(device_id);
                             usu.setToken_gcm(token);
 
-                            usuarioReferencia.child(usu.getCpf()).child("token_gcm").setValue(token);
+                            //usuarioReferencia.child(usu.getCpf()).child("token_gcm").setValue(token);
 
                             //atualizamos do token
                             new AtualizaTokenGcm(usu).execute();
@@ -412,7 +410,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
             direcionarNavigationDrawer();
         }else{
 
-            usu_cadastro_face = new Usuario();
+            /*usu_cadastro_face = new Usuario();
 
             usu_cadastro_face.setToken_gcm(token);
             usu_cadastro_face.setDevice_id(device_id);
@@ -425,15 +423,21 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
             usu_cadastro_face.setUrl_face(url_img);
 
             //fazemos a chamada a classe responsavel por realizar a tarefa de webservice em doinbackground
-            new AddUsuarioFace(usu_cadastro_face,this,this).execute();
+            new AddUsuarioFace(usu_cadastro_face,this,this).execute();*/
 
+            BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
+            //ordem de parametros - nome,email,cpf,senha,id_face,email_face,nome_face,url_img_face
+            String resultado = crud.insereDado(nome, email, cpf,senha, id, url_img,token,device_id);
+            Log.i("Banco SQLITE", " face resultado = " + resultado);
+
+            direcionarNavigationDrawer();
         }
 
         progress_bar_inicio.setVisibility(View.GONE);
     }
 
     //metodo que sera invoca na classe de webserve veio do login face
-    public void retornoStringWebServiceFace(String msg){
+    /*public void retornoStringWebServiceFace(String msg){
 
         String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,Inicio.this);
         String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,Inicio.this);
@@ -458,7 +462,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
             mensagem("Houve um erro!", "Olá, parece que houve um problema de conexão. Favor tente novamente!", "Ok");
         }
 
-    }
+    }*/
 
     public void clickLogin(){
 
@@ -630,8 +634,9 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnStringF
 
         usu_cadastro = new Usuario();
 
-        if(result == null){
-
+        if(result == null) {
+            mensagem("Houve um erro!", "Olá, parece que houve um problema de conexão. Favor tente novamente!", "Ok");
+        }else if(result.equals("vazio")){
             String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,Inicio.this);
             String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,Inicio.this);
 
