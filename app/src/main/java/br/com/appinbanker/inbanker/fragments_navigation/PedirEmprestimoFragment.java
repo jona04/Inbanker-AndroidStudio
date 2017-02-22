@@ -64,14 +64,16 @@ import br.com.appinbanker.inbanker.entidades.Amigos;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringIdFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.util.MaskMoney;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AtualizaUsuario;
+import br.com.appinbanker.inbanker.webservice.VerificaIdFace;
 
-public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnClickListenerHack,WebServiceReturnString{
+public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnClickListenerHack,WebServiceReturnString,WebServiceReturnStringIdFace{
 
     private EditText et_calendario,et_valor;
 
@@ -294,10 +296,10 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
                             amigosRef.child(id).updateChildren(infos);*/
 
-                            if(usuario_logado)
+                            if (usuario_logado)
                                 listaAmigos();
                             else
-                                confirmarUsuarioLogadoFace();
+                                verifica_usuario_existe();
                         }
                         catch(Exception e){
                             Log.i("Facebook","exception = "+e);
@@ -309,6 +311,39 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                     }
                 }
         ).executeAsync();
+
+    }
+
+    public void verifica_usuario_existe(){
+
+        //checa se id face recem logado já existe
+        new VerificaIdFace(id_face,this).execute();
+    }
+
+    @Override
+    public void retornoStringWebServiceIdFace(String result) {
+
+        if(result!=null) {
+            if (result.equals("id_face")){
+                //erro
+                mensagem("Houve um erro!","Olá, parece que o usuário que você esta tentando logar, já esta vinculado a outra conta. " +
+                        "Tente fazer o login diretamente pelo Facebook na tela inicial do aplicativo.","Ok");
+
+                //faz o logout do usuario logado facebook
+                LoginManager.getInstance().logOut();
+
+                mRecyclerView.setVisibility(View.GONE);
+                pb.setVisibility(View.GONE);
+
+            }else{
+                //continua
+                confirmarUsuarioLogadoFace();
+            }
+        }else{
+            //erro
+            mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","Ok");
+            pb.setVisibility(View.GONE);
+        }
 
     }
 
@@ -394,16 +429,6 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
             mRecyclerView.setAdapter(adapter);
         }
     }
-
-    /*@Override
-    public void retornoStringWebServiceFace(String result) {
-        if(result.equals("sucesso_edit")){
-            Log.i("AtualizaDados","Atualzia dados usuario");
-            atualizaDadosUsuario(id_face,url_face,email);
-        }else{
-            mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","Ok");
-        }
-    }*/
 
     public void atualizaDadosUsuario(String id, String url_picture){
 
@@ -658,5 +683,4 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
     public static String removerAcentos(String str) {
         return Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
     }
-
 }

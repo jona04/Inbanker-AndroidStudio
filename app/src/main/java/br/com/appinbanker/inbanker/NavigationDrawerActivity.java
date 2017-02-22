@@ -184,32 +184,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
             Log.i("Script","menu sair");
 
-            //faz o logout do usuario logado facebook
-            LoginManager.getInstance().logOut();
-
-            BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
-            Cursor cursor = crud.carregaDados();
-
-            //deleta registro do usuario no sqlite
-            String cpf = cursor.getString(cursor.getColumnIndexOrThrow("cpf"));
-            crud.deletaRegistro(cpf);
-
-            //deleta o token do usuario do banco de dados
-            String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);
-            //String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,NavigationDrawerActivity.this);
-            Usuario usu = new Usuario();
-            usu.setDevice_id(device_id);
-            usu.setToken_gcm("");
-            usu.setCpf(cpf);
-
-            new AtualizaTokenGcm(usu).execute();
-
-
-            Intent it = new Intent(NavigationDrawerActivity.this, Inicio.class);
-            startActivity(it);
-
-            //para encerrar a activity atual e todos os parent
-            finishAffinity();
+            usuario_logoff();
 
             return true;
         }
@@ -255,32 +230,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 //fragment qualquer para nao dar erro do try
                 fragmentClass = InicioFragment.class;
 
-                //faz o logout do usuario logado facebook
-                LoginManager.getInstance().logOut();
-
-                BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
-                Cursor cursor = crud.carregaDados();
-
-                //deleta registro do usuario no sqlite
-                String cpf = cursor.getString(cursor.getColumnIndexOrThrow("cpf"));
-                crud.deletaRegistro(cpf);
-
-                //deleta o token do usuario do banco de dados
-                String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);
-                //String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,NavigationDrawerActivity.this);
-                Usuario usu = new Usuario();
-                usu.setDevice_id(device_id);
-                usu.setToken_gcm("");
-                usu.setCpf(cpf);
-
-                new AtualizaTokenGcm(usu).execute();
-
-
-                Intent it = new Intent(NavigationDrawerActivity.this, Inicio.class);
-                startActivity(it);
-
-                //para encerrar a activity atual e todos os parent
-                finishAffinity();
+                usuario_logoff();
 
                 break;
             default:
@@ -316,5 +266,37 @@ public class NavigationDrawerActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void usuario_logoff(){
+
+        //faz o logout do usuario logado facebook
+        LoginManager.getInstance().logOut();
+
+        BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
+        Cursor cursor = crud.carregaDados();
+
+        //deleta registro do usuario no sqlite
+        String cpf = cursor.getString(cursor.getColumnIndexOrThrow("cpf"));
+        crud.deletaRegistro(cpf);
+
+        //deleta o token do usuario do banco de dados
+        String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID, NavigationDrawerActivity.this);
+        //String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,NavigationDrawerActivity.this);
+        Usuario usu = new Usuario();
+        usu.setDevice_id(device_id);
+        usu.setToken_gcm("");
+        usu.setCpf(cpf);
+
+        new AtualizaTokenGcm(usu).execute();
+
+
+        Intent it = new Intent(NavigationDrawerActivity.this, SlideInicial.class);
+        startActivity(it);
+
+        //para encerrar a activity atual e todos os parent
+        finishAffinity();
+
+
     }
 }

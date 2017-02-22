@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#395254</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#124368</color>
     <color name="colorRed">#ff4040</color>
     <color name="colorGreen">#11b413</color>
     <color name="colorNavigationDrawer">#395254</color>
@@ -18,11 +18,9 @@
         <item>@color/dot_light</item>
         <item>@color/dot_light</item>
         <item>@color/dot_light</item>
-        <item>@color/dot_light</item>
     </array>
 
     <array name="array_dot_inactive">
-        <item>@color/dot_dark</item>
         <item>@color/dot_dark</item>
         <item>@color/dot_dark</item>
         <item>@color/dot_dark</item>

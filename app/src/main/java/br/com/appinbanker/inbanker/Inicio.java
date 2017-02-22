@@ -30,11 +30,6 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -97,7 +92,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnUsuario
 
         callbackManager = CallbackManager.Factory.create();
 
-        LoginManager.getInstance().registerCallback(callbackManager,
+        /*LoginManager.getInstance().registerCallback(callbackManager,
                 new FacebookCallback<LoginResult>() {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
@@ -123,14 +118,11 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnUsuario
 
                     }
                 });
-
+*/
 
         setContentView(R.layout.layout_inicio);
 
-        progress_bar_inicio = (ProgressBar) findViewById(R.id.progress_bar_inicio);
-
         Button btn_facebook=(Button)findViewById(R.id.btn_fb);
-
         btn_facebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -139,6 +131,7 @@ public class Inicio extends AppCompatActivity implements WebServiceReturnUsuario
             }
         });
 
+        progress_bar_inicio = (ProgressBar) findViewById(R.id.progress_bar_inicio);
         /*loginButton = (LoginButton) findViewById(R.id.fbLoginButton);
 
         loginButton.setReadPermissions("email");

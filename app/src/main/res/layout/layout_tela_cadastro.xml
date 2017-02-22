@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_tela_cadastro"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="br.com.appinbanker.inbanker.TelaCadastro">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/ll_campos_dados_pessoais"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+
+            <!--<EditText
+                android:id="@+id/et_cpf"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Informe seu CPF"
+                android:inputType="number"
+                android:textSize="@dimen/len_fields_et"
+                android:imeOptions="actionNext"
+                android:lines="1"
+                android:textColor="#000"/>-->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="@dimen/width_fields_tv"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/size_fields_tv"
+                    android:text="CPF"/>
+
+                <com.github.pinball83.maskededittext.MaskedEditText
+                    android:id="@+id/et_cpf"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    app:mask="***.***.***-**"
+                    app:notMaskedSymbol="*"
+                    app:maskIconColor="@color/colorPrimary" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/ll_et_nome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="@dimen/width_fields_tv"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/size_fields_tv"
+                    android:text="Nome"
+                    android:id="@+id/textView2" />
+
+                <EditText
+                    android:id="@+id/et_nome"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Informe seu nome"
+                    android:textColor="#000"
+                    android:imeOptions="actionNext"
+                    android:visibility="visible"
+                    android:textSize="@dimen/size_fields_et"
+                    android:enabled="false"
+                    android:lines="1"/>
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ll_campos_dados_endereco"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ll_campos_dados_pessoais"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!--<EditText
+                android:id="@+id/et_nasc"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Informe sua data de nascimento"
+                android:textColor="#000"
+                android:imeOptions="actionNext"
+                android:inputType="number"
+                android:textSize="@dimen/len_fields_et"
+                android:lines="1"/>-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:id="@+id/ll_et_nasc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="@dimen/width_fields_tv"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/size_fields_tv"
+                    android:text="Idade"/>
+
+                <com.github.pinball83.maskededittext.MaskedEditText
+                    android:id="@+id/et_nasc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    app:mask="**/**/****"
+                    app:notMaskedSymbol="*"
+                    app:maskIconColor="@color/colorPrimary"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/ll_et_sexo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="@dimen/width_fields_tv"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/size_fields_tv"
+                    android:text="Sexo"/>
+
+                <RadioGroup
+                    android:id="@+id/radio_op"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/radio_sexo_masc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/size_fields_tv"
+                        android:text="Masculino"/>
+                    <RadioButton
+                        android:id="@+id/radio_sexo_fem"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/size_fields_tv"
+                        android:text="Femenino"/>
+
+                </RadioGroup>
+
+
+            </LinearLayout>
+        </LinearLayout>
+            <!--<EditText
+                android:id="@+id/et_cep"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Informe seu CEP"
+                android:textColor="#000"
+                android:imeOptions="actionNext"
+                android:inputType="number"
+                android:textSize="@dimen/len_fields_et"
+                android:lines="1"/>-->
+            <LinearLayout
+                android:id="@+id/ll_et_cep"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="@dimen/width_fields_tv"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/size_fields_tv"
+                    android:text="CEP"/>
+                <com.github.pinball83.maskededittext.MaskedEditText
+                    android:id="@+id/et_cep"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    app:mask="*****-***"
+                    app:notMaskedSymbol="*"
+                    app:maskIconColor="@color/colorPrimary"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/cep_endereco_completar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/ll_et_logradouro"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="67dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/size_fields_tv"
+                        android:text="Logradouro"/>
+                    <EditText
+                        android:id="@+id/et_logradouro"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Informe o nome da rua"
+                        android:textSize="@dimen/size_fields_et"
+                        android:textColor="#000"
+                        android:enabled="false"
+                        android:lines="1"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/ll_et_numero"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="67dp"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/size_fields_tv"
+                            android:text="Número"/>
+                        <EditText
+                            android:id="@+id/et_numero"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Informe o número"
+                            android:textSize="@dimen/size_fields_et"
+                            android:imeOptions="actionNext"
+                            android:inputType="number"
+                            android:lines="1"
+                            android:textColor="#000"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/ll_et_complemento"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/size_fields_tv"
+                            android:text="Complemento"/>
+                        <EditText
+                            android:id="@+id/et_complemento"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Informe o complemento"
+                            android:textSize="@dimen/size_fields_et"
+                            android:lines="1"
+                            android:imeOptions="actionNext"
+                            android:textColor="#000"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_et_bairro"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="67dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/size_fields_tv"
+                        android:text="Bairro"/>
+                    <EditText
+                        android:id="@+id/et_bairro"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Informe seu bairro"
+                        android:textSize="@dimen/size_fields_et"
+                        android:textColor="#000"
+                        android:enabled="false"
+                        android:lines="1"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:id="@+id/ll_et_cidade"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/size_fields_tv"
+                            android:text="Cidade"/>
+
+                        <EditText
+                            android:id="@+id/et_cidade"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Informe sua cidade"
+                            android:layout_weight="1"
+                            android:layout_marginRight="5dp"
+                            android:textSize="@dimen/size_fields_et"
+                            android:textColor="#000"
+                            android:enabled="false"
+                            android:lines="1"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/ll_et_estado"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/size_fields_tv"
+                            android:text="Estado"/>
+                        <EditText
+                            android:id="@+id/et_estado"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Informe seu estado"
+                            android:layout_weight="1"
+                            android:layout_marginLeft="5dp"
+                            android:textSize="@dimen/size_fields_et"
+                            android:textColor="#000"
+                            android:enabled="false"
+                            android:lines="1"/>
+                    </LinearLayout>
+
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_campos_senha"
+            android:layout_below="@+id/ll_campos_dados_endereco"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/et_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Informe seu email"
+                android:textSize="@dimen/size_fields_et"
+                android:lines="1"
+                android:inputType="textEmailAddress"
+                android:imeOptions="actionNext"
+                android:textColor="#000"/>
+
+            <EditText
+                android:id="@+id/et_senha"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Informe sua senha"
+                android:textSize="@dimen/size_fields_et"
+                android:lines="1"
+                android:imeOptions="actionNext"
+                android:inputType="textPassword"
+                android:textColor="#000"/>
+
+            <EditText
+                android:id="@+id/et_confirma_senha"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Confirme sua senha"
+                android:textSize="@dimen/size_fields_et"
+                android:lines="1"
+                android:imeOptions="actionNext"
+                android:inputType="textPassword"
+                android:textColor="#000"/>
+
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_cadastrar_continuar_cpf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#3e3e3e"
+            android:background="@drawable/borda_cinza"
+            android:layout_marginTop="10dp"
+            android:textSize="15sp"
+            android:layout_below="@+id/ll_campos_senha"
+            android:text="Continuar"
+            />
+
+        <Button
+            android:id="@+id/btn_cadastrar_continuar_endereco"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#3e3e3e"
+            android:background="@drawable/borda_cinza"
+            android:layout_marginTop="10dp"
+            android:textSize="15sp"
+            android:visibility="gone"
+            android:layout_below="@+id/ll_campos_senha"
+            android:text="Continuar"
+            />
+
+        <Button
+            android:id="@+id/btn_cadastrar_continuar_senha"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#3e3e3e"
+            android:background="@drawable/borda_cinza"
+            android:layout_marginTop="10dp"
+            android:textSize="15sp"
+            android:visibility="gone"
+            android:layout_below="@+id/ll_campos_senha"
+            android:text="Continuar"
+            />
+
+        <Button
+            android:id="@+id/btn_cadastrar_usuario"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#3e3e3e"
+            android:background="@drawable/borda_cinza"
+            android:layout_marginTop="10dp"
+            android:textSize="15sp"
+            android:visibility="gone"
+            android:layout_below="@+id/ll_campos_senha"
+            android:text="Cadastrar"
+            />
+    </RelativeLayout>
+</ScrollView>

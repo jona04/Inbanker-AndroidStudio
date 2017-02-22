@@ -16,14 +16,14 @@
 
     <!-- Slider inicial -->
     <string name="btn_signin">Entrar</string>
-    <string name="btn_signup">Cadastrar</string>
-    <string name="slide_1_desc">Texto 1</string>
-    <string name="slide_2_desc">Texto 2</string>
-    <string name="slide_3_desc">Texto 3</string>
-    <string name="slide_4_desc">Texto 4</string>
+    <string name="btn_signup">Cadastre-se</string>
+    <string name="slide_1_desc">Ganhe mais dinheiro\ninvestindo na sua\namizade!</string>
+    <string name="slide_2_desc">Sem intermédio de Bancos,\nvocê paga menos juros\ne sua dívida não cresce.</string>
+    <string name="slide_3_desc">É tudo digital,\nsem burocracia,\ncom muita agilidade\ne comodidade.</string>
+    <string name="text_singnin">Já possui conta?</string>
 
-
-
+    <string name="tela_cadastro_titulo1">Dados pessoais</string>
+    <string name="tela_cadastro_titulo2">Endereço</string>
 
     <!-- TITLES -->
     <string name="title_activity_inicio">Inicio</string>
@@ -31,13 +31,17 @@
     <string name="title_activity_cadastro_usuario">Cadastrar</string>
     <string name="title_activity_telalogin">Entrar</string>
     <string name="title_activity_simulador_pedido">Simular pedido</string>
-    <string name="title_activity_simulador_resultado">Resultado simulaçao</string>
+    <string name="title_activity_simulador_resultado">Resultado simulação</string>
     <string name="title_activity_ver_pedido_recebido">Pedido Recebido</string>
     <string name="title_activity_ver_pedido_enviado">Pedido Enviado</string>
-    <string name="title_activity_historico">Historico</string>
+    <string name="title_activity_historico">Histórico</string>
     <string name="title_activity_ver_pagamento">Pagamento pendente</string>
     <string name="title_activity_minha_conta">Minha Conta</string>
     <string name="title_activity_ajuda">Ajuda</string>
+
+    <string name="title_activity_tela_login">Login</string>
+    <string name="title_activity_tela_cadastro">Cadastro</string>
+
 
     <string name="tela_inicio_termo"><u>Termos de uso</u></string>
     <string name="tela_inicio_politica"><u>Política de privacidade</u></string>

@@ -15,36 +15,52 @@
     <ImageView
         android:layout_width="@dimen/img_width_height"
         android:layout_height="@dimen/img_width_height"
-        android:src="@drawable/logo_inbanker"
+        android:src="@drawable/logo_inbanker_com_nome"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp"/>
+        android:layout_marginTop="20dp"/>
 
     <LinearLayout
         android:id="@+id/layoutDots"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dots_height"
-        android:layout_above="@+id/btn_signin"
+        android:layout_above="@+id/ll_singnin"
         android:layout_marginBottom="@dimen/dots_margin_bottom"
         android:gravity="center"
         android:orientation="horizontal"></LinearLayout>
 
-    <Button
-        android:id="@+id/btn_signin"
+    <LinearLayout
+        android:id="@+id/ll_singnin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_centerHorizontal="true"
-        android:layout_above="@+id/btn_signup"
-        android:background="@null"
-        android:text="@string/btn_signin"
-        android:textColor="@android:color/white" />
+        android:layout_above="@+id/btn_signup">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/text_singnin"
+            android:textSize="16dp"
+            android:textColor="#fff"/>
+
+        <Button
+            android:id="@+id/btn_signin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:text="@string/btn_signin"
+            android:textSize="20dp"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/btn_signup"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:background="@null"
+        android:background="@drawable/borda_branca"
         android:text="@string/btn_signup"
         android:textColor="@android:color/white" />
 

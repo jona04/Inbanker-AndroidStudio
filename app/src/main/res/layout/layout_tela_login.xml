@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    tools:context="br.com.appinbanker.inbanker.TelaLogin">
+
+    <ImageView
+        android:layout_width="@dimen/img_width_height"
+        android:layout_height="@dimen/img_width_height"
+        android:src="@drawable/logo_inbanker_com_nome"
+        android:layout_centerHorizontal="true"/>
+
+    <ProgressBar
+        android:id="@+id/progress_bar_entrar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/layoutInserirDados"
+        android:visibility="invisible" />
+
+    <LinearLayout
+        android:id="@+id/layoutInserirDados"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:src="@drawable/icon_login"
+                android:layout_weight="2"/>
+
+            <EditText
+                android:id="@+id/et_entrar_cpf"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Informe seu CPF"
+                android:inputType="number"
+                android:textSize="14sp"
+                android:imeOptions="actionNext"
+                android:lines="1"
+                android:layout_weight="1"
+                android:textColor="#000"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:src="@drawable/icon_seguranca"
+                android:layout_weight="2"/>
+
+            <EditText
+                android:id="@+id/et_entrar_senha"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Digite sua senha"
+                android:textSize="13sp"
+                android:inputType="textPassword"
+                android:textColor="#000"
+                android:imeOptions="actionNext"
+                android:layout_weight="1"
+                android:lines="1"/>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_entrar_usuario"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#3e3e3e"
+            android:background="@drawable/borda_cinza"
+            android:text="Entrar"
+            />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_esqueceu_senha"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:text="Esqueceu sua senha?"
+        android:layout_below="@+id/layoutInserirDados"
+        android:layout_centerHorizontal="true"/>
+
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/fbLoginButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:visibility="visible"
+        />
+
+    <Button
+        android:id="@+id/btn_fb"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#3857a7"
+        android:text="Entrar com FaceBook"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="#fff"
+        android:visibility="gone"/>
+
+</RelativeLayout>

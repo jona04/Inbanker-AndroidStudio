@@ -49,7 +49,7 @@ import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 import br.com.appinbanker.inbanker.webservice.ObterHora;
 import br.com.appinbanker.inbanker.webservice.VerificaUsuarioCadastro;
 
-public class SimuladorResultado extends AppCompatActivity implements WebServiceReturnStringHora,WebServiceReturnString,WebServiceReturnUsuarioFace {
+public class SimuladorResultado extends AppCompatActivity implements WebServiceReturnStringHora,WebServiceReturnUsuarioFace {
 
     double valor;
     String id,nome,vencimento,url_img;
@@ -150,42 +150,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
                 //se usuario nao tiver o cpf cadastrado, mostramos o dialog para cadastrar, se nao continuamos o pedido mostramos o dialog de senha
                 if(cpf.equals("")){
 
-                    // custom dialog
-                    dialog_cadastro = new Dialog(SimuladorResultado.this,R.style.AppThemeDialog);
-                    dialog_cadastro.setContentView(R.layout.dialog_completar_cadastro);
-                    //dialog_cadastro.setTitle("Finalização de cadastro");
-
-                    progress_bar_cadastro = (ProgressBar) dialog_cadastro.findViewById(R.id.progress_bar_cadastro);
-                    et_nome_cadastro = (EditText) dialog_cadastro.findViewById(R.id.et_nome);
-                    et_email_cadastro = (EditText) dialog_cadastro.findViewById(R.id.et_email);
-                    et_cpf_cadastro = (EditText) dialog_cadastro.findViewById(R.id.et_cpf);
-                    et_senha_cadastro = (EditText) dialog_cadastro.findViewById(R.id.et_senha);
-                    et_senha_novamente_cadastro = (EditText) dialog_cadastro.findViewById(R.id.et_senha_novamente);
-                    btn_cadastrar = (Button) dialog_cadastro.findViewById(R.id.btn_cadastrar_usuario);
-
-                    et_nome_cadastro.setText(nome);
-
-                    btn_voltar_cadastro = (Button) dialog_cadastro.findViewById(R.id.btn_voltar_cadastro);
-                    btn_voltar_cadastro.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            dialog_cadastro.dismiss();
-                        }
-                    });
-                    btn_cadastrar.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if(!CheckConection.temConexao(SimuladorResultado.this)){
-                                mensagem("Sem conexao!","Olá, para realizar o cadastro você precisa estar conectado em alguma rede.","Ok");
-                            }else {
-
-                                clickCadastrar();
-
-                            }
-                        }
-                    });
-
-                    dialog_cadastro.show();
+                    mensagemIntent("Cadastro","Olá, você ainda não possui cadastro no InBanker. Deseja cadastrar-se?","Sim","Não");
 
                 }else {
                     // custom dialog
@@ -247,149 +212,6 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         new BuscaUsuarioFace(id, SimuladorResultado.this, this).execute();
     }
 
-    public void clickCadastrar(){
-
-        boolean campos_ok = true;
-
-        boolean nome_valido = Validador.validateNotNull(et_nome_cadastro.getText().toString());
-        if(!nome_valido) {
-            et_nome_cadastro.setError("Campo vazio");
-            et_nome_cadastro.setFocusable(true);
-            et_nome_cadastro.requestFocus();
-
-            campos_ok = false;
-        }
-
-        boolean cpf_valido = Validador.isCPF(et_cpf_cadastro.getText().toString());
-        if(!cpf_valido) {
-            et_cpf_cadastro.setError("CPF inválido");
-            et_cpf_cadastro.setFocusable(true);
-            et_cpf_cadastro.requestFocus();
-
-            campos_ok = false;
-        }
-
-        boolean email_valido = Validador.validateEmail(et_email_cadastro.getText().toString());
-        if(!email_valido){
-            et_email_cadastro.setError("Email inválido");
-            et_email_cadastro.setFocusable(true);
-            et_email_cadastro.requestFocus();
-
-            campos_ok = false;
-        }
-
-        if(et_senha_cadastro.getText().toString().length()<6) {
-            et_senha_cadastro.setError("Mínimo de 6 letras");
-            et_senha_cadastro.setFocusable(true);
-            et_senha_cadastro.requestFocus();
-
-            campos_ok = false;
-        }
-
-        boolean valida_senha = Validador.validateNotNull(et_senha_cadastro.getText().toString());
-        if(!valida_senha){
-            et_senha_cadastro.setError("Campo Vazio");
-            et_senha_cadastro.setFocusable(true);
-            et_senha_cadastro.requestFocus();
-
-            campos_ok = false;
-        }
-
-        boolean valida_confirm_senha = Validador.validateNotNull(et_senha_novamente_cadastro.getText().toString());
-        if(!valida_confirm_senha){
-            et_senha_novamente_cadastro.setError("Campo Vazio");
-            et_senha_novamente_cadastro.setFocusable(true);
-            et_senha_novamente_cadastro.requestFocus();
-
-            campos_ok = false;
-        }
-
-        if (et_senha_cadastro.getText().toString().equals(et_senha_novamente_cadastro.getText().toString())) {
-
-            if(campos_ok) {
-
-                btn_cadastrar.setEnabled(false);
-                progress_bar_cadastro.setVisibility(View.VISIBLE);
-
-                new VerificaUsuarioCadastro(et_email_cadastro.getText().toString(), et_cpf_cadastro.getText().toString(), SimuladorResultado.this).execute();
-            }
-
-        } else {
-
-            et_senha_novamente_cadastro.setError("Senha diferente");
-            et_senha_novamente_cadastro.setFocusable(true);
-            et_senha_novamente_cadastro.requestFocus();
-
-            campos_ok = false;
-        }
-    }
-
-    public void retornoTaskVerificaCadastro(String result){
-
-        if(result == null){
-            mensagem("Houve um erro!", "Olá, o CPF informado já existe, por favor informe outro, ou tente recuperar sua senha", "Ok");
-        }else{
-
-            progress_bar_cadastro.setVisibility(View.INVISIBLE);
-            btn_cadastrar.setEnabled(true);
-            btn_voltar_cadastro.setEnabled(true);
-
-            //verificamos o resultado da verificação e continuamos o cadastro, mas antes vemos tambem se o email é o mesmo do ja existente no banco atras do login no facebook
-            if (result.equals("email"))
-                mensagem("Houve um erro!", "Olá, o EMAIL informado já existe, se você esqueceu sua senha tente recupará-la na sessão anterior.", "Ok");
-            else if (result.equals("cpf"))
-                mensagem("Houve um erro!", "Olá, o CPF informado já existe, por favor informe outro, ou tente recuperar sua senha", "Ok");
-            else
-                addUsuario();
-        }
-    }
-
-    public void addUsuario(){
-
-        String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,this);
-        String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,this);
-
-        Usuario usu = new Usuario();
-
-        BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
-        Cursor cursor = crud.carregaDados();
-
-        //atualizamos os dados do usuario que esta no sqlite com os dados dele que acabaram de ser logados no facebook
-        String id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
-        crud.alteraRegistroCpf(id_face,et_cpf_cadastro.getText().toString(),et_senha_cadastro.getText().toString(),et_email_cadastro.getText().toString(),token,device_id,et_nome_cadastro.getText().toString());
-
-        cursor = crud.carregaDados();
-
-        usu.setCpf(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF)));
-        usu.setEmail(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.EMAIL)));
-        usu.setNome(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME)));
-        usu.setSenha(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.SENHA)));
-        usu.setId_face(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE)));
-        usu.setUrl_face(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE)));
-        usu.setToken_gcm(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.TOKEN_FCM)));
-        usu.setDevice_id(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.DEVICE_ID)));
-
-        usu.salvar();
-
-        //fazemos a chamada a classe responsavel por realizar a tarefa de webservice em doinbackground
-        new AddUsuario(usu,this,this).execute();
-    }
-
-    @Override
-    public void retornoStringWebService(String result) {
-        Log.i("Webservice","retorno = "+result);
-
-        if(result.equals("sucesso")){
-            dialog_cadastro.dismiss();
-
-            mensagem("InBanker", "Parabéns, você já pode realizar o pedido de empréstimo.", "Ok");
-        }else{
-            dialog_cadastro.dismiss();
-            mensagem("Houve um erro!", "Olá, parece que tivemos algum problema de conexão, por favor tente novamente.", "Ok");
-        }
-    }
-
-
     @Override
     public void retornoUsuarioWebServiceFace(Usuario usu){
 
@@ -410,7 +232,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
             }
         }else{
-            mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","OK");
+            mensagem("Houve um erro!","Olá, parece que o usuario houve um problema de conexao. Favor tente novamente!","OK");
 
             //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
             progress_bar_simulador.setVisibility(View.GONE);
@@ -531,5 +353,22 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
     public static String removerAcentos(String str) {
         return Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+    }
+
+    public void mensagemIntent(String titulo,String corpo,String botao_positivo,String botao_neutro)
+    {
+        AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
+        mensagem.setTitle(titulo);
+        mensagem.setMessage(corpo);
+        mensagem.setNeutralButton(botao_neutro,null);
+        mensagem.setPositiveButton(botao_positivo,new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                Intent it = new Intent(SimuladorResultado.this,TelaCadastroSimulador.class);
+                startActivity(it);
+                //para encerrar a activity atual e todos os parent
+                //finishAffinity();
+            }
+        });
+        mensagem.show();
     }
 }

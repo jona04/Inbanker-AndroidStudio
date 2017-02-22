@@ -45,6 +45,7 @@
                 android:textColor="#000"
                 android:imeOptions="actionNext"
                 android:textSize="13sp"
+                android:enabled="false"
                 android:lines="1"/>
 
             <EditText

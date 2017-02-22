@@ -18,6 +18,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import android.graphics.Paint;
+
 public class SlideInicial extends AppCompatActivity {
 
     private ViewPager viewPager;
@@ -37,13 +39,14 @@ public class SlideInicial extends AppCompatActivity {
         btnSingnIn = (Button) findViewById(R.id.btn_signin);
         btnSingnUp = (Button) findViewById(R.id.btn_signup);
 
+        btnSingnIn.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
+
         // layouts of all welcome sliders
         // add few more layouts if you want
         layouts = new int[]{
                 R.layout.slide_inicial1,
                 R.layout.slide_inicial2,
-                R.layout.slide_inicial3,
-                R.layout.slide_inicial4};
+                R.layout.slide_inicial3};
 
         // adding bottom dots
         addBottomDots(0);
@@ -54,6 +57,22 @@ public class SlideInicial extends AppCompatActivity {
         myViewPagerAdapter = new MyViewPagerAdapter();
         viewPager.setAdapter(myViewPagerAdapter);
         viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
+
+        btnSingnIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent it = new Intent(SlideInicial.this,TelaLogin.class);
+                startActivity(it);
+            }
+        });
+
+        btnSingnUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent it = new Intent(SlideInicial.this,TelaCadastro.class);
+                startActivity(it);
+            }
+        });
 
     }
 

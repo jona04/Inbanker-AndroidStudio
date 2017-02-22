@@ -22,19 +22,22 @@ public class Usuario {
     private String cpf;
     @JsonProperty("senha")
     private String senha;
-
     @JsonProperty("id_face")
     private String id_face;
-
-
     @JsonProperty("url_face")
     private String url_face;
-
     @JsonProperty("token_gcm")
     private String token_gcm;
-
     @JsonProperty("device_id")
     private String device_id;
+
+    @JsonProperty("idade")
+    private String idade;
+    @JsonProperty("sexo")
+    private String sexo;
+
+    @JsonProperty("endereco")
+    private Endereco endereco;
 
     @JsonProperty("transacoes")
     private List<Transacao> transacao;
@@ -88,6 +91,15 @@ public class Usuario {
         this.senha = senha;
     }
 
+    public void setEndereco(Endereco end){
+        this.endereco = end;
+    }
+    public void setSexo(String sexo) {
+        this.sexo = sexo;
+    }
+    public void setIdade(String idade) {
+        this.idade = idade;
+    }
     public void setId_face(String id_face) {
         this.id_face = id_face;
     }
@@ -111,6 +123,17 @@ public class Usuario {
     }
     public String getSenha(){
         return this.senha;
+    }
+
+    public Endereco getEndereco(){
+        return this.endereco;
+    }
+
+    public String getSexo() {
+        return sexo;
+    }
+    public String getIdade() {
+        return idade;
     }
 
     public String getId_face() {

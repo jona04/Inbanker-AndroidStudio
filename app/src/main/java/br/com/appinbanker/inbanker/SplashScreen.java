@@ -64,7 +64,8 @@ public class SplashScreen extends Activity {
         }else{
             Log.i("Splash","chama splash");
             //chama função que dura 2 segundo antes de ir para inicio(menu principal)
-            mSplashThread.start();
+            //mSplashThread.start();
+            vaiInicio();
         }
 
     }
@@ -73,7 +74,7 @@ public class SplashScreen extends Activity {
 
         Log.i("Splash","vai inicio 2");
 
-        Intent it = new Intent(SplashScreen.this, Inicio.class);
+        Intent it = new Intent(SplashScreen.this, SlideInicial.class);
         startActivity(it);
 
         //encerra splash e evitar voltar

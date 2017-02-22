@@ -34,11 +34,12 @@
             android:value="@string/app_id" />
 
         <activity
-            android:name=".SlideInicial"
+            android:name=".SplashScreen"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -72,6 +73,21 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+
+        <activity android:name=".TelaLogin"
+            android:label="@string/title_activity_tela_login"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:parentActivityName=".SlideInicial"/>
+        <activity android:name=".TelaCadastro"
+            android:label="@string/title_activity_tela_cadastro"
+            android:parentActivityName=".SlideInicial" />
+        <activity android:name=".TelaCadastroMinhaConta"
+            android:label="@string/title_activity_tela_cadastro"
+            android:parentActivityName=".MinhaConta" />
+        <activity android:name=".TelaCadastroSimulador"
+            android:label="@string/title_activity_tela_cadastro"/>
+        <activity android:name=".SlideInicial"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>
 
 </manifest>

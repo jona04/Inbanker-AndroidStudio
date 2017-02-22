@@ -7,8 +7,8 @@ android {
         applicationId "br.com.appinbanker.inbanker"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 8
-        versionName "0.1.7"
+        versionCode 12
+        versionName "0.2.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
@@ -55,6 +55,8 @@ dependencies {
     compile 'com.google.firebase:firebase-core:9.6.1'
     compile 'com.google.firebase:firebase-database:9.6.1'
     compile 'com.google.firebase:firebase-messaging:9.6.1'
+
+    compile 'com.github.pinball83:masked-edittext:1.0.3'
 }
 
 apply plugin: 'com.google.gms.google-services'

@@ -1,17 +1,15 @@
 package br.com.appinbanker.inbanker;
 
-import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,21 +21,17 @@ import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
-import java.net.InterfaceAddress;
 import java.text.Normalizer;
 
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
-import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AddUsuario;
 import br.com.appinbanker.inbanker.webservice.AtualizaUsuario;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
-import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPFAux;
-import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 import br.com.appinbanker.inbanker.webservice.EditaSenha;
 import br.com.appinbanker.inbanker.webservice.VerificaUsuarioCadastro;
 
@@ -57,10 +51,6 @@ public class MinhaConta extends AppCompatActivity implements WebServiceReturnUsu
 
     Dialog dialog;
     ProgressBar progress_bar_atualiza;
-
-    //boolean verificaCpfEmail = false;
-    //boolean verificaCpf = false;
-    //boolean verificaEmail = false;
 
     boolean logado_com_face = false;
     @Override
@@ -130,13 +120,16 @@ public class MinhaConta extends AppCompatActivity implements WebServiceReturnUsu
 
     public void redefinirSenha(View view){
         if(usu_global.getCpf().equals(""))
-            dialog_atualiza_dados();
+            mensagemIntent("Cadastro","Olá, você ainda não possui cadastro no InBanker. Deseja cadastrar-se?","Sim","Não");
         else
             dialog_redefinir_senha();
     }
 
     public void editarUsuario(View view){
-        dialog_atualiza_dados();
+        if(usu_global.getCpf().equals(""))
+            mensagemIntent("Cadastro","Olá, você ainda não possui cadastro no InBanker. Deseja cadastrar-se?","Sim","Não");
+        else
+            dialog_atualiza_dados();
     }
 
     public void dialog_redefinir_senha(){
@@ -412,12 +405,12 @@ public class MinhaConta extends AppCompatActivity implements WebServiceReturnUsu
             if(!usu.getCpf().equals(""))
                 et_cpf.setText(usu.getCpf());
             else
-                et_cpf.setText("Informe seu CPF");
+                et_cpf.setText("CPF não cadastrado");
 
             if(!usu.getEmail().equals(""))
                 et_email.setText(usu.getEmail());
             else
-                et_email.setText("Informe seu Email");
+                et_email.setText("Email não cadastrado");
 
         }else{
             mensagem("Houve um erro!","Olá, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
@@ -611,5 +604,22 @@ public class MinhaConta extends AppCompatActivity implements WebServiceReturnUsu
             progress_bar_atualiza.setVisibility(View.GONE);
 
         return campos_ok;
+    }
+
+    public void mensagemIntent(String titulo,String corpo,String botao_positivo,String botao_neutro)
+    {
+        AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
+        mensagem.setTitle(titulo);
+        mensagem.setMessage(corpo);
+        mensagem.setNeutralButton(botao_neutro,null);
+        mensagem.setPositiveButton(botao_positivo,new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                Intent it = new Intent(MinhaConta.this,TelaCadastroMinhaConta.class);
+                startActivity(it);
+                //para encerrar a activity atual e todos os parent
+                finishAffinity();
+            }
+        });
+        mensagem.show();
     }
 }

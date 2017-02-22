@@ -50,7 +50,7 @@ public class Ajuda extends AppCompatActivity {
         br.com.appinbanker.inbanker.entidades.Ajuda ajuda2 = new br.com.appinbanker.inbanker.entidades.Ajuda();
         ajuda2.setPergunta("Isso é \"agiotagem\"?");
         ajuda2.setResposta("Agiotagem é o empréstimo de dinheiro a juros SUPERIORES à taxa legal estabelecida em Lei.\n" +
-                " Os Contratos de Mútuo estabelecidos e administrados pelo InBanker, seguem rigorosamente todos requisitos da legislação brasileira, as Taxas de Juros, Multas e Juros de Mora, serão cobrados de forma legal, respeitando todos os limites estabelecidas em Lei.");
+                " Os Contratos de Mútuo estabelecidos e administrados pelo InBanker, seguem rigorosamente todos requisitos da legislação brasileira. As Taxas de Juros, Multas e Juros de Mora, serão cobrados de forma legal, respeitando todos os limites estabelecidas em Lei.");
 
         br.com.appinbanker.inbanker.entidades.Ajuda ajuda3 = new br.com.appinbanker.inbanker.entidades.Ajuda();
         ajuda3.setPergunta("Quais taxas de Juros serão cobradas?");
@@ -70,7 +70,7 @@ public class Ajuda extends AppCompatActivity {
 
         br.com.appinbanker.inbanker.entidades.Ajuda ajuda6 = new br.com.appinbanker.inbanker.entidades.Ajuda();
         ajuda6.setPergunta("Como vocês são remunerados?");
-        ajuda6.setResposta("O Download do Aplicativo InBanker, bem como o cadastro são feitos de forma gratuita. Nós cobramos apenas uma taxa de administração única de 0,99% sobre o valor de cada contrato que será administrado, os valores auferidos pela cobrança da taxa de administração, são em sua grande parte reinvestidos na empresa, para que seja possível dar cada vez mais segurança e transparência aos nossos usuários.");
+        ajuda6.setResposta("O Download do Aplicativo InBanker, bem como o cadastro são feitos de forma gratuita. Nós cobramos apenas uma taxa de administração única de 0,99% sobre o valor de cada contrato que será administrado. Os valores auferidos pela cobrança da taxa de administração, são em sua grande parte reinvestidos na empresa, para que seja possível dar cada vez mais segurança e transparência aos nossos usuários.");
 
         br.com.appinbanker.inbanker.entidades.Ajuda ajuda7 = new br.com.appinbanker.inbanker.entidades.Ajuda();
         ajuda7.setPergunta("Como será paga a Taxa de Administração?");
