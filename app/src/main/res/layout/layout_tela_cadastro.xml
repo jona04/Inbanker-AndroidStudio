@@ -33,13 +33,13 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <TextView
-                    android:layout_width="@dimen/width_fields_tv"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/size_fields_tv"
-                    android:text="CPF"/>
+                    android:text="Informe seu CPF:"/>
 
                 <com.github.pinball83.maskededittext.MaskedEditText
                     android:id="@+id/et_cpf"
@@ -57,21 +57,21 @@
                 android:id="@+id/ll_et_nome"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:visibility="gone">
 
                 <TextView
                     android:layout_width="@dimen/width_fields_tv"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/size_fields_tv"
-                    android:text="Nome"
+                    android:text="Nome:"
                     android:id="@+id/textView2" />
 
                 <EditText
                     android:id="@+id/et_nome"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Informe seu nome"
+                    android:hint=""
                     android:textColor="#000"
                     android:imeOptions="actionNext"
                     android:visibility="visible"
@@ -102,7 +102,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
             android:orientation="horizontal">
             <LinearLayout
                 android:id="@+id/ll_et_nasc"
@@ -115,7 +114,7 @@
                     android:layout_width="@dimen/width_fields_tv"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/size_fields_tv"
-                    android:text="Idade"/>
+                    android:text="Idade:"/>
 
                 <com.github.pinball83.maskededittext.MaskedEditText
                     android:id="@+id/et_nasc"
@@ -138,7 +137,7 @@
                     android:layout_width="@dimen/width_fields_tv"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/size_fields_tv"
-                    android:text="Sexo"/>
+                    android:text="Sexo:"/>
 
                 <RadioGroup
                     android:id="@+id/radio_op"
@@ -178,13 +177,13 @@
                 android:id="@+id/ll_et_cep"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="@dimen/width_fields_tv"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/size_fields_tv"
-                    android:text="CEP"/>
+                    android:text="CEP:"/>
                 <com.github.pinball83.maskededittext.MaskedEditText
                     android:id="@+id/et_cep"
                     android:layout_width="match_parent"
@@ -207,18 +206,18 @@
                     android:id="@+id/ll_et_logradouro"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="67dp"
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/size_fields_tv"
-                        android:text="Logradouro"/>
+                        android:text="Logradouro:"/>
                     <EditText
                         android:id="@+id/et_logradouro"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Informe o nome da rua"
+                        android:hint=""
                         android:textSize="@dimen/size_fields_et"
                         android:textColor="#000"
                         android:enabled="false"
@@ -242,12 +241,12 @@
                             android:layout_width="67dp"
                             android:layout_height="wrap_content"
                             android:textSize="@dimen/size_fields_tv"
-                            android:text="Número"/>
+                            android:text="Número:"/>
                         <EditText
                             android:id="@+id/et_numero"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Informe o número"
+                            android:hint=""
                             android:textSize="@dimen/size_fields_et"
                             android:imeOptions="actionNext"
                             android:inputType="number"
@@ -266,12 +265,12 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="@dimen/size_fields_tv"
-                            android:text="Complemento"/>
+                            android:text="Complemento:"/>
                         <EditText
                             android:id="@+id/et_complemento"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Informe o complemento"
+                            android:hint=""
                             android:textSize="@dimen/size_fields_et"
                             android:lines="1"
                             android:imeOptions="actionNext"
@@ -284,18 +283,18 @@
                     android:id="@+id/ll_et_bairro"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="67dp"
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/size_fields_tv"
-                        android:text="Bairro"/>
+                        android:text="Bairro:"/>
                     <EditText
                         android:id="@+id/et_bairro"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Informe seu bairro"
+                        android:hint=""
                         android:textSize="@dimen/size_fields_et"
                         android:textColor="#000"
                         android:enabled="false"
@@ -319,13 +318,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="@dimen/size_fields_tv"
-                            android:text="Cidade"/>
+                            android:text="Cidade:"/>
 
                         <EditText
                             android:id="@+id/et_cidade"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Informe sua cidade"
+                            android:hint=""
                             android:layout_weight="1"
                             android:layout_marginRight="5dp"
                             android:textSize="@dimen/size_fields_et"
@@ -345,12 +344,12 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textSize="@dimen/size_fields_tv"
-                            android:text="Estado"/>
+                            android:text="Estado:"/>
                         <EditText
                             android:id="@+id/et_estado"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Informe seu estado"
+                            android:hint=""
                             android:layout_weight="1"
                             android:layout_marginLeft="5dp"
                             android:textSize="@dimen/size_fields_et"
@@ -372,40 +371,78 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-            <EditText
-                android:id="@+id/et_email"
+            <LinearLayout
+                android:id="@+id/ll_et_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Informe seu email"
-                android:textSize="@dimen/size_fields_et"
-                android:lines="1"
-                android:inputType="textEmailAddress"
-                android:imeOptions="actionNext"
-                android:textColor="#000"/>
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/et_senha"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/size_fields_tv"
+                    android:text="Email:"/>
+
+                <EditText
+                    android:id="@+id/et_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint=""
+                    android:textSize="@dimen/size_fields_et"
+                    android:lines="1"
+                    android:inputType="textEmailAddress"
+                    android:imeOptions="actionNext"
+                    android:textColor="#000"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_et_senha"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Informe sua senha"
-                android:textSize="@dimen/size_fields_et"
-                android:lines="1"
-                android:imeOptions="actionNext"
-                android:inputType="textPassword"
-                android:textColor="#000"/>
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/et_confirma_senha"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/size_fields_tv"
+                    android:text="Senha:"/>
+                <EditText
+                    android:id="@+id/et_senha"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint=""
+                    android:textSize="@dimen/size_fields_et"
+                    android:lines="1"
+                    android:imeOptions="actionNext"
+                    android:inputType="textPassword"
+                    android:textColor="#000"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/ll_et_confirma_senha"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Confirme sua senha"
-                android:textSize="@dimen/size_fields_et"
-                android:lines="1"
-                android:imeOptions="actionNext"
-                android:inputType="textPassword"
-                android:textColor="#000"/>
+                android:layout_weight="1"
+                android:orientation="vertical">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/size_fields_tv"
+                    android:text="Confirme sua senha:"/>
+                <EditText
+                    android:id="@+id/et_confirma_senha"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint=""
+                    android:textSize="@dimen/size_fields_et"
+                    android:lines="1"
+                    android:imeOptions="actionNext"
+                    android:inputType="textPassword"
+                    android:textColor="#000"/>
 
+            </LinearLayout>
         </LinearLayout>
 
         <Button
