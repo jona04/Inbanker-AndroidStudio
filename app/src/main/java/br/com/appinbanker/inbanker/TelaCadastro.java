@@ -132,6 +132,7 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
             @Override
             public void onClick(View view) {
                 verificaEmail();
+
             }
         });
 

@@ -28,12 +28,14 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import br.com.appinbanker.inbanker.Inicio;
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
+import br.com.appinbanker.inbanker.TelaLogin;
+import br.com.appinbanker.inbanker.entidades.Historico;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
@@ -61,7 +63,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
     Button btn_confirma_recebimento_dialog_enviado;
     Transacao trans_global;
 
-    private Transacao trans_global_ped_receb;
+    private Transacao trans_global_ped_receb,trans_global_ped_env;
 
     private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
     private DatabaseReference usuarioReferencia = databaseReference.child("usuarios");
@@ -177,8 +179,13 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
                     if(status < 1 )
                        count_trans_env++;
                     if(status == 1 ) {
-                        dialogTransEnviadas(usu.getTransacoes_enviadas().get(i));
-                        //mensagemIntent("Alerta recebimento","Voce deve confirmar o recebimento do valor que o osuaurio 2 aceitou","Ok");
+
+                        trans_global_ped_env = usu.getTransacoes_enviadas().get(i);
+
+                        //foi constatado que o usuario possui alerta de suas transacoes enviadas
+                        //precisamos obter a data hoje atual servidor
+                        new ObterHora(this).execute();
+
                     }
                     if(status >= 3 && status <= 5)
                         count_pag_pen++;
@@ -237,7 +244,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
             String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
             crud.deletaRegistro(cpf);
 
-            Intent it = new Intent(getActivity(),Inicio.class);
+            Intent it = new Intent(getActivity(),TelaLogin.class);
             startActivity(it);
             getActivity().finish();
         }
@@ -247,7 +254,12 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
     @Override
     public void retornoObterHora(String hoje){
-        dialogTransRecebidas(trans_global_ped_receb,hoje);
+
+
+        if(trans_global_ped_env != null)
+            dialogTransEnviadas(trans_global_ped_env,hoje);
+        else
+            dialogTransRecebidas(trans_global_ped_receb,hoje);
     }
 
 
@@ -397,11 +409,25 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
                 trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA));
 
+                List<Historico> list_hist;
+                if(trans.getHistorico() == null){
+                    list_hist = new ArrayList<Historico>();
+                }else{
+                    list_hist = trans.getHistorico();
+                }
+
+                Historico hist = new Historico();
+                hist.setData(hoje);
+                hist.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA));
+
+                list_hist.add(hist);
+
+                trans.setHistorico(list_hist);
+
                 metodoEditaTrans(trans);
 
-                progress_bar_dialog_enviados.setVisibility(View.VISIBLE);
-                btn_confirma_recebimento_dialog_enviado.setEnabled(false);
-                btn_recusa_recebimento_dialog_enviado.setEnabled(false);
+
+                desabilitaBotoes();
 
             }
         });
@@ -415,11 +441,24 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
                 trans.setData_recusada("");
                 trans.setData_pagamento(hoje);
 
+                List<Historico> list_hist;
+                if(trans.getHistorico() == null){
+                    list_hist = new ArrayList<Historico>();
+                }else{
+                    list_hist = trans.getHistorico();
+                }
+
+                Historico hist = new Historico();
+                hist.setData(hoje);
+                hist.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA));
+
+                list_hist.add(hist);
+
+                trans.setHistorico(list_hist);
+
                 metodoEditaTransResposta(trans);
 
-                progress_bar_dialog_enviados.setVisibility(View.VISIBLE);
-                btn_confirma_recebimento_dialog_enviado.setEnabled(false);
-                //btn_recusa_recebimento_dialog_enviado.setEnabled(false);
+                desabilitaBotoes();
             }
         });
 
@@ -427,7 +466,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         dialog.show();
     }
 
-    public void dialogTransEnviadas(final Transacao trans){
+    public void dialogTransEnviadas(final Transacao trans,final String hoje){
         dialog = new Dialog(getActivity(),R.style.AppThemeDialog);
         dialog.setContentView(R.layout.dialog_confirma_recebimento_pedido);
         dialog.setTitle("Confirmação necessária");
@@ -451,11 +490,24 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
                 trans.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
 
+                List<Historico> list_hist;
+                if(trans.getHistorico() == null){
+                    list_hist = new ArrayList<Historico>();
+                }else{
+                    list_hist = trans.getHistorico();
+                }
+
+                Historico hist = new Historico();
+                hist.setData(hoje);
+                hist.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
+
+                list_hist.add(hist);
+
+                trans.setHistorico(list_hist);
+
                 metodoEditaTrans(trans);
 
-                progress_bar_dialog_enviados.setVisibility(View.VISIBLE);
-                btn_confirma_recebimento_dialog_enviado.setEnabled(false);
-                btn_recusa_recebimento_dialog_enviado.setEnabled(false);
+                desabilitaBotoes();
 
             }
         });
@@ -467,16 +519,35 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
                 trans.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
 
+                List<Historico> list_hist;
+                if(trans.getHistorico() == null){
+                    list_hist = new ArrayList<Historico>();
+                }else{
+                    list_hist = trans.getHistorico();
+                }
+
+                Historico hist = new Historico();
+                hist.setData(hoje);
+                hist.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
+
+                list_hist.add(hist);
+
+                trans.setHistorico(list_hist);
+
                 metodoEditaTrans(trans);
 
-                progress_bar_dialog_enviados.setVisibility(View.VISIBLE);
-                btn_confirma_recebimento_dialog_enviado.setEnabled(false);
-                //btn_recusa_recebimento_dialog_enviado.setEnabled(false);
+                desabilitaBotoes();
             }
         });
 
         dialog.setCancelable(false);
         dialog.show();
+    }
+
+    public void desabilitaBotoes(){
+        progress_bar_dialog_enviados.setVisibility(View.VISIBLE);
+        btn_confirma_recebimento_dialog_enviado.setEnabled(false);
+        btn_recusa_recebimento_dialog_enviado.setEnabled(false);
     }
 
     public void metodoEditaTransResposta(Transacao trans){
@@ -503,8 +574,6 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         Cursor cursor = crud.carregaDados();
         String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
 
-        progress_bar_dialog_enviados.setVisibility(View.GONE);
-
         if(result.equals("sucesso_edit")){
 
             dialog.dismiss();
@@ -519,16 +588,24 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
             }
         }else{
 
-            btn_confirma_recebimento_dialog_enviado.setEnabled(true);
-            //btn_recusa_recebimento_dialog_enviado.setEnabled(true);
+            habilitaBotoes();
 
             mensagem("Houve um erro!","Olá, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
         }
 
     }
 
+    public void habilitaBotoes(){
+        progress_bar_dialog_enviados.setVisibility(View.GONE);
+        btn_confirma_recebimento_dialog_enviado.setEnabled(true);
+        btn_recusa_recebimento_dialog_enviado.setEnabled(true);
+    }
+
     @Override
     public void retornoUsuarioWebServiceAux(Usuario usu){
+
+
+        habilitaBotoes();
 
         /*Transacao trans = new Transacao();
 

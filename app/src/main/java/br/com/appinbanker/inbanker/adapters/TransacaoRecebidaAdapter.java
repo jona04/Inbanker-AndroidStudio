@@ -21,20 +21,24 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
+import br.com.appinbanker.inbanker.entidades.Historico;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringHora;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.EditaTransacao;
 import br.com.appinbanker.inbanker.webservice.EditaTransacaoResposta;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
+import br.com.appinbanker.inbanker.webservice.ObterHora;
 
 /**
  * Created by jonatasilva on 29/12/16.
@@ -264,15 +268,28 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
 
                 aceitou_pedido = true;
 
+                escondeBotoes();
+
                 Transacao trans = new Transacao();
                 trans.setId_trans(trans_global.getId_trans());
                 trans.setStatus_transacao(String.valueOf(Transacao.PEDIDO_ACEITO));
 
-                metodoEditaTrans(trans);
+                List<Historico> list_hist;
+                if(item.getHistorico() == null){
+                    list_hist = new ArrayList<Historico>();
+                }else{
+                    list_hist = item.getHistorico();
+                }
 
-                progress_bar_btn.setVisibility(View.VISIBLE);
-                btn_recusa_pedido.setEnabled(false);
-                btn_aceita_pedido.setEnabled(false);
+                Historico hist = new Historico();
+                hist.setData(hoje_string);
+                hist.setStatus_transacao(String.valueOf(Transacao.PEDIDO_ACEITO));
+
+                list_hist.add(hist);
+
+                trans.setHistorico(list_hist);
+
+                metodoEditaTrans(trans);
 
             }
         });
@@ -287,15 +304,27 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
                 trans.setData_recusada(hoje_string);
                 trans.setData_pagamento("");
 
+                List<Historico> list_hist;
+                if(item.getHistorico() == null){
+                    list_hist = new ArrayList<Historico>();
+                }else{
+                    list_hist = item.getHistorico();
+                }
+
+                Historico hist = new Historico();
+                hist.setData(hoje_string);
+                hist.setStatus_transacao(String.valueOf(Transacao.PEDIDO_RECUSADO));
+
+                list_hist.add(hist);
+
+                trans.setHistorico(list_hist);
+
                 new EditaTransacaoResposta(trans,item.getUsu1(),item.getUsu2(),TransacaoRecebidaAdapter.this).execute();
 
-                progress_bar_btn.setVisibility(View.VISIBLE);
-                btn_recusa_pedido.setEnabled(false);
-                btn_aceita_pedido.setEnabled(false);
+                escondeBotoes();
 
             }
         });
-
     }
 
     public void metodoEditaTrans(Transacao trans){
@@ -306,10 +335,6 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
     public void retornoStringWebService(String result){
         Log.i("webservice","resultado edita transao = "+result);
 
-        progress_bar_btn.setVisibility(View.GONE);
-        btn_recusa_pedido.setEnabled(true);
-        btn_aceita_pedido.setEnabled(true);
-
         if(result!=null) {
 
             if (result.equals("sucesso_edit")) {
@@ -319,15 +344,30 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
 
             } else {
                 mensagem("Houve um erro!", "Olá, parece que tivemos algum problema de conexão, por favor tente novamente.", "Ok");
+                mostraBotoes();
             }
         }else{
             mensagem("Houve critico!", "Olá, parece que tivemos algum problema de conexão, por favor tente novamente.", "Ok");
+            mostraBotoes();
         }
 
     }
 
+    public void  escondeBotoes(){
+        progress_bar_btn.setVisibility(View.VISIBLE);
+        btn_recusa_pedido.setEnabled(false);
+        btn_aceita_pedido.setEnabled(false);
+    }
+    public void mostraBotoes(){
+        progress_bar_btn.setVisibility(View.GONE);
+        btn_recusa_pedido.setEnabled(true);
+        btn_aceita_pedido.setEnabled(true);
+    }
+
     @Override
     public void retornoUsuarioWebService(Usuario usu){
+
+        mostraBotoes();
 
         Transacao trans = new Transacao();
         trans.setNome_usu1(trans_global.getNome_usu1());

@@ -6,9 +6,7 @@ import android.util.Log;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import br.com.appinbanker.inbanker.Inicio;
 import br.com.appinbanker.inbanker.MinhaConta;
-import br.com.appinbanker.inbanker.SimuladorResultado;
 
 /**
  * Created by Jonatas on 27/10/2016.
@@ -16,17 +14,9 @@ import br.com.appinbanker.inbanker.SimuladorResultado;
 
 public class VerificaUsuarioCadastro extends AsyncTask<String,String,String> {
 
-    private Inicio tl;
     private String email;
     private String cpf;
     private MinhaConta mc;
-
-    public VerificaUsuarioCadastro(String email,String cpf, Inicio tl){
-        this.tl = tl;
-        this.email = email;
-        this.cpf = cpf;
-
-    }
 
     public VerificaUsuarioCadastro(String email,String cpf, MinhaConta mc){
         this.mc = mc;
@@ -57,10 +47,7 @@ public class VerificaUsuarioCadastro extends AsyncTask<String,String,String> {
     protected void onPostExecute(String result) {
 
         Log.i("Script",""+result);
-        if (tl != null)
-            tl.retornoTaskVerificaCadastro(result);
-        else if(mc != null)
-            mc.retornoTaskVerificaCadastro(result);
+        mc.retornoTaskVerificaCadastro(result);
     }
 
 }

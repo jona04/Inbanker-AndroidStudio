@@ -20,12 +20,14 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
+import br.com.appinbanker.inbanker.entidades.Historico;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
@@ -53,7 +55,7 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
     Transacao trans_global;
     private int status_transacao;
 
-    private String hoje;
+    private String hoje_string;
 
     private Context _context;
     private List<Transacao> _listDataHeader; // header titles
@@ -62,7 +64,7 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
         this._context = context;
         this._listDataHeader = listDataHeader;
         this._listDataChild = listDataChild;
-        this.hoje = hoje;
+        this.hoje_string = hoje;
     }
     @Override
     public Object getChild(int groupPosition, int childPosititon) {
@@ -197,17 +199,19 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
         Log.i("Enviados","dias = "+dias);
 
         double juros_mensal = Double.parseDouble(item.getValor()) * (0.00066333 * dias);
-        double valor_total = juros_mensal +  Double.parseDouble(item.getValor());
+        double taxa_fixa = Double.parseDouble(item.getValor()) * 0.0099;
+        double valor_total = juros_mensal + taxa_fixa +  Double.parseDouble(item.getValor());
 
         Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
 
         String juros_total_formatado = nf.format (valor_total);
+        String valor_fixo_formatado = nf.format (taxa_fixa);
 
         tv_data_pagamento_child.setText(data_pagamento_parse.substring(0, data_pagamento_parse.length() - 5));
         tv_dias_corridos_child.setText(String.valueOf(dias));
         tv_taxa_juros_am_child.setText("1.99%");
-        tv_valor_taxa_servico_child.setText("0,00");
+        tv_valor_taxa_servico_child.setText(valor_fixo_formatado);
         tv_valor_total_child.setText(juros_total_formatado);
 
         btn_cancelar_pedido_antes_resp_child.setOnClickListener(new View.OnClickListener() {
@@ -218,11 +222,26 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
                 Transacao trans = new Transacao();
                 trans.setId_trans(trans_global.getId_trans());
                 trans.setStatus_transacao(String.valueOf(Transacao.ENVIO_CANCELADO_ANTES_RESPOSTA));
-                trans.setData_recusada(hoje);
+                trans.setData_recusada(hoje_string);
                 trans.setData_pagamento("");
 
                 //esse valor sera passado para o metodo notificacao
                 status_transacao = Transacao.ENVIO_CANCELADO_ANTES_RESPOSTA;
+
+                List<Historico> list_hist;
+                if(item.getHistorico() == null){
+                    list_hist = new ArrayList<Historico>();
+                }else{
+                    list_hist = item.getHistorico();
+                }
+
+                Historico hist = new Historico();
+                hist.setData(hoje_string);
+                hist.setStatus_transacao(String.valueOf(Transacao.PEDIDO_RECUSADO));
+
+                list_hist.add(hist);
+
+                trans.setHistorico(list_hist);
 
                 metodoEditaTransResp(trans);
 
@@ -242,7 +261,6 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
 
         Log.i("webservice","resultado edita transao = "+result);
 
-        progress_bar_btn.setVisibility(View.GONE);
         //btn_confirma_recebimento_child.setEnabled(true);
 
         if(result.equals("sucesso_edit")){
@@ -253,12 +271,16 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
 
         }else{
             mensagem("Houve um erro!","Olá, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
+
+            progress_bar_btn.setVisibility(View.GONE);
         }
 
     }
 
     @Override
     public void retornoUsuarioWebService(Usuario usu) {
+
+        progress_bar_btn.setVisibility(View.GONE);
 
         Transacao trans = new Transacao();
 

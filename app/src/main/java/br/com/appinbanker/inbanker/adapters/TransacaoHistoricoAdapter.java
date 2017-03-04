@@ -51,6 +51,7 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
     TextView tv_taxa_juros_am_child;
     TextView tv_valor_multa_child;
     TextView tv_valor_taxa_servico_child;
+    TextView tv_taxa;
     TextView tv_valor_total_child;
 
     TextView tv_tipo_finalizado_child;
@@ -89,6 +90,7 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
         tv_taxa_juros_am_child  = (TextView) convertView.findViewById(R.id.tv_taxa_juros_am);
         tv_valor_multa_child = (TextView) convertView.findViewById(R.id.tv_valor_multa);
         tv_valor_taxa_servico_child  = (TextView) convertView.findViewById(R.id.tv_valor_taxa_servico);
+        tv_taxa  = (TextView) convertView.findViewById(R.id.tv_taxa);
         tv_valor_total_child  = (TextView) convertView.findViewById(R.id.tv_valor_total);
         tv_tipo_finalizado_child  = (TextView) convertView.findViewById(R.id.tv_tipo_finalizado);
 
@@ -281,8 +283,8 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
         Days dias_aux = Days.daysBetween(data_pedido_parse, data_finalizado);
         int dias_finalizado = dias_aux.getDays();
         double juros_mensal = Double.parseDouble(item.getValor()) * (0.00066333 * dias_finalizado);
-
-        double valor_total = Double.parseDouble(item.getValor()) + juros_mora + multa_atraso + juros_mensal;
+        double taxa_fixa = Double.parseDouble(item.getValor()) * 0.0099;
+        double valor_total;
 
         if(!item.getData_recusada().equals(""))
             valor_total = 0.0;
@@ -291,19 +293,21 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
 
         //String juros_mensal_formatado = nf.format (juros_mensal);
-        //String valor_pedido_formatado = nf.format (Double.parseDouble(item.getValor()));
-        String valor_total_formatado = nf.format (valor_total);
+        String taxa_fixa_formatado = nf.format (taxa_fixa);
+
         String multa_formatado = nf.format (multa_atraso);
 
         tv_dias_corridos_child.setText(String.valueOf(dias));
         tv_taxa_juros_am_child.setText("1.99%");
-        tv_valor_taxa_servico_child.setText("R$0,00");
-        tv_valor_total_child.setText(valor_total_formatado);
+        tv_valor_taxa_servico_child.setText(taxa_fixa_formatado);
         tv_valor_multa_child.setText(multa_formatado);
+
         BancoControllerUsuario crud = new BancoControllerUsuario(_context);
         Cursor cursor = crud.carregaDados();
         String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
         if(cpf.equals(item.getUsu1())) {
+            //colocamos o valor da taxa fixa no total do pedido para o usuario que enviou o pedido
+            valor_total = Double.parseDouble(item.getValor()) + juros_mora + taxa_fixa + multa_atraso + juros_mensal;
 
             tv_dias_corridos_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorRed)));
             tv_taxa_juros_am_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorRed)));
@@ -312,16 +316,23 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
             tv_valor_total_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorOrange)));
 
         }else{
+            //tiramos o valor da taxa fixa do total do pedido para o usuario que apenas recebeu o pedido
+            valor_total = Double.parseDouble(item.getValor()) + juros_mora + multa_atraso + juros_mensal;
+
+            //deixamos tava de servico invisievl para que recebeu o pedido
+            tv_valor_taxa_servico_child.setVisibility(View.GONE);
+            tv_taxa.setVisibility(View.GONE);
 
             tv_dias_corridos_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
             tv_taxa_juros_am_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
             tv_valor_multa_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
-            tv_valor_taxa_servico_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
+            //tv_valor_taxa_servico_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
             tv_valor_total_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorOrange)));
 
         }
 
-
+        String valor_total_formatado = nf.format (valor_total);
+        tv_valor_total_child.setText(valor_total_formatado);
     }
 
 

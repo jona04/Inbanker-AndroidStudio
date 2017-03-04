@@ -118,7 +118,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
                             .into(img_usu_logado);
                 }
         }
-       //para iniciar com o primeiro item do menu navigation drawer (Inicio)
+       //para iniciar com o primeiro item do menu navigation drawer (TelaInicio)
         //se tiver tiver algum parametro o menu é alterado
         onNavigationItemSelected(navigationView.getMenu().getItem(menu).setChecked(true));
 

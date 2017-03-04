@@ -13,7 +13,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -23,14 +22,12 @@ import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
-import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
 import org.json.JSONObject;
 
 import java.text.Normalizer;
-import java.util.Arrays;
 
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
@@ -41,7 +38,6 @@ import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AtualizaTokenGcm;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
-import br.com.appinbanker.inbanker.webservice.BuscaUsuarioLogin;
 
 public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsuario,WebServiceReturnUsuarioFace {
 

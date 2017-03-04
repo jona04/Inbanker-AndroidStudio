@@ -63,12 +63,6 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
     String token_user2;
 
-    //dialog cadastearr
-    private Dialog dialog_cadastro;
-    private EditText et_nome_cadastro,et_email_cadastro,et_senha_cadastro,et_senha_novamente_cadastro,et_cpf_cadastro;
-    private Button btn_cadastrar,btn_voltar_cadastro;
-    private ProgressBar progress_bar_cadastro;
-
     private Usuario usu_add_trasacao;
 
     @Override
@@ -86,7 +80,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         nome = removerAcentos(parametro.getString("nome"));
         //valor = Double.parseDouble(parametro.getString("valor"));
         vencimento = parametro.getString("vencimento");
-        dias = parametro.getInt("dias");
+        dias = parametro.getInt("dias") + 1;
         url_img = parametro.getString("url_img");
 
         //colocamos um ponto para simular o valor real passado no simulador
@@ -94,9 +88,9 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         //Log.i("Script","Valor valor ="+valor);
 
         double juros_mensal = valor * (0.00066333 * dias);
-        //double taxa_fixa = Double.parseDouble(decimal.format(valor * 0.0099));
+        double taxa_fixa = valor * 0.0099;
 
-        double valor_total = juros_mensal +  valor;
+        double valor_total = juros_mensal + taxa_fixa +  valor;
 
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
 
@@ -126,7 +120,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
         String valor_formatado = nf.format (valor);
-        String taxa_fixa_formatado = nf.format (0.0);
+        String taxa_fixa_formatado = nf.format (taxa_fixa);
         String juros_mensal_formatado = nf.format (juros_mensal);
         String valor_total_formatado = nf.format (valor_total);
 

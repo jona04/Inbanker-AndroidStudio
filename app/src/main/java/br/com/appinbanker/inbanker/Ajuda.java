@@ -54,7 +54,7 @@ public class Ajuda extends AppCompatActivity {
 
         br.com.appinbanker.inbanker.entidades.Ajuda ajuda3 = new br.com.appinbanker.inbanker.entidades.Ajuda();
         ajuda3.setPergunta("Quais taxas de Juros serão cobradas?");
-        ajuda3.setResposta("Valores permitidos: R$0,00 - R$1.000,00 \n " +
+        ajuda3.setResposta("Valores permitidos: R$10,00 - R$1.000,00 \n " +
                 "Juros renuneratórios: 1,99% A.M. \n " +
                 "Multa por atraso: 10% \n" +
                 "Juros moratórios: 1%");

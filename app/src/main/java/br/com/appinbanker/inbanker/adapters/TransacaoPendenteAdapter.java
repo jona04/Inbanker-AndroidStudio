@@ -23,12 +23,14 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
+import br.com.appinbanker.inbanker.entidades.Historico;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
@@ -51,7 +53,8 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
     TextView tv_dias_corridos_child;
     TextView tv_taxa_juros_am_child;
     TextView tv_valor_multa_child;
-    TextView tv_valor_taxa_servico_child;
+    TextView tv_multa;
+    //TextView tv_valor_taxa_servico_child;
     TextView tv_valor_total_child;
     LinearLayout ll_solicita_quitacao_child;
     private Button btn_solicita_quitacao_child;
@@ -63,7 +66,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
     Transacao trans_global;
     int status_transacao;
 
-    private String hoje;
+    private String hoje_string;
 
     private Context _context;
     private List<Transacao> _listDataHeader; // header titles
@@ -72,7 +75,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
         this._context = context;
         this._listDataHeader = listDataHeader;
         this._listDataChild = listDataChild;
-        this.hoje = hoje;
+        this.hoje_string = hoje;
     }
     @Override
     public Object getChild(int groupPosition, int childPosititon) {
@@ -100,7 +103,8 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
         tv_dias_corridos_child  = (TextView) convertView.findViewById(R.id.tv_dias_corridos);
         tv_taxa_juros_am_child  = (TextView) convertView.findViewById(R.id.tv_taxa_juros_am);
         tv_valor_multa_child  = (TextView) convertView.findViewById(R.id.tv_valor_multa);
-        tv_valor_taxa_servico_child  = (TextView) convertView.findViewById(R.id.tv_valor_taxa_servico);
+        tv_multa  = (TextView) convertView.findViewById(R.id.tv_multa);
+        //tv_valor_taxa_servico_child  = (TextView) convertView.findViewById(R.id.tv_valor_taxa_servico);
         tv_valor_total_child  = (TextView) convertView.findViewById(R.id.tv_valor_total);
         msg_ver_pedido_child  = (TextView) convertView.findViewById(R.id.msg_ver_pedido);
         btn_solicita_quitacao_child = (Button) convertView.findViewById(R.id.btn_solicita_quitacao);
@@ -158,7 +162,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
         DateTime hora_pedido_parse = fmt.parseDateTime(item.getDataPedido());
         DateTime vencimento_parse_utc = fmt.parseDateTime(item.getVencimento());
         DateTime data_pedido_parse_utc = fmt.parseDateTime(item.getDataPedido());
-        DateTime hoje_parse_utc = fmt.parseDateTime(hoje);
+        DateTime hoje_parse_utc = fmt.parseDateTime(hoje_string);
 
         String vencimento_parse_string = dtfOut.print(vencimento_parse_utc);
         String data_pedido_parse_string = dtfOut.print(data_pedido_parse_utc);
@@ -249,7 +253,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
         DateTime hora_pedido_parse = fmt.parseDateTime(item.getDataPedido());
         DateTime vencimento_parse_utc = fmt.parseDateTime(item.getVencimento());
         DateTime data_pedido_parse_utc = fmt.parseDateTime(item.getDataPedido());
-        DateTime hoje_parse_utc = fmt.parseDateTime(hoje);
+        DateTime hoje_parse_utc = fmt.parseDateTime(hoje_string);
 
         String vencimento_parse_string = dtfOut.print(vencimento_parse_utc);
         String data_pedido_parse_string = dtfOut.print(data_pedido_parse_utc);
@@ -294,9 +298,11 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
         }
 
         double juros_mensal = Double.parseDouble(item.getValor()) * (0.00066333 * dias);
+        //double taxa_fixa = Double.parseDouble(item.getValor()) * 0.0099;
         double valor_total = juros_mora+multa_atraso + juros_mensal +  Double.parseDouble(item.getValor());
 
         String juros_total_formatado = nf.format (valor_total);
+        //String taxa_fixa_formatado = nf.format (taxa_fixa);
 
         /*if(dias_faltando < 0){
             Double multa_atraso = Double.parseDouble(item.getValor())*0.1;
@@ -309,7 +315,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
 
         tv_taxa_juros_am_child.setText("1.99%");
 
-        tv_valor_taxa_servico_child.setText("R$0,00");
+        //tv_valor_taxa_servico_child.setText(taxa_fixa_formatado);
         tv_valor_total_child.setText(juros_total_formatado);
 
         status_transacao = Integer.parseInt(trans_global.getStatus_transacao());
@@ -343,7 +349,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
             tv_dias_corridos_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorRed)));
             tv_taxa_juros_am_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorRed)));
             tv_valor_multa_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorRed)));
-            tv_valor_taxa_servico_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorRed)));
+            //tv_valor_taxa_servico_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorRed)));
 
         }else{
 
@@ -378,10 +384,13 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
 
             }
 
+            //tv_valor_multa_child.setVisibility(View.GONE);
+            //tv_multa.setVisibility(View.GONE);
+
             tv_dias_corridos_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
             tv_taxa_juros_am_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
             tv_valor_multa_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
-            tv_valor_taxa_servico_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
+            //tv_valor_taxa_servico_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
 
         }
 
@@ -392,6 +401,21 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
                 Transacao trans = new Transacao();
                 trans.setId_trans(item.getId_trans());
                 trans.setStatus_transacao(String.valueOf(Transacao.QUITACAO_SOLICITADA));
+
+                List<Historico> list_hist;
+                if(item.getHistorico() == null){
+                    list_hist = new ArrayList<Historico>();
+                }else{
+                    list_hist = item.getHistorico();
+                }
+
+                Historico hist = new Historico();
+                hist.setData(hoje_string);
+                hist.setStatus_transacao(String.valueOf(Transacao.QUITACAO_SOLICITADA));
+
+                list_hist.add(hist);
+
+                trans.setHistorico(list_hist);
 
                 metodoEditaTrans(trans);
 
@@ -412,19 +436,22 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
 
         Log.i("webservice","resultado edita transao = "+result);
 
-        progress_bar_btn.setVisibility(View.GONE);
-        btn_solicita_quitacao_child.setEnabled(true);
-
         if(result.equals("sucesso_edit")){
             //busca token do usuario 2 para enviar notificacao
             new BuscaUsuarioCPF(trans_global.getUsu2(),_context,this).execute();
         }else{
             mensagem("Houve um erro!","Olá, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
+
+            progress_bar_btn.setVisibility(View.GONE);
+            btn_solicita_quitacao_child.setEnabled(true);
         }
     }
 
     @Override
     public void retornoUsuarioWebService(Usuario usu) {
+
+        progress_bar_btn.setVisibility(View.GONE);
+        btn_solicita_quitacao_child.setEnabled(true);
 
         Transacao trans = new Transacao();
         trans.setNome_usu1(trans_global.getNome_usu1());

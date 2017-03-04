@@ -65,15 +65,17 @@ import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringIdFace;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.util.MaskMoney;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AtualizaUsuario;
+import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 import br.com.appinbanker.inbanker.webservice.VerificaIdFace;
 
-public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnClickListenerHack,WebServiceReturnString,WebServiceReturnStringIdFace{
+public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnClickListenerHack,WebServiceReturnString,WebServiceReturnUsuarioFace {
 
     private EditText et_calendario,et_valor;
 
@@ -317,14 +319,19 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
     public void verifica_usuario_existe(){
 
         //checa se id face recem logado já existe
-        new VerificaIdFace(id_face,this).execute();
+        new BuscaUsuarioFace(id_face,getActivity(),this).execute();
     }
 
     @Override
-    public void retornoStringWebServiceIdFace(String result) {
+    public void retornoUsuarioWebServiceFace(Usuario usu) {
 
-        if(result!=null) {
-            if (result.equals("id_face")){
+        BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
+        Cursor cursor = crud.carregaDados();
+        String id_face_logado = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
+
+        if(usu!=null) {
+
+            if (!usu.getId_face().equals(id_face_logado) && !id_face_logado.equals("")){
                 //erro
                 mensagem("Houve um erro!","Olá, parece que o usuário que você esta tentando logar, já esta vinculado a outra conta. " +
                         "Tente fazer o login diretamente pelo Facebook na tela inicial do aplicativo.","Ok");
@@ -583,30 +590,35 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                  if (campos) {
 
                      String valor_normal_ = valor_normal.substring(0, valor_normal.length() - 2);
-                     if (Double.parseDouble(valor_normal_) < 1001) {
+                     if (Double.parseDouble(valor_normal_) > 10){
+                         if (Double.parseDouble(valor_normal_) < 1001) {
 
-                         DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
-                         DateTime hoje = new DateTime();
-                         DateTime vencimento = fmt.parseDateTime(et_calendario.getText().toString());
+                             DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
+                             DateTime hoje = new DateTime();
+                             DateTime vencimento = fmt.parseDateTime(et_calendario.getText().toString());
 
-                         Days d = Days.daysBetween(hoje, vencimento);
-                         dias_pagamento = d.getDays();
+                             Days d = Days.daysBetween(hoje, vencimento);
+                             dias_pagamento = d.getDays();
 
-                         Intent it = new Intent(getActivity(), SimuladorResultado.class);
-                         Bundle b = new Bundle();
-                         b.putString("id", mList.get(position).getId());
-                         b.putString("nome", removerAcentos(mList.get(position).getName()));
-                         b.putString("valor", valor_normal);
-                         b.putString("url_img", mList.get(position).getPicture().getData().getUrl());
-                         b.putString("vencimento", et_calendario.getText().toString());
-                         b.putInt("dias", dias_pagamento);
-                         it.putExtras(b);
-                         startActivity(it);
+                             Intent it = new Intent(getActivity(), SimuladorResultado.class);
+                             Bundle b = new Bundle();
+                             b.putString("id", mList.get(position).getId());
+                             b.putString("nome", removerAcentos(mList.get(position).getName()));
+                             b.putString("valor", valor_normal);
+                             b.putString("url_img", mList.get(position).getPicture().getData().getUrl());
+                             b.putString("vencimento", et_calendario.getText().toString());
+                             b.putInt("dias", dias_pagamento);
+                             it.putExtras(b);
+                             startActivity(it);
 
-                         dialog.dismiss();
-                     } else {
-                         //Log.i("Scrip", "valor normal = " + valor_normal_);
-                         mensagem("InBanker", "Olá, no momento só é permitido valores menores que R$ 1.000,00. Por favor insira um valor menor.", "Ok");
+                             dialog.dismiss();
+                         } else {
+                             //Log.i("Scrip", "valor normal = " + valor_normal_);
+                             mensagem("InBanker", "Olá, no momento só é permitido valores menores que R$ 1.000,00. Por favor insira um valor menor.", "Ok");
+                         }
+                    }else{
+                         mensagem("InBanker", "Olá, no momento só é permitido valores maiores que R$ 10,00. Por favor insira um valor maior.", "Ok");
+
                      }
                  }
              }

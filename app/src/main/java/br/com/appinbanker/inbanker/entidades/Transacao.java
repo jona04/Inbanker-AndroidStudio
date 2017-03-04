@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -51,6 +52,19 @@ public class Transacao implements Serializable {
     private String data_recusada;
     @JsonProperty("data_pagamento")
     private String data_pagamento;
+
+
+    @JsonProperty("historico")
+    private List<Historico> historico;
+
+
+    public List<Historico> getHistorico() {
+        return historico;
+    }
+
+    public void setHistorico(List<Historico> historico) {
+        this.historico = historico;
+    }
 
     public String getId_trans() {
         return id_trans;

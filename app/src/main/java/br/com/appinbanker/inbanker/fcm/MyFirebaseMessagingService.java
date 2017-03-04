@@ -118,7 +118,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 menu_item = NavigationDrawerActivity.MENU_HISTORICO;
                 break;
             case Transacao.CONFIRMADO_RECEBIMENTO:
-                menu_item = NavigationDrawerActivity.MENU_PEDIDOS_RECEBIDOS;
+                menu_item = NavigationDrawerActivity.MENU_PAGAMENTOS_ABERTO;
                 break;
             case Transacao.QUITACAO_SOLICITADA:
                 menu_item = NavigationDrawerActivity.MENU_INICIO;
