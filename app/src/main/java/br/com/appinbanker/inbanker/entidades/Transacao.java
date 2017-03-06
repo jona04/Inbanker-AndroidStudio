@@ -57,6 +57,17 @@ public class Transacao implements Serializable {
     @JsonProperty("historico")
     private List<Historico> historico;
 
+    @JsonProperty("pagamento")
+    private RetornoPagamento pagamento;
+
+
+    public RetornoPagamento getPagamento() {
+        return pagamento;
+    }
+
+    public void setPagamento(RetornoPagamento pagamento) {
+        this.pagamento = pagamento;
+    }
 
     public List<Historico> getHistorico() {
         return historico;

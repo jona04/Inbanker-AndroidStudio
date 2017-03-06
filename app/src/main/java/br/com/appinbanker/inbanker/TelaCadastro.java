@@ -225,7 +225,7 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
             try {
                 JSONObject jObject = new JSONObject(result); // json
                 String nome = jObject.getString("nome");
-                String situacaoCadastral = jObject.getString("situacaoCadastral");
+                //String situacaoCadastral = jObject.getString("situacaoCadastral");
 
                 //informacoes referente ao nome cpf
                 ll_et_nome.setVisibility(View.VISIBLE);

@@ -85,6 +85,9 @@
             android:label="@string/title_activity_tela_cadastro"/>
         <activity android:name=".SlideInicial"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity android:name=".TelaPagamento"
+            android:label="@string/title_activity_tela_pagamento"
+            android:parentActivityName=".NavigationDrawerActivity" />
     </application>
 
 </manifest>

@@ -11,38 +11,38 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
-import br.com.appinbanker.inbanker.SimuladorResultado;
-import br.com.appinbanker.inbanker.TelaPagamento;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
-import br.com.appinbanker.inbanker.fragments_navigation.PedirEmprestimoFragment;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 
 /**
- * Created by jonatassilva on 23/10/16.
+ * Created by jonatassilva on 25/10/16.
  */
 
-public class AddTransacao extends AsyncTask<String, String, String> {
+public class AddCartaoUsuario extends AsyncTask<String, String, String> {
 
-    private Transacao trans;
-    private TelaPagamento sr;
+    private Usuario usuario;
+    //private WebServiceReturnString ws;
 
-    public AddTransacao(Transacao trans,TelaPagamento sr){
-        this.trans = trans;
-        this.sr = sr;
-
+    public AddCartaoUsuario(Usuario usuario){
+        this.usuario = usuario;
+        //this.ws = ws;
     }
 
     @Override
     protected String doInBackground(String... params) {
 
+        String host = Host.host;
+
         try {
 
-            final String url = Host.host+"appinbanker/rest/usuario/addTransacao/" + trans.getUsu1()+"/"+trans.getUsu2();
+            //final String url = "http://45.55.217.160:8081/appinbanker/rest/usuario/edit/"+ usuario.getCpf();
+            final String url = host+"appinbanker/rest/usuario/addCartaoUsuario/" + usuario.getCpf();
 
             // Set the Content-Type header
             HttpHeaders requestHeaders = new HttpHeaders();
             requestHeaders.setContentType(new MediaType("application", "json"));
-            HttpEntity<Transacao> requestEntity = new HttpEntity<Transacao>(trans, requestHeaders);
+            HttpEntity<Usuario> requestEntity = new HttpEntity<Usuario>(usuario, requestHeaders);
 
             // Create a new RestTemplate instance
             RestTemplate restTemplate = new RestTemplate();
@@ -64,10 +64,8 @@ public class AddTransacao extends AsyncTask<String, String, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        Log.i("Script","onPostExecute result add trans ="+result);
+        Log.i("Script","onPostExecute result add cartao usuario ="+result);
 
-        sr.retornoAddTransacao(result);
-
+        //ws.retornoStringWebService(result);
     }
-
 }

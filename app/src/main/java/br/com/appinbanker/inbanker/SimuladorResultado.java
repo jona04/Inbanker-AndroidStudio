@@ -26,8 +26,10 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.text.DecimalFormat;
 import java.text.Normalizer;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Locale;
 
 import br.com.appinbanker.inbanker.entidades.Transacao;
@@ -38,16 +40,9 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
-import br.com.appinbanker.inbanker.util.AllSharedPreferences;
-import br.com.appinbanker.inbanker.util.CheckConection;
-import br.com.appinbanker.inbanker.util.Validador;
-import br.com.appinbanker.inbanker.webservice.AddTransacao;
-import br.com.appinbanker.inbanker.webservice.AddUsuario;
-import br.com.appinbanker.inbanker.webservice.AtualizaUsuario;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 import br.com.appinbanker.inbanker.webservice.ObterHora;
-import br.com.appinbanker.inbanker.webservice.VerificaUsuarioCadastro;
 
 public class SimuladorResultado extends AppCompatActivity implements WebServiceReturnStringHora,WebServiceReturnUsuarioFace {
 
@@ -75,10 +70,10 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         progress_bar_simulador = (ProgressBar) findViewById(R.id.progress_bar_simulador);
 
         Intent it = getIntent();
+        /*
         Bundle parametro = it.getExtras();
         id = parametro.getString("id");
         nome = removerAcentos(parametro.getString("nome"));
-        //valor = Double.parseDouble(parametro.getString("valor"));
         vencimento = parametro.getString("vencimento");
         dias = parametro.getInt("dias") + 1;
         url_img = parametro.getString("url_img");
@@ -86,9 +81,26 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         //colocamos um ponto para simular o valor real passado no simulador
         valor = Double.parseDouble(new StringBuffer(parametro.getString("valor")).insert(parametro.getString("valor").length()-2, ".").toString());
         //Log.i("Script","Valor valor ="+valor);
+        */
+
+        id = it.getStringExtra("id");
+        nome = removerAcentos(it.getStringExtra("nome"));
+        vencimento = it.getStringExtra("vencimento");
+        dias = it.getIntExtra("dias",0) + 1;
+        url_img = it.getStringExtra("url_img");
+        valor = Double.parseDouble(new StringBuffer(it.getStringExtra("valor")).insert(it.getStringExtra("valor").length()-2, ".").toString());
 
         double juros_mensal = valor * (0.00066333 * dias);
-        double taxa_fixa = valor * 0.0099;
+        //double taxa_fixa = valor * 0.0099;
+        double taxa_fixa = 0;
+        try {
+            DecimalFormat df=new DecimalFormat("0.00");
+            String formate = df.format(valor * 0.0099);
+            taxa_fixa = (Double)df.parse(formate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
 
         double valor_total = juros_mensal + taxa_fixa +  valor;
 
@@ -140,68 +152,24 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
                 BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
                 Cursor cursor = crud.carregaDados();
                 String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
-                String nome = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME));
                 //se usuario nao tiver o cpf cadastrado, mostramos o dialog para cadastrar, se nao continuamos o pedido mostramos o dialog de senha
                 if(cpf.equals("")){
 
                     mensagemIntent("Cadastro","Olá, você ainda não possui cadastro no InBanker. Deseja cadastrar-se?","Sim","Não");
 
                 }else {
-                    // custom dialog
-                    final Dialog dialog = new Dialog(SimuladorResultado.this,R.style.AppThemeDialog);
-                    dialog.setContentView(R.layout.dialog_senha);
-                    dialog.setTitle("Informe sua senha");
 
+                    buscaUsuarioFace();
 
-                    final EditText et_senha = (EditText) dialog.findViewById(R.id.et_dialog_senha);
-                    final TextView msg_dialog = (TextView) dialog.findViewById(R.id.msg_dialog);
-                    Button btn_dialog_cancelar = (Button) dialog.findViewById(R.id.btn_voltar_dialog_senha);
-                    Button btn_dialog_ok = (Button) dialog.findViewById(R.id.btn_entrar_dialog_senha);
+                    progress_bar_simulador.setVisibility(View.VISIBLE);
+                    btn_fazer_pedido.setEnabled(false);
 
-                    // if button is clicked, close the custom dialog
-                    btn_dialog_cancelar.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            dialog.dismiss();
-                        }
-                    });
-
-                    btn_dialog_ok.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-
-                            msg_dialog.setVisibility(View.INVISIBLE);
-
-                            BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
-                            Cursor cursor = crud.carregaDados();
-
-                            String senha = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.SENHA));
-
-                            if (senha.equals(et_senha.getText().toString())) {
-
-                                buscaUsuarioFace();
-
-                                progress_bar_simulador.setVisibility(View.VISIBLE);
-                                btn_fazer_pedido.setEnabled(false);
-
-                                dialog.dismiss();
-                            } else {
-
-                                msg_dialog.setVisibility(View.VISIBLE);
-                            }
-
-
-                        }
-                    });
-
-                    dialog.show();
                 }
             }
         });
-
     }
 
-    //buscamos pelo face, pois só temos o id_face do usuario
+    //buscamos pelo face, pois só temos o id_face do usuario 2
     public void buscaUsuarioFace() {
         new BuscaUsuarioFace(id, SimuladorResultado.this, this).execute();
     }
@@ -226,7 +194,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
             }
         }else{
-            mensagem("Houve um erro!","Olá, parece que o usuario houve um problema de conexao. Favor tente novamente!","OK");
+            mensagem("Houve um erro!","Olá, parece que o usuario solicitado não esta cadastrado. Por favor entre em contato com o usuario e tente novamente!","OK");
 
             //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
             progress_bar_simulador.setVisibility(View.GONE);
@@ -239,7 +207,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
     @Override
     public void retornoObterHora(String hoje){
-
+        Log.i("Script","Result hora = "+hoje);
         if(hoje!=null) {
             if (hoje.equals("error")) {
                 mensagem("Houve um erro!", "Parece que houve um erro de conexão, por favor tente novamente.", "Ok");
@@ -279,7 +247,15 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
                 //enviamos null para criamos um id aleatorio
                 trans.setId_trans(null);
 
-                new AddTransacao(trans, SimuladorResultado.this).execute();
+                progress_bar_simulador.setVisibility(View.GONE);
+                btn_fazer_pedido.setEnabled(true);
+
+                //dados da transacao ja esta ok
+                //redirecionamos para a pagina de pagamento
+                Intent it = new Intent(SimuladorResultado.this,TelaPagamento.class);
+                it.putExtra("transacao",trans);
+                it.putExtra("token_user2",token_user2);
+                startActivity(it);
 
             }
         }else{
@@ -289,51 +265,6 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
             progress_bar_simulador.setVisibility(View.GONE);
             btn_fazer_pedido.setEnabled(true);
         }
-    }
-
-
-    public void retornoAddTransacao(String result){
-
-        //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
-        progress_bar_simulador.setVisibility(View.GONE);
-        btn_fazer_pedido.setEnabled(true);
-        if(result!=null) {
-            if (result.equals("sucesso_edit")) {
-
-
-                if(!token_user2.equals("")) {
-                    //envia notificação
-                    new EnviaNotificacao(trans, token_user2).execute();
-
-                    //aletar e redirecionamento para tela inicial
-                    mensagemIntent("InBanker", "Pedido enviado, aguarde a resposta de seu amigo(a) " + nome, "Ok");
-                }else{
-                    mensagemIntent("InBanker","Pedido enviado! Porém recomendamos entrar em contato pessoalmente com seu amigo(a) "+nome+". Pois ele não receberá notifição de aviso por não estar logado.", "Ok");
-                }
-            } else {
-                mensagem("Houve um erro!", "Parece que houve um erro de conexão, por favor tente novamente.", "Ok");
-            }
-        }else{
-            mensagem("Houve um erro!", "Parece que houve um erro de conexão, por favor tente novamente.", "Ok");
-        }
-
-
-    }
-
-    public void mensagemIntent(String titulo,String corpo,String botao)
-    {
-        AlertDialog.Builder mensagem = new AlertDialog.Builder(this);
-        mensagem.setTitle(titulo);
-        mensagem.setMessage(corpo);
-        mensagem.setPositiveButton(botao,new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                Intent it = new Intent(SimuladorResultado.this,NavigationDrawerActivity.class);
-                startActivity(it);
-                //para encerrar a activity atual e todos os parent
-                finishAffinity();
-            }
-        });
-        mensagem.show();
     }
 
     public void mensagem(String titulo,String corpo,String botao)

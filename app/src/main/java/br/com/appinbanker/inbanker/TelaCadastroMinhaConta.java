@@ -28,6 +28,7 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringCPF;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringEmail;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
+import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AddUsuario;
@@ -50,10 +51,19 @@ public class TelaCadastroMinhaConta extends AppCompatActivity implements WebServ
     RadioButton radio_sexo_masc,radio_sexo_fem;
     RadioGroup radio_op;
 
+    String id_face;
+    String url_img_face;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_tela_cadastro);
+
+        //adicionamos dados do face no usuario recem cadastrado
+        BancoControllerUsuario crud = new BancoControllerUsuario(this);
+        Cursor cursor = crud.carregaDados();
+        id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
+        url_img_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE));
 
         et_cpf = (MaskedEditText) findViewById(R.id.et_cpf);
         et_nasc = (MaskedEditText) findViewById(R.id.et_nasc);
@@ -226,7 +236,7 @@ public class TelaCadastroMinhaConta extends AppCompatActivity implements WebServ
             try {
                 JSONObject jObject = new JSONObject(result); // json
                 String nome = jObject.getString("nome");
-                String situacaoCadastral = jObject.getString("situacaoCadastral");
+                //String situacaoCadastral = jObject.getString("situacaoCadastral");
 
                 //informacoes referente ao nome cpf
                 ll_et_nome.setVisibility(View.VISIBLE);
@@ -381,10 +391,9 @@ public class TelaCadastroMinhaConta extends AppCompatActivity implements WebServ
                 usu_cadastro.setToken_gcm(token);
                 usu_cadastro.setDevice_id(device_id);
 
-                //setamos esse valores vazio para nao dar problema na hora de serializacao e posteriormente erro no rest de cadastro no banco
-                usu_cadastro.setId_face("");
-                usu_cadastro.setUrl_face("");
-
+                //nao setamos valor vazio no face pois o usuario ja esta logado pela tela inicial
+                usu_cadastro.setId_face(id_face);
+                usu_cadastro.setUrl_face(url_img_face);
 
                 usu_cadastro.setEndereco(end);
 
@@ -407,9 +416,6 @@ public class TelaCadastroMinhaConta extends AppCompatActivity implements WebServ
 
         String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,TelaCadastroMinhaConta.this);
         String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,TelaCadastroMinhaConta.this);
-
-        String id_face = "";
-        String url_img_face = "";
 
         if(msg!=null) {
             if (msg.equals("sucesso")) {

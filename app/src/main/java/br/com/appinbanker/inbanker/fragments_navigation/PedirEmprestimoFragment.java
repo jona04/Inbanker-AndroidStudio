@@ -132,8 +132,8 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
                         //faz o logout do usuario logado facebook
                         LoginManager.getInstance().logOut();
-                        mRecyclerView.setVisibility(View.GONE);
-                        pb.setVisibility(View.GONE);
+                        //mRecyclerView.setVisibility(View.GONE);
+                        //pb.setVisibility(View.GONE);
 
                     }else {
                         //utilizamos para deixar a lista no modo hide
@@ -247,6 +247,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
     public void obterDados(AccessToken accessToken, String id){
 
+        Log.i("Script","obterDados");
 
         /* make the API call */
         new GraphRequest(
@@ -318,6 +319,8 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
     public void verifica_usuario_existe(){
 
+        Log.i("Script","verifica_usuario_existe");
+
         //checa se id face recem logado já existe
         new BuscaUsuarioFace(id_face,getActivity(),this).execute();
     }
@@ -347,9 +350,8 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                 confirmarUsuarioLogadoFace();
             }
         }else{
-            //erro
-            mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","Ok");
-            pb.setVisibility(View.GONE);
+            //continua
+            confirmarUsuarioLogadoFace();
         }
 
     }
@@ -424,7 +426,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
     public void listaAmigos(){
 
-       // Log.i("Facebook","metodo Lista amigos");
+        Log.i("Script","listaAmigos");
 
         pb.setVisibility(View.GONE);
 

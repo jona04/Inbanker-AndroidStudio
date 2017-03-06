@@ -53,7 +53,7 @@ public class ListaAmigosAdapter extends RecyclerView.Adapter<ListaAmigosAdapter.
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        Log.i("Script", "Inicio amigos adapter onCreateViewHolder ");
+        //Log.i("Script", "Inicio amigos adapter onCreateViewHolder ");
         View v = mLayoutInflater.inflate(R.layout.adapter_item_amigos, viewGroup,false);
         MyViewHolder mvh = new MyViewHolder(v);
 
@@ -62,7 +62,7 @@ public class ListaAmigosAdapter extends RecyclerView.Adapter<ListaAmigosAdapter.
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        Log.i("Script", "Inicio amigos adapter onBindViewHolder ");
+        //Log.i("Script", "Inicio amigos adapter onBindViewHolder ");
         holder.tv_nome_usuario.setText(mList.get(position).getName());
 
         Context context = holder.imagem.getContext();

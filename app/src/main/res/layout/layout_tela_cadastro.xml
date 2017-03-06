@@ -150,13 +150,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/size_fields_tv"
-                        android:text="Masculino"/>
+                        android:text="Masc"/>
                     <RadioButton
                         android:id="@+id/radio_sexo_fem"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/size_fields_tv"
-                        android:text="Femenino"/>
+                        android:text="Fem"/>
 
                 </RadioGroup>
 
@@ -273,7 +273,6 @@
                             android:hint=""
                             android:textSize="@dimen/size_fields_et"
                             android:lines="1"
-                            android:imeOptions="actionNext"
                             android:textColor="#000"/>
                     </LinearLayout>
 

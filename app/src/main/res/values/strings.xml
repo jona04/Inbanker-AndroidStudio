@@ -38,6 +38,7 @@
     <string name="title_activity_ver_pagamento">Pagamento pendente</string>
     <string name="title_activity_minha_conta">Minha Conta</string>
     <string name="title_activity_ajuda">Ajuda</string>
+    <string name="title_activity_tela_pagamento">Pagamento</string>
 
     <string name="title_activity_tela_login">Login</string>
     <string name="title_activity_tela_cadastro">Cadastro</string>
