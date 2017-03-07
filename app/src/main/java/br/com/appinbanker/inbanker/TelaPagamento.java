@@ -35,6 +35,7 @@ import java.util.Random;
 import br.com.appinbanker.inbanker.entidades.CartaoPagamento;
 import br.com.appinbanker.inbanker.entidades.CriarPagamento;
 import br.com.appinbanker.inbanker.entidades.CriarPagamentoToken;
+import br.com.appinbanker.inbanker.entidades.KeyAccountPagamento;
 import br.com.appinbanker.inbanker.entidades.RetornoPagamento;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
@@ -241,8 +242,8 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
 
             pagamentoToken.setMerchantOrderId(String.valueOf(randomNum));
             pagamentoToken.setIdRequest("4");
-            pagamentoToken.setClientAcount("f43a015fac622ecd9b82410d6fe32909");
-            pagamentoToken.setClientKey("c388a0b932f57a156c01352a9a4cb61e");
+            pagamentoToken.setClientAcount(KeyAccountPagamento.CLIENT_ACCOUNT);
+            pagamentoToken.setClientKey(KeyAccountPagamento.CLIENT_KEY);
             pagamentoToken.setPaymentsAmount(String.valueOf(taxa_fixa));
             pagamentoToken.setPaymentsInstallments("1");
             pagamentoToken.setPaymentsSoftDescriptor("INBANKER");
@@ -265,8 +266,8 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
 
                 pagamento.setMerchantOrderId(String.valueOf(randomNum));
                 pagamento.setIdRequest("4");
-                pagamento.setClientAcount("f43a015fac622ecd9b82410d6fe32909");
-                pagamento.setClientKey("c388a0b932f57a156c01352a9a4cb61e");
+                pagamento.setClientAcount(KeyAccountPagamento.CLIENT_ACCOUNT);
+                pagamento.setClientKey(KeyAccountPagamento.CLIENT_KEY);
                 pagamento.setCustomerName(et_nome_cartao.getText().toString());
                 pagamento.setPaymentsAmount(String.valueOf(taxa_fixa));
                 pagamento.setPaymentsInstallments("1");

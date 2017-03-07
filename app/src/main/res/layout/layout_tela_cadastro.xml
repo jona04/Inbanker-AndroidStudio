@@ -442,6 +442,32 @@
                     android:textColor="#000"/>
 
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_termos_uso"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginTop="15dp"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/btn_ver_termos_uso"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:textAllCaps="false"
+                    android:layout_gravity="center_horizontal"
+                    android:textSize="16dp"
+                    android:text="@string/tv_termos_cadastro"/>
+                <CheckBox
+                    android:id="@+id/checkbox_termos_uso"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Li e aceito os termos de uso"
+                    android:textColor="#000"/>
+
+            </LinearLayout>
         </LinearLayout>
 
         <Button
@@ -450,7 +476,7 @@
             android:layout_height="wrap_content"
             android:textColor="#3e3e3e"
             android:background="@drawable/borda_cinza"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="20dp"
             android:textSize="15sp"
             android:layout_below="@+id/ll_campos_senha"
             android:text="Continuar"

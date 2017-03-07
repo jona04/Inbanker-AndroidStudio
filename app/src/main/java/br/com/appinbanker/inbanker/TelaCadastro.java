@@ -1,5 +1,6 @@
 package br.com.appinbanker.inbanker;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -42,11 +44,13 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
     EditText et_logradouro,et_complemento,et_bairro,et_cidade,et_estado,et_numero,et_nome,et_email,et_senha,et_confirma_senha;
 
     Button btn_cadastrar_continuar_cpf,btn_cadastrar_continuar_endereco,btn_cadastrar_usuario,btn_cadastrar_continuar_senha;
+    Button btn_ver_termos_uso;
 
     LinearLayout ll_campos_dados_endereco,cep_endereco_completar,ll_et_nome,ll_campos_senha;
 
     RadioButton radio_sexo_masc,radio_sexo_fem;
     RadioGroup radio_op;
+    CheckBox checkbox_termos_uso;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +69,9 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
         radio_sexo_masc = (RadioButton) findViewById(R.id.radio_sexo_masc);
         radio_sexo_fem = (RadioButton) findViewById(R.id.radio_sexo_fem);
         radio_op = (RadioGroup) findViewById(R.id.radio_op);
+        checkbox_termos_uso = (CheckBox) findViewById(R.id.checkbox_termos_uso);
 
+        btn_ver_termos_uso = (Button) findViewById(R.id.btn_ver_termos_uso);
         btn_cadastrar_continuar_cpf = (Button) findViewById(R.id.btn_cadastrar_continuar_cpf);
         btn_cadastrar_continuar_endereco = (Button) findViewById(R.id.btn_cadastrar_continuar_endereco);
         btn_cadastrar_usuario = (Button) findViewById(R.id.btn_cadastrar_usuario);
@@ -82,6 +88,13 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
         et_bairro =(EditText) findViewById(R.id.et_bairro) ;
         et_cidade = (EditText) findViewById(R.id.et_cidade) ;
         et_estado =(EditText) findViewById(R.id.et_estado) ;
+
+        btn_ver_termos_uso.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog_termos_uso();
+            }
+        });
 
         btn_cadastrar_continuar_cpf.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -210,7 +223,7 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
                 Log.i("Script", "" + e);
             }
         }else{
-
+            mensagem("Endereço","Olá, endereço não foi encontrado, verifique o CEP e tente novamente","Ok");
         }
 
     }
@@ -221,12 +234,20 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
         progress.dismiss();
 
         if(result != null){
-
+            String nome = null;
             try {
                 JSONObject jObject = new JSONObject(result); // json
-                String nome = jObject.getString("nome");
+                nome = jObject.getString("nome");
+
                 //String situacaoCadastral = jObject.getString("situacaoCadastral");
 
+            }catch (Exception e){
+                Log.i("Script", "" + e);
+            }
+
+            if(nome.equals(null) || nome.equals("null")){
+                mensagem("CPF","Olá, o CPF não foi encontrado, verifique o número informado e tente novamente","Ok");
+            }else {
                 //informacoes referente ao nome cpf
                 ll_et_nome.setVisibility(View.VISIBLE);
                 et_nome.setText(nome);
@@ -236,13 +257,9 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
                 //informacoes referente ao endereco cep
                 ll_campos_dados_endereco.setVisibility(View.VISIBLE);
                 btn_cadastrar_continuar_endereco.setVisibility(View.VISIBLE);
-            }catch (Exception e){
-                Log.i("Script", "" + e);
             }
-
-
         }else{
-            //tv_nome.setText("Erro, tente novamente");
+            mensagem("CPF","Olá, o CPF não foi encontrado, verifique o número informado e tente novamente","Ok");
        }
 
     }
@@ -287,6 +304,15 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
             et_confirma_senha.setError("Senha diferente");
             et_confirma_senha.setFocusable(true);
             et_confirma_senha.requestFocus();
+
+            campos_ok = false;
+        }
+
+        if (!checkbox_termos_uso.isChecked()) {
+
+            checkbox_termos_uso.setError("Ver termos");
+            checkbox_termos_uso.setFocusable(true);
+            checkbox_termos_uso.requestFocus();
 
             campos_ok = false;
         }
@@ -438,6 +464,22 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
         //para encerrar a activity atual e todos os parent
         finishAffinity();
     }
+
+    public void dialog_termos_uso(){
+        final Dialog dialog = new Dialog(this,R.style.AppThemeDialog);
+        dialog.setContentView(R.layout.dialog_termos_uso);
+        dialog.setTitle("Termos de uso");
+
+        Button btn_ok_termos_uso = (Button) dialog.findViewById(R.id.btn_ok_termos_uso);
+        btn_ok_termos_uso.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
 
     public void mensagem(String titulo,String corpo,String botao)
     {

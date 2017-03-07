@@ -3,6 +3,8 @@ package br.com.appinbanker.inbanker.webservice;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
@@ -29,7 +31,8 @@ public class VerificaCpfReceita extends AsyncTask<String, String, String> {
         String host = Host.host;
         //String host = "http://10.0.2.2:8000/";
         try {
-            final String url = host+"appinbanker/cpf/consulta/"+cpf;
+            //final String url = host+"appinbanker/cpf/consulta/"+cpf;
+            final String url = "https://api.cpfcnpj.com.br/f7e4b915509f9d6c7fc924e524d24880/1/json/"+cpf;
 
             RestTemplate restTemplate = new RestTemplate();
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());

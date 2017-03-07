@@ -26,6 +26,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.json.JSONObject;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -35,14 +36,20 @@ import java.util.Locale;
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
 import br.com.appinbanker.inbanker.TelaLogin;
+import br.com.appinbanker.inbanker.adapters.TransacaoEnvAdapter;
+import br.com.appinbanker.inbanker.adapters.TransacaoRecebidaAdapter;
+import br.com.appinbanker.inbanker.entidades.AlteraPagamento;
 import br.com.appinbanker.inbanker.entidades.Historico;
+import br.com.appinbanker.inbanker.entidades.KeyAccountPagamento;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringHora;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringPagamento;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.webservice.AlteraPagamentoService;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPFAux;
 import br.com.appinbanker.inbanker.webservice.EditaTransacao;
@@ -50,7 +57,7 @@ import br.com.appinbanker.inbanker.webservice.EditaTransacaoResposta;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 import br.com.appinbanker.inbanker.webservice.ObterHora;
 
-public class InicioFragment extends Fragment implements WebServiceReturnStringHora,WebServiceReturnUsuario,WebServiceReturnString{
+public class InicioFragment extends Fragment implements WebServiceReturnStringHora,WebServiceReturnUsuario,WebServiceReturnString,WebServiceReturnStringPagamento {
 
     TextView badge_notification_ped_rec,badge_notification_pag_pen,badge_notification_ped_env;
 
@@ -59,8 +66,8 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
     ProgressBar progress_bar_inicio;
 
     ProgressBar progress_bar_dialog_enviados;
-    Button btn_recusa_recebimento_dialog_enviado;
-    Button btn_confirma_recebimento_dialog_enviado;
+    Button btn_recusa_recebimento_dialog;
+    Button btn_confirma_recebimento_dialog;
     Transacao trans_global;
 
     private Transacao trans_global_ped_receb,trans_global_ped_env;
@@ -69,6 +76,8 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
     private DatabaseReference usuarioReferencia = databaseReference.child("usuarios");
 
     Dialog dialog;
+
+    String hoje_string;
 
     public InicioFragment() {
         // Required empty public constructor
@@ -255,6 +264,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
     @Override
     public void retornoObterHora(String hoje){
 
+        hoje_string = hoje;
 
         if(trans_global_ped_env != null)
             dialogTransEnviadas(trans_global_ped_env,hoje);
@@ -402,8 +412,8 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         TextView tv_valor_dialog = (TextView) dialog.findViewById(R.id.tv_valor_dialog);
         tv_valor_dialog.setText(valor_formatado);
 
-        btn_recusa_recebimento_dialog_enviado = (Button) dialog.findViewById(R.id.btn_recusa_recebimento);
-        btn_recusa_recebimento_dialog_enviado.setOnClickListener(new View.OnClickListener() {
+        btn_recusa_recebimento_dialog = (Button) dialog.findViewById(R.id.btn_recusa_recebimento);
+        btn_recusa_recebimento_dialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -432,8 +442,8 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
             }
         });
 
-        btn_confirma_recebimento_dialog_enviado = (Button) dialog.findViewById(R.id.btn_confirma_recebimento);
-        btn_confirma_recebimento_dialog_enviado.setOnClickListener(new View.OnClickListener() {
+        btn_confirma_recebimento_dialog = (Button) dialog.findViewById(R.id.btn_confirma_recebimento);
+        btn_confirma_recebimento_dialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -483,10 +493,12 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         TextView tv_valor_dialog = (TextView) dialog.findViewById(R.id.tv_valor_dialog);
         tv_valor_dialog.setText(valor_formatado);
 
-        btn_recusa_recebimento_dialog_enviado = (Button) dialog.findViewById(R.id.btn_recusa_recebimento);
-        btn_recusa_recebimento_dialog_enviado.setOnClickListener(new View.OnClickListener() {
+        btn_recusa_recebimento_dialog = (Button) dialog.findViewById(R.id.btn_recusa_recebimento);
+        btn_recusa_recebimento_dialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                desabilitaBotoes();
 
                 trans.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
 
@@ -507,36 +519,27 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
                 metodoEditaTrans(trans);
 
-                desabilitaBotoes();
-
             }
         });
 
-        btn_confirma_recebimento_dialog_enviado = (Button) dialog.findViewById(R.id.btn_confirma_recebimento);
-        btn_confirma_recebimento_dialog_enviado.setOnClickListener(new View.OnClickListener() {
+        btn_confirma_recebimento_dialog = (Button) dialog.findViewById(R.id.btn_confirma_recebimento);
+        btn_confirma_recebimento_dialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                trans.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
-
-                List<Historico> list_hist;
-                if(trans.getHistorico() == null){
-                    list_hist = new ArrayList<Historico>();
-                }else{
-                    list_hist = trans.getHistorico();
-                }
-
-                Historico hist = new Historico();
-                hist.setData(hoje);
-                hist.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
-
-                list_hist.add(hist);
-
-                trans.setHistorico(list_hist);
-
-                metodoEditaTrans(trans);
-
                 desabilitaBotoes();
+
+                //realiza captura na cielo
+                AlteraPagamento cp = new AlteraPagamento();
+                cp.setClientAcount(KeyAccountPagamento.CLIENT_ACCOUNT);
+                cp.setClientKey(KeyAccountPagamento.CLIENT_KEY);
+                cp.setOptionId("8888");
+                cp.setPaymentId(trans.getPagamento().getPayment_id_first());
+                cp.setNewValue(trans.getPagamento().getAmount_first());
+
+                //antes de finalmente editar a transacao, cancelamos o pedido na cielo
+                new AlteraPagamentoService(InicioFragment.this,cp).execute();
+
             }
         });
 
@@ -544,10 +547,56 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         dialog.show();
     }
 
+    @Override
+    public void retornoStringWebServicePagamento(String result) {
+        Log.i("Script","retornoStringWebServicePagamento");
+        boolean success = false;
+
+        try {
+            JSONObject jObject = new JSONObject(result); // json
+            boolean verifica_campo = jObject.has("ReasonMessage"); // check if exist
+            if(verifica_campo){
+                String msg = jObject.getString("ReasonMessage");
+                if(msg.equals("Successful")){
+                    success = true;
+                }
+            }
+
+        }catch (Exception e){
+            Log.i("Script","Exception retornoStringWebServicePagamento = "+e);
+        }
+
+        //se cancelemento sucesso
+        if(success) {
+            trans_global_ped_env.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
+
+            List<Historico> list_hist;
+            if (trans_global_ped_env.getHistorico() == null) {
+                list_hist = new ArrayList<Historico>();
+            } else {
+                list_hist = trans_global_ped_env.getHistorico();
+            }
+
+            Historico hist = new Historico();
+            hist.setData(hoje_string);
+            hist.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
+
+            list_hist.add(hist);
+
+            trans_global_ped_env.setHistorico(list_hist);
+
+            metodoEditaTrans(trans_global_ped_env);
+        }else{
+            mensagem("Houve um erro!","Olá, parece que tivemos algum problema no cancelamento do pagamento do pedido, por favor tente novamente. Se o erro" +
+                    " persistir favor entrar em contato com InBanker","Ok");
+            habilitaBotoes();
+        }
+    }
+
     public void desabilitaBotoes(){
         progress_bar_dialog_enviados.setVisibility(View.VISIBLE);
-        btn_confirma_recebimento_dialog_enviado.setEnabled(false);
-        btn_recusa_recebimento_dialog_enviado.setEnabled(false);
+        btn_confirma_recebimento_dialog.setEnabled(false);
+        btn_recusa_recebimento_dialog.setEnabled(false);
     }
 
     public void metodoEditaTransResposta(Transacao trans){
@@ -564,7 +613,9 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         //cpf usuario 2 que recebera a notificacao no retorno desse metodo
         trans_global = trans;
 
-        new EditaTransacao(trans,trans.getUsu1(),trans.getUsu2(),this).execute();
+        new EditaTransacao(trans,trans_global.getUsu1(),trans_global.getUsu2(),InicioFragment.this).execute();
+
+
     }
 
     public void retornoStringWebService(String result){
@@ -575,8 +626,6 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
 
         if(result.equals("sucesso_edit")){
-
-            dialog.dismiss();
 
             //verificamos para qual usuario enviar a notificacao
             if(cpf.equals(trans_global.getUsu1())) {
@@ -597,29 +646,14 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
     public void habilitaBotoes(){
         progress_bar_dialog_enviados.setVisibility(View.GONE);
-        btn_confirma_recebimento_dialog_enviado.setEnabled(true);
-        btn_recusa_recebimento_dialog_enviado.setEnabled(true);
+        btn_confirma_recebimento_dialog.setEnabled(true);
+        btn_recusa_recebimento_dialog.setEnabled(true);
     }
 
     @Override
     public void retornoUsuarioWebServiceAux(Usuario usu){
 
-
-        habilitaBotoes();
-
-        /*Transacao trans = new Transacao();
-
-        trans.setNome_usu1(trans_global.getNome_usu1());
-        trans.setNome_usu2(trans_global.getNome_usu2());
-        trans.setStatus_transacao(trans_global.getStatus_transacao());
-        trans.setId_trans(trans_global.getId_trans());
-        trans.setUsu1(trans_global.getUsu1());
-        trans.setUsu2(trans_global.getUsu2());
-        trans.setDataPedido(trans_global.getDataPedido());
-        trans.setValor(trans_global.getValor());
-        trans.setVencimento(trans_global.getVencimento());
-        trans.setUrl_img_usu1(trans_global.getUrl_img_usu1());
-        trans.setUrl_img_usu2(trans_global.getUrl_img_usu2());*/
+        dialog.dismiss();
 
 
         if(!usu.getToken_gcm().equals("")) {

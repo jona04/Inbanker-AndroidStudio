@@ -19,6 +19,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.json.JSONObject;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -28,12 +29,16 @@ import java.util.Locale;
 
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
+import br.com.appinbanker.inbanker.entidades.AlteraPagamento;
 import br.com.appinbanker.inbanker.entidades.Historico;
+import br.com.appinbanker.inbanker.entidades.KeyAccountPagamento;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringHora;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringPagamento;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
+import br.com.appinbanker.inbanker.webservice.AlteraPagamentoService;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.EditaTransacao;
 import br.com.appinbanker.inbanker.webservice.EditaTransacaoResposta;
@@ -44,7 +49,7 @@ import br.com.appinbanker.inbanker.webservice.ObterHora;
  * Created by jonatasilva on 29/12/16.
  */
 
-public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implements WebServiceReturnString,WebServiceReturnUsuario {
+public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implements WebServiceReturnString,WebServiceReturnUsuario,WebServiceReturnStringPagamento {
 
     TextView tv_data_pagamento_child ;
     TextView tv_dias_faltando_child;
@@ -289,7 +294,7 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
 
                 trans.setHistorico(list_hist);
 
-                metodoEditaTrans(trans);
+                new EditaTransacao(trans,trans_global.getUsu1(),trans_global.getUsu2(),TransacaoRecebidaAdapter.this).execute();
 
             }
         });
@@ -298,37 +303,74 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
             public void onClick(View view) {
                 Log.i("Click","click 2");
 
-                Transacao trans = new Transacao();
-                trans.setId_trans(item.getId_trans());
-                trans.setStatus_transacao(String.valueOf(Transacao.PEDIDO_RECUSADO));
-                trans.setData_recusada(hoje_string);
-                trans.setData_pagamento("");
-
-                List<Historico> list_hist;
-                if(item.getHistorico() == null){
-                    list_hist = new ArrayList<Historico>();
-                }else{
-                    list_hist = item.getHistorico();
-                }
-
-                Historico hist = new Historico();
-                hist.setData(hoje_string);
-                hist.setStatus_transacao(String.valueOf(Transacao.PEDIDO_RECUSADO));
-
-                list_hist.add(hist);
-
-                trans.setHistorico(list_hist);
-
-                new EditaTransacaoResposta(trans,item.getUsu1(),item.getUsu2(),TransacaoRecebidaAdapter.this).execute();
-
                 escondeBotoes();
+
+                //cancela pagamento cielo
+                AlteraPagamento cp = new AlteraPagamento();
+                cp.setClientAcount(KeyAccountPagamento.CLIENT_ACCOUNT);
+                cp.setClientKey(KeyAccountPagamento.CLIENT_KEY);
+                cp.setOptionId("9999");
+                cp.setPaymentId(trans_global.getPagamento().getPayment_id_first());
+                cp.setNewValue(trans_global.getPagamento().getAmount_first());
+
+                //metodoEditaTransResp(cp);
+
+                //antes de finalmente editar a transacao, cancelamos o pedido na cielo
+                new AlteraPagamentoService(TransacaoRecebidaAdapter.this,cp).execute();
 
             }
         });
     }
 
-    public void metodoEditaTrans(Transacao trans){
-        new EditaTransacao(trans,trans_global.getUsu1(),trans_global.getUsu2(),this).execute();
+    @Override
+    public void retornoStringWebServicePagamento(String result) {
+
+        Log.i("Script","retornoStringWebServicePagamento");
+        boolean success = false;
+
+        try {
+            JSONObject jObject = new JSONObject(result); // json
+            boolean verifica_campo = jObject.has("ReasonMessage"); // check if exist
+            if(verifica_campo){
+                String msg = jObject.getString("ReasonMessage");
+                if(msg.equals("Successful")){
+                    success = true;
+                }
+            }
+
+        }catch (Exception e){
+            Log.i("Script","Exception retornoStringWebServicePagamento = "+e);
+        }
+
+        //se cancelemento sucesso
+        if(success) {
+            Transacao trans = new Transacao();
+            trans.setId_trans(trans_global.getId_trans());
+            trans.setStatus_transacao(String.valueOf(Transacao.PEDIDO_RECUSADO));
+            trans.setData_recusada(hoje_string);
+            trans.setData_pagamento("");
+
+            List<Historico> list_hist;
+            if (trans_global.getHistorico() == null) {
+                list_hist = new ArrayList<Historico>();
+            } else {
+                list_hist = trans_global.getHistorico();
+            }
+
+            Historico hist = new Historico();
+            hist.setData(hoje_string);
+            hist.setStatus_transacao(String.valueOf(Transacao.PEDIDO_RECUSADO));
+
+            list_hist.add(hist);
+
+            trans.setHistorico(list_hist);
+
+            new EditaTransacaoResposta(trans, trans_global.getUsu1(), trans_global.getUsu2(), this).execute();
+        }else{
+            mensagem("Houve um erro!","Olá, parece que tivemos algum problema no cancelamento do pagamento do pedido, por favor tente novamente. Se o erro" +
+                    " persistir favor entrar em contato com InBanker","Ok");
+            mostraBotoes();
+        }
     }
 
     @Override
@@ -438,5 +480,6 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
 
     @Override
     public void retornoUsuarioWebServiceAux(Usuario usu){}
+
 
 }
