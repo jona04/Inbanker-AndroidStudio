@@ -49,7 +49,7 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
     TextView tv_data_pagamento_child ;
     TextView tv_dias_corridos_child;
     TextView tv_taxa_juros_am_child;
-    TextView tv_valor_taxa_servico_child;
+    //TextView tv_valor_taxa_servico_child;
     TextView tv_valor_total_child;
     private Button btn_cancelar_pedido_antes_resp_child;
     ProgressBar progress_bar_btn;
@@ -92,7 +92,7 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
         tv_data_pagamento_child  = (TextView) convertView.findViewById(R.id.tv_data_pagamento);
         tv_dias_corridos_child  = (TextView) convertView.findViewById(R.id.tv_dias_corridos);
         tv_taxa_juros_am_child  = (TextView) convertView.findViewById(R.id.tv_taxa_juros_am);
-        tv_valor_taxa_servico_child  = (TextView) convertView.findViewById(R.id.tv_valor_taxa_servico);
+        //tv_valor_taxa_servico_child  = (TextView) convertView.findViewById(R.id.tv_valor_taxa_servico);
         tv_valor_total_child  = (TextView) convertView.findViewById(R.id.tv_valor_total);
         btn_cancelar_pedido_antes_resp_child = (Button) convertView.findViewById(R.id.btn_cancelar_pedido_antes_resp);
         progress_bar_btn = (ProgressBar) convertView.findViewById(R.id.progress_bar_btn);
@@ -201,19 +201,19 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
         Log.i("Enviados","dias = "+dias);
 
         double juros_mensal = Double.parseDouble(item.getValor()) * (0.00066333 * dias);
-        double taxa_fixa = Double.parseDouble(item.getValor()) * 0.0099;
-        double valor_total = juros_mensal + taxa_fixa +  Double.parseDouble(item.getValor());
+        //double taxa_fixa = Double.parseDouble(item.getValor_servico());
+        double valor_total = juros_mensal +  Double.parseDouble(item.getValor());
 
         Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
 
         String juros_total_formatado = nf.format (valor_total);
-        String valor_fixo_formatado = nf.format (taxa_fixa);
+        //String valor_fixo_formatado = nf.format (taxa_fixa);
 
         tv_data_pagamento_child.setText(data_pagamento_parse.substring(0, data_pagamento_parse.length() - 5));
         tv_dias_corridos_child.setText(String.valueOf(dias));
         tv_taxa_juros_am_child.setText("1.99%");
-        tv_valor_taxa_servico_child.setText(valor_fixo_formatado);
+        //tv_valor_taxa_servico_child.setText(valor_fixo_formatado);
         tv_valor_total_child.setText(juros_total_formatado);
 
         btn_cancelar_pedido_antes_resp_child.setOnClickListener(new View.OnClickListener() {
@@ -266,6 +266,9 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
             trans.setStatus_transacao(String.valueOf(Transacao.ENVIO_CANCELADO_ANTES_RESPOSTA));
             trans.setData_recusada(hoje_string);
             trans.setData_pagamento("");
+            trans.setValor_multa("0");
+            trans.setValor_juros_mensal("0");
+            trans.setValor_juros_mora("0");
 
             //esse valor sera passado para o metodo notificacao
             status_transacao = Transacao.ENVIO_CANCELADO_ANTES_RESPOSTA;

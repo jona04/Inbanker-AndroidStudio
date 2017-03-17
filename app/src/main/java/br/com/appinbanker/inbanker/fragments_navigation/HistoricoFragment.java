@@ -47,7 +47,6 @@ public class HistoricoFragment extends Fragment{
         // Required empty public constructor
     }
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,7 +79,6 @@ public class HistoricoFragment extends Fragment{
         }catch (Exception e){
             Log.i("Webservice","-"+e);
         }
-
 
         expListView = (ExpandableListView) view.findViewById(R.id.transacaoList);
 

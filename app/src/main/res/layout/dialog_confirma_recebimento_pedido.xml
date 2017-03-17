@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="#fff"
+    android:background="#e6e6e6"
     android:orientation="vertical">
 
     <LinearLayout
@@ -34,6 +34,29 @@
             android:layout_marginTop="10dp"
             android:text="R$ 100,00"/>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:src="@drawable/icon_seguranca"
+                android:layout_weight="2"/>
+            <EditText
+                android:id="@+id/et_dialog_senha"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:hint="  Digite sua senha"
+                android:textSize="13sp"
+                android:inputType="textPassword"
+                android:layout_weight="1"
+                android:textColor="#000"
+                android:background="@drawable/fundo_branco_borda_redonda"
+                android:imeOptions="actionNext"
+                android:lines="1"/>
+        </LinearLayout>
+
         <ProgressBar
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
@@ -43,32 +66,37 @@
             />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:orientation="vertical">
 
+
+            <Button
+                android:id="@+id/btn_confirma_recebimento"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#3e3e3e"
+                android:background="@drawable/btn_dialog_confirma"
+                android:textSize="12sp"
+                android:padding="5dp"
+                android:text="Sim, confirmo recebimento do valor"
+                />
+
+
             <Button
                 android:id="@+id/btn_recusa_recebimento"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:background="@null"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btn_dialog_recusa"
                 android:text="Não recebi o valor"
                 android:textSize="12sp"
                 android:textColor="#3e3e3e"
                 />
 
-            <Button
-                android:id="@+id/btn_confirma_recebimento"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#3e3e3e"
-                android:background="@drawable/borda_cinza"
-                android:textSize="12sp"
-                android:padding="5dp"
-                android:text="Sim, confirmo recebimento do valor"
-                />
+
 
         </LinearLayout>
 

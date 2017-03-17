@@ -34,6 +34,7 @@ import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AddUsuario;
+import br.com.appinbanker.inbanker.webservice.EnviaEmail;
 import br.com.appinbanker.inbanker.webservice.VerificaCEP;
 import br.com.appinbanker.inbanker.webservice.VerificaCPF;
 import br.com.appinbanker.inbanker.webservice.VerificaCpfReceita;
@@ -57,6 +58,7 @@ public class TelaCadastroMinhaConta extends AppCompatActivity implements WebServ
 
     String id_face;
     String url_img_face;
+    Usuario usu_cadastro;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +83,8 @@ public class TelaCadastroMinhaConta extends AppCompatActivity implements WebServ
         radio_sexo_masc = (RadioButton) findViewById(R.id.radio_sexo_masc);
         radio_sexo_fem = (RadioButton) findViewById(R.id.radio_sexo_fem);
         radio_op = (RadioGroup) findViewById(R.id.radio_op);
+
+        btn_ver_termos_uso = (Button) findViewById(R.id.btn_ver_termos_uso);
 
         btn_cadastrar_continuar_cpf = (Button) findViewById(R.id.btn_cadastrar_continuar_cpf);
         btn_cadastrar_continuar_endereco = (Button) findViewById(R.id.btn_cadastrar_continuar_endereco);
@@ -190,7 +194,7 @@ public class TelaCadastroMinhaConta extends AppCompatActivity implements WebServ
 
             new VerificaEmail(et_email.getText().toString(),this).execute();
 
-            progress = ProgressDialog.show(TelaCadastroMinhaConta.this, "Verificando Email",
+            progress = ProgressDialog.show(TelaCadastroMinhaConta.this, "Verificando Dados",
                     "Olá, esse processo pode demorar alguns segundos...", true);
 
         }
@@ -379,7 +383,7 @@ public class TelaCadastroMinhaConta extends AppCompatActivity implements WebServ
 
                 //realiza cadastro
 
-                Usuario usu_cadastro = new Usuario();
+                usu_cadastro = new Usuario();
 
                 String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,TelaCadastroMinhaConta.this);
                 String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,TelaCadastroMinhaConta.this);
@@ -456,6 +460,9 @@ public class TelaCadastroMinhaConta extends AppCompatActivity implements WebServ
                 //salva no firebase
                 //usu_cadastro.salvar();
 
+                //envia email para usuario recem cadastro
+                new EnviaEmail(usu_cadastro).execute();
+
                 direcionarMinhaConta();
 
             } else {
@@ -509,6 +516,7 @@ public class TelaCadastroMinhaConta extends AppCompatActivity implements WebServ
         if(result!=null){
             if(result.equals("cpf")) {
                 //erro
+                progress.dismiss();
                 mensagem("CPF já existe!","Olá, o CPF informado já existe. Por favor tente outro!","Ok");
             }else{
                 //realiza cadastro
@@ -517,6 +525,7 @@ public class TelaCadastroMinhaConta extends AppCompatActivity implements WebServ
             }
         }else{
             //erro
+            progress.dismiss();
             mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","Ok");
         }
     }

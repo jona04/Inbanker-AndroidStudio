@@ -4,5 +4,7 @@
         <item>MasterCard</item>
         <item>Visa</item>
         <item>Elo</item>
+        <item>American</item>
+        <item>Dinners</item>
     </string-array>
 </resources>

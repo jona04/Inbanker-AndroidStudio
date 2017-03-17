@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -54,6 +55,7 @@ import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPFAux;
 import br.com.appinbanker.inbanker.webservice.EditaTransacao;
 import br.com.appinbanker.inbanker.webservice.EditaTransacaoResposta;
+import br.com.appinbanker.inbanker.webservice.EnviaEmailTrans;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 import br.com.appinbanker.inbanker.webservice.ObterHora;
 
@@ -78,6 +80,10 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
     Dialog dialog;
 
     String hoje_string;
+
+    Double juros_mora;
+    Double multa_atraso;
+    Double juros_mensal;
 
     public InicioFragment() {
         // Required empty public constructor
@@ -358,6 +364,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
         progress_bar_dialog_enviados = (ProgressBar) dialog.findViewById(R.id.progress_bar);
 
+        final EditText et_dialog_senha = (EditText) dialog.findViewById(R.id.et_dialog_senha);
         TextView tv_texto_dialog = (TextView) dialog.findViewById(R.id.tv_texto_dialog);
         tv_texto_dialog.setText("Seu amigo(a) "+ trans.getNome_usu1() +" solicitou o pagamento. Confirme aqui o recebimento do valor\n" +
                 "referente à quitação do contrato.");
@@ -388,24 +395,29 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         Days d_corridos = Days.daysBetween(data_pedido_parse, hoje_parse);
         int dias_corridos = d_corridos.getDays();
 
-        Double multa_atraso = 0.0;
-        Double juros_mora = 0.0;
+        multa_atraso = 0.0;
+        juros_mora = 0.0;
         if(hoje_parse.isAfter(vencimento_parse)){
+
+            //alteramos o valor de dias para até a data limite do vencimento
+            //pois a partir daqui será adicionado um novo valor de juros, juros mora referente aos dias que ultrapssou o vencimento
+            d_corridos = Days.daysBetween(data_pedido_parse, vencimento_parse);
+            dias_corridos = d_corridos.getDays();
 
             Days d_atraso = Days.daysBetween(vencimento_parse, hoje_parse);
             int dias_atraso = d_atraso.getDays();
 
             juros_mora = Double.parseDouble(trans.getValor()) * (0.00099667 * dias_atraso);
 
-            //Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
+            Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
 
             multa_atraso = Double.parseDouble(trans.getValor())*0.1;
 
         }
 
-        Double juros_mensal = Double.parseDouble(trans.getValor()) * (0.00066333 * dias_corridos);
+        juros_mensal = Double.parseDouble(trans.getValor()) * (0.00066333 * dias_corridos);
 
-        Double valor_total = Double.parseDouble(trans.getValor()) + juros_mensal + multa_atraso + juros_mora;
+        double valor_total = juros_mora+multa_atraso + juros_mensal +  Double.parseDouble(trans.getValor());
 
         String valor_formatado = nf.format (valor_total);
 
@@ -417,27 +429,42 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
             @Override
             public void onClick(View view) {
 
-                trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA));
 
-                List<Historico> list_hist;
-                if(trans.getHistorico() == null){
-                    list_hist = new ArrayList<Historico>();
-                }else{
-                    list_hist = trans.getHistorico();
+                BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
+                Cursor cursor = crud.carregaDados();
+
+                String senha = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.SENHA));
+
+                if (senha.equals(et_dialog_senha.getText().toString())) {
+
+                    trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA));
+
+                    List<Historico> list_hist;
+                    if(trans.getHistorico() == null){
+                        list_hist = new ArrayList<Historico>();
+                    }else{
+                        list_hist = trans.getHistorico();
+                    }
+
+                    Historico hist = new Historico();
+                    hist.setData(hoje);
+                    hist.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA));
+
+                    list_hist.add(hist);
+
+                    trans.setHistorico(list_hist);
+
+                    metodoEditaTrans(trans);
+
+
+                    desabilitaBotoes();
+
+                } else {
+
+                    et_dialog_senha.setError("Senha incorreta");
+                    et_dialog_senha.setFocusable(true);
+                    et_dialog_senha.requestFocus();
                 }
-
-                Historico hist = new Historico();
-                hist.setData(hoje);
-                hist.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA));
-
-                list_hist.add(hist);
-
-                trans.setHistorico(list_hist);
-
-                metodoEditaTrans(trans);
-
-
-                desabilitaBotoes();
 
             }
         });
@@ -447,28 +474,47 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
             @Override
             public void onClick(View view) {
 
-                trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA));
-                trans.setData_recusada("");
-                trans.setData_pagamento(hoje);
+                BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
+                Cursor cursor = crud.carregaDados();
 
-                List<Historico> list_hist;
-                if(trans.getHistorico() == null){
-                    list_hist = new ArrayList<Historico>();
-                }else{
-                    list_hist = trans.getHistorico();
+                String senha = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.SENHA));
+
+                if (senha.equals(et_dialog_senha.getText().toString())) {
+
+                    trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA));
+                    trans.setData_recusada("");
+                    trans.setData_pagamento(hoje);
+
+                    trans.setValor_juros_mora(String.valueOf(juros_mora));
+                    trans.setValor_multa(String.valueOf(multa_atraso));
+                    trans.setValor_juros_mensal(String.valueOf(juros_mensal));
+
+                    List<Historico> list_hist;
+                    if(trans.getHistorico() == null){
+                        list_hist = new ArrayList<Historico>();
+                    }else{
+                        list_hist = trans.getHistorico();
+                    }
+
+                    Historico hist = new Historico();
+                    hist.setData(hoje);
+                    hist.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA));
+
+                    list_hist.add(hist);
+
+                    trans.setHistorico(list_hist);
+
+                    metodoEditaTransResposta(trans);
+
+                    desabilitaBotoes();
+
+                } else {
+
+                    et_dialog_senha.setError("Senha incorreta");
+                    et_dialog_senha.setFocusable(true);
+                    et_dialog_senha.requestFocus();
                 }
 
-                Historico hist = new Historico();
-                hist.setData(hoje);
-                hist.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA));
-
-                list_hist.add(hist);
-
-                trans.setHistorico(list_hist);
-
-                metodoEditaTransResposta(trans);
-
-                desabilitaBotoes();
             }
         });
 
@@ -483,6 +529,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
         progress_bar_dialog_enviados = (ProgressBar) dialog.findViewById(R.id.progress_bar);
 
+        final EditText et_dialog_senha = (EditText) dialog.findViewById(R.id.et_dialog_senha);
         TextView tv_texto_dialog = (TextView) dialog.findViewById(R.id.tv_texto_dialog);
         tv_texto_dialog.setText("Seu amigo(a) "+ trans.getNome_usu2() +" aceitou sua solicitação de empréstimo. Confirme o recebimentos do valor solicitado.");
 
@@ -498,26 +545,41 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
             @Override
             public void onClick(View view) {
 
-                desabilitaBotoes();
+                BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
+                Cursor cursor = crud.carregaDados();
 
-                trans.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
+                String senha = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.SENHA));
 
-                List<Historico> list_hist;
-                if(trans.getHistorico() == null){
-                    list_hist = new ArrayList<Historico>();
-                }else{
-                    list_hist = trans.getHistorico();
+                if (senha.equals(et_dialog_senha.getText().toString())) {
+
+                    desabilitaBotoes();
+
+                    trans.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
+
+                    List<Historico> list_hist;
+                    if(trans.getHistorico() == null){
+                        list_hist = new ArrayList<Historico>();
+                    }else{
+                        list_hist = trans.getHistorico();
+                    }
+
+                    Historico hist = new Historico();
+                    hist.setData(hoje);
+                    hist.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
+
+                    list_hist.add(hist);
+
+                    trans.setHistorico(list_hist);
+
+                    metodoEditaTrans(trans);
+
+                } else {
+
+                    et_dialog_senha.setError("Senha incorreta");
+                    et_dialog_senha.setFocusable(true);
+                    et_dialog_senha.requestFocus();
                 }
 
-                Historico hist = new Historico();
-                hist.setData(hoje);
-                hist.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
-
-                list_hist.add(hist);
-
-                trans.setHistorico(list_hist);
-
-                metodoEditaTrans(trans);
 
             }
         });
@@ -527,18 +589,32 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
             @Override
             public void onClick(View view) {
 
-                desabilitaBotoes();
+                BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
+                Cursor cursor = crud.carregaDados();
 
-                //realiza captura na cielo
-                AlteraPagamento cp = new AlteraPagamento();
-                cp.setClientAcount(KeyAccountPagamento.CLIENT_ACCOUNT);
-                cp.setClientKey(KeyAccountPagamento.CLIENT_KEY);
-                cp.setOptionId("8888");
-                cp.setPaymentId(trans.getPagamento().getPayment_id_first());
-                cp.setNewValue(trans.getPagamento().getAmount_first());
+                String senha = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.SENHA));
 
-                //antes de finalmente editar a transacao, cancelamos o pedido na cielo
-                new AlteraPagamentoService(InicioFragment.this,cp).execute();
+                if (senha.equals(et_dialog_senha.getText().toString())) {
+
+                    desabilitaBotoes();
+
+                    //realiza captura na cielo
+                    AlteraPagamento cp = new AlteraPagamento();
+                    cp.setClientAcount(KeyAccountPagamento.CLIENT_ACCOUNT);
+                    cp.setClientKey(KeyAccountPagamento.CLIENT_KEY);
+                    cp.setOptionId("8888");
+                    cp.setPaymentId(trans.getPagamento().getPayment_id_first());
+                    cp.setNewValue(trans.getPagamento().getAmount_first());
+
+                    //antes de finalmente editar a transacao, cancelamos o pedido na cielo
+                    new AlteraPagamentoService(InicioFragment.this,cp).execute();
+
+                } else {
+
+                    et_dialog_senha.setError("Senha incorreta");
+                    et_dialog_senha.setFocusable(true);
+                    et_dialog_senha.requestFocus();
+                }
 
             }
         });
@@ -655,21 +731,46 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
         dialog.dismiss();
 
+        //fazemos uma busca do usuario logando no banco para mostrarmos corretamente as notificações interna nos butons da tela incio
+        BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
+        Cursor cursor = crud.carregaDados();
+        String email_user = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.EMAIL));
+        String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
 
         if(!usu.getToken_gcm().equals("")) {
             //envia notificacao
             new EnviaNotificacao(trans_global, usu.getToken_gcm()).execute();
         }
 
-        if(Integer.parseInt(trans_global.getStatus_transacao()) == Transacao.CONFIRMADO_RECEBIMENTO)
-            mensagemIntent("InBanker","Parabéns, você confirmou o recebimento do valor solicitado. Ao efetuar o pagamento de quitação, peça que seu amigo(a) " + trans_global.getNome_usu2() + " confirme o recebimento do valor.", "Ok");
-        else if(Integer.parseInt(trans_global.getStatus_transacao()) == Transacao.AGUARDANDO_RESPOSTA)
-            mensagemIntent("InBanker", "Você recusou o recebimento do valor solicitado à "+ trans_global.getNome_usu2()+". Seu pedido de empréstimo foi enviado novamente.", "Ok");
-        else if(Integer.parseInt(trans_global.getStatus_transacao()) == Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA)
-            mensagemIntent("InBanker", "Você confirmou o recebimento do valor para quitação do empréstimo solicitado por "+ trans_global.getNome_usu1()+". Parabéns, essa transacão foi finalizada com sucesso.", "Ok");
-        else if(Integer.parseInt(trans_global.getStatus_transacao()) == Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA)
-            mensagemIntent("InBanker", "Você recusou uma solicitação de quitação da dívida. Entre em contato com "+trans_global.getNome_usu1()+" e aguarde por uma nova solicitação.","Ok");
+        if(Integer.parseInt(trans_global.getStatus_transacao()) == Transacao.CONFIRMADO_RECEBIMENTO) {
 
+            //verificamos para qual usuario enviar o email
+            if(cpf.equals(trans_global.getUsu1())) { //usuario esta enviando pedido
+                //enviaemail para usuario
+                new EnviaEmailTrans(trans_global, email_user ,usu.getEmail()).execute();
+            }else{ //usuario esta recebendo pedido
+                //enviaemail para usuario
+                new EnviaEmailTrans(trans_global, usu.getEmail(),email_user).execute();
+            }
+
+            mensagemIntent("InBanker", "Parabéns, você confirmou o recebimento do valor solicitado. Ao efetuar o pagamento de quitação, peça que seu amigo(a) " + trans_global.getNome_usu2() + " confirme o recebimento do valor.", "Ok");
+        }else if(Integer.parseInt(trans_global.getStatus_transacao()) == Transacao.AGUARDANDO_RESPOSTA) {
+            mensagemIntent("InBanker", "Você recusou o recebimento do valor solicitado à " + trans_global.getNome_usu2() + ". Seu pedido de empréstimo foi enviado novamente.", "Ok");
+        }else if(Integer.parseInt(trans_global.getStatus_transacao()) == Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA) {
+
+            //verificamos para qual usuario enviar o email
+            if(cpf.equals(trans_global.getUsu1())) { //usuario esta enviando pedido
+                //enviaemail para usuario
+                new EnviaEmailTrans(trans_global, email_user ,usu.getEmail()).execute();
+            }else{ //usuario esta recebendo pedido
+                //enviaemail para usuario
+                new EnviaEmailTrans(trans_global, usu.getEmail(),email_user).execute();
+            }
+
+            mensagemIntent("InBanker", "Você confirmou o recebimento do valor para quitação do empréstimo solicitado por " + trans_global.getNome_usu1() + ". Parabéns, essa transacão foi finalizada com sucesso.", "Ok");
+        }else if(Integer.parseInt(trans_global.getStatus_transacao()) == Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA) {
+            mensagemIntent("InBanker", "Você recusou uma solicitação de quitação da dívida. Entre em contato com " + trans_global.getNome_usu1() + " e aguarde por uma nova solicitação.", "Ok");
+        }
     }
 
     public void mensagemIntent(String titulo,String corpo,String botao)

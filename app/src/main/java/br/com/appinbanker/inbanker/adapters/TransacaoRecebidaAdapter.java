@@ -226,6 +226,29 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
         Days d_faltando = Days.daysBetween(hoje_parse, vencimento_parse);
         int dias_faltando = d_faltando.getDays();
 
+        //se o dia de hoje ultrapassar o vencimento e o usuario 2 ainda nao tiver respondido o pedido,
+        // ou o osuaurio 1 ainda nao tiver confirmado o recebimento
+        //o pedido é automaticamento cancelado
+        if(dias_faltando < 0){
+
+            escondeBotoes();
+
+            //cancela pagamento cielo
+            AlteraPagamento cp = new AlteraPagamento();
+            cp.setClientAcount(KeyAccountPagamento.CLIENT_ACCOUNT);
+            cp.setClientKey(KeyAccountPagamento.CLIENT_KEY);
+            cp.setOptionId("9999");
+            cp.setPaymentId(trans_global.getPagamento().getPayment_id_first());
+            cp.setNewValue(trans_global.getPagamento().getAmount_first());
+
+            //metodoEditaTransResp(cp);
+
+            //antes de finalmente editar a transacao, cancelamos o pedido na cielo
+            new AlteraPagamentoService(TransacaoRecebidaAdapter.this,cp).execute();
+
+        }
+
+
         //Log.i("Enviados","dias = "+dias+ " - " +hoje);
 
         double juros_mensal = Double.parseDouble(item.getValor()) * (0.00066333 * dias);
@@ -258,10 +281,6 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
                 msg_ver_pedido_child.setText("Você esta aguardando que seu amigo(a) " + trans_global.getNome_usu1() + " confirme o recebimento do valor.");
 
 
-                break;
-            case Transacao.QUITACAO_SOLICITADA:
-
-                ll_resposta_pedido_child.setVisibility(View.GONE);
                 break;
 
         }
@@ -349,6 +368,9 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
             trans.setStatus_transacao(String.valueOf(Transacao.PEDIDO_RECUSADO));
             trans.setData_recusada(hoje_string);
             trans.setData_pagamento("");
+            trans.setValor_multa("0");
+            trans.setValor_juros_mensal("0");
+            trans.setValor_juros_mora("0");
 
             List<Historico> list_hist;
             if (trans_global.getHistorico() == null) {
@@ -445,7 +467,7 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
                 new EnviaNotificacao(trans, usu.getToken_gcm()).execute();
             }
 
-            mensagemIntent("InBanker", "Você recusou esse pedido de empréstimo de " + trans_global.getNome_usu1() + ".", "Ok");
+            mensagemIntent("InBanker", "Olá, o pedido de empréstimo feito por " + trans_global.getNome_usu1() + " foi cancelado.", "Ok");
         }
 
     }

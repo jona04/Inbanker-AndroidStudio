@@ -48,6 +48,17 @@ public class Usuario {
     @JsonProperty("transacoes_recebidas")
     private List<Transacao> transacoes_recebidas;
 
+    @JsonProperty("notificacao_contrato")
+    private List<NotificacaoContrato> notificacao_contrato;
+
+    public List<NotificacaoContrato> getNotificacaoContrato() {
+        return notificacao_contrato;
+    }
+
+    public void setNotificacaoContrato(List<NotificacaoContrato> notificacao_contrato) {
+        this.notificacao_contrato = notificacao_contrato;
+    }
+
     public List<CartaoPagamento> getCartaoPagamento() {
         return cartao_pagamento;
     }

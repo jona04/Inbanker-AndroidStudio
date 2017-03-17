@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/selector_item_lista_amigos"
+    android:clickable="true"
+    android:padding="15dp">
+
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="fill_parent"
+        android:layout_height="1px"
+        android:background="#ccc"/>
+
+    <TextView
+        android:id="@+id/tv_data_mensagem"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view"
+        android:layout_marginTop="4dp"
+        android:text="12 de janeiro de 2017"
+        android:textSize="10sp" />
+    <TextView
+        android:id="@+id/tv_mensagem"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_data_mensagem"
+        android:text="Nome usuario"
+        android:textSize="16sp" />
+
+</RelativeLayout>

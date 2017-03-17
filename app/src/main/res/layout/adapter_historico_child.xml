@@ -54,14 +54,19 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Multa"
+                android:text="Valor juros totais"
                 android:textSize="11sp" />
             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Multa"
+                android:textSize="11sp" />
+            <!-- <TextView
                 android:id="@+id/tv_taxa"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Serviço"
-                android:textSize="11sp" />
+                android:textSize="11sp" /> -->
 
             <TextView
                 android:layout_width="wrap_content"
@@ -93,19 +98,26 @@
                 android:text="1.99%"
                 android:textSize="11sp" />
             <TextView
+                android:id="@+id/tv_valor_juros_totais"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="Juros"
+                android:textSize="11sp" />
+            <TextView
                 android:id="@+id/tv_valor_multa"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:text="Multa"
                 android:textSize="11sp" />
-            <TextView
+            <!--<TextView
                 android:id="@+id/tv_valor_taxa_servico"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:text="Serviço"
-                android:textSize="11sp" />
+                android:textSize="11sp" /> -->
             <TextView
                 android:id="@+id/tv_valor_total"
                 android:layout_width="wrap_content"

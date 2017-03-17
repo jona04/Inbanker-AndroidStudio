@@ -107,7 +107,7 @@
                 android:id="@+id/ll_et_nasc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:orientation="vertical">
 
                 <TextView
@@ -272,6 +272,8 @@
                             android:layout_height="wrap_content"
                             android:hint=""
                             android:textSize="@dimen/size_fields_et"
+                            android:imeOptions="actionNext"
+                            android:inputType="text"
                             android:lines="1"
                             android:textColor="#000"/>
                     </LinearLayout>

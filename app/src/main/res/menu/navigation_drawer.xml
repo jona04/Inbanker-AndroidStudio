@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <!--<item
+    <item
         android:id="@+id/menu_notificacao"
         android:orderInCategory="100"
         android:title="@string/menu_notificacao"
         android:icon="@android:drawable/ic_dialog_email"
-        app:showAsAction="always" /> -->
-    <item
+        app:showAsAction="always" />
+    <!--<item
         android:id="@+id/menu_minha_conta"
         android:orderInCategory="100"
         android:title="@string/menu_minha_conta"
@@ -17,9 +17,9 @@
         android:orderInCategory="100"
         android:title="@string/menu_ajuda"
         app:showAsAction="never" />
-    <item
+     <item
         android:id="@+id/menu_sair"
         android:orderInCategory="100"
         android:title="@string/menu_sair"
-        app:showAsAction="never" />
+        app:showAsAction="never" /> -->
 </menu>

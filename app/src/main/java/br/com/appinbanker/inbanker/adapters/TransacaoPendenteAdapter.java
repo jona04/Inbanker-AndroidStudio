@@ -181,7 +181,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
 
         Double multa_atraso = 0.0;
         Double juros_mora = 0.0;
-        if(hoje_parse.isAfter(vencimento_parse.plusDays(1))) {
+        if(hoje_parse.isAfter(vencimento_parse)) {
 
             d = Days.daysBetween(data_pedido_parse, vencimento_parse);
             dias = d.getDays();
@@ -270,7 +270,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
         Days d = Days.daysBetween(data_pedido_parse, hoje_parse);
         int dias = d.getDays();
 
-        //botamos aqui em cima para nao sofre alteracao caso o usuario passe do prazo de vencimento, linha 257
+        //botamos aqui em cima para nao sofre alteracao caso o usuario passe do prazo de vencimento
         tv_dias_corridos_child.setText(String.valueOf(dias));
 
         Locale ptBr = new Locale("pt", "BR");
@@ -278,8 +278,10 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
 
         Double multa_atraso = 0.0;
         Double juros_mora = 0.0;
-        if(hoje_parse.isAfter(vencimento_parse.plusDays(1))) {
+        if(hoje_parse.isAfter(vencimento_parse)) {
 
+            //alteramos o valor de dias para até a data limite do vencimento
+            //pois a partir daqui será adicionado um novo valor de juros, juros mora referente aos dias que ultrapssou o vencimento
             d = Days.daysBetween(data_pedido_parse, vencimento_parse);
             dias = d.getDays();
 

@@ -168,7 +168,15 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
 
-        if (id == R.id.menu_ajuda) {
+        if (id == R.id.menu_notificacao) {
+
+            Intent it = new Intent(this,TelaNotificacoes.class);
+            startActivity(it);
+
+            return true;
+        }
+
+        /*if (id == R.id.menu_ajuda) {
 
             Intent it = new Intent(this,Ajuda.class);
             startActivity(it);
@@ -180,14 +188,15 @@ public class NavigationDrawerActivity extends AppCompatActivity
             startActivity(it);
 
             return true;
-        }else if (id == R.id.menu_sair) {
+        }*/
+        /*else if (id == R.id.menu_sair) {
 
             Log.i("Script","menu sair");
 
             usuario_logoff();
 
             return true;
-        }
+        }*/
 
         return super.onOptionsItemSelected(item);
     }

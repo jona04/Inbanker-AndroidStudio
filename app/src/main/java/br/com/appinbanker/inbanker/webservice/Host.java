@@ -5,7 +5,7 @@ package br.com.appinbanker.inbanker.webservice;
  */
 
 public class Host {
-    public static  final String host = "http://45.55.217.160:8081/";
+    public static  final String host = "http://104.236.10.68:8080/";
 
     //public static  final String host = "http://10.0.3.2:8080/"; //genymotion
 

@@ -54,9 +54,10 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
     ProgressBar progress_bar_simulador;
     Button btn_fazer_pedido;
 
-    //FloatingActionButton fab_cpf,fab_senha;
+    double taxa_servico = 0;
 
     String token_user2;
+    String email_user2;
 
     private Usuario usu_add_trasacao;
 
@@ -92,17 +93,17 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
         double juros_mensal = valor * (0.00066333 * dias);
         //double taxa_fixa = valor * 0.0099;
-        double taxa_fixa = 0;
+
         try {
             DecimalFormat df=new DecimalFormat("0.00");
             String formate = df.format(valor * 0.0099);
-            taxa_fixa = (Double)df.parse(formate);
+            taxa_servico = (Double)df.parse(formate);
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
 
-        double valor_total = juros_mensal + taxa_fixa +  valor;
+        double valor_total = juros_mensal + taxa_servico +  valor;
 
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
 
@@ -132,7 +133,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
         String valor_formatado = nf.format (valor);
-        String taxa_fixa_formatado = nf.format (taxa_fixa);
+        String taxa_fixa_formatado = nf.format (taxa_servico);
         String juros_mensal_formatado = nf.format (juros_mensal);
         String valor_total_formatado = nf.format (valor_total);
 
@@ -201,8 +202,6 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
             btn_fazer_pedido.setEnabled(true);
 
         }
-
-
     }
 
     @Override
@@ -217,12 +216,11 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
                 btn_fazer_pedido.setEnabled(true);
 
             } else {
-
                 Log.i("SimuladorResultado","Hora seridor = "+hoje);
-
 
                 //pegamos o token do usuario para usar na notificação
                 token_user2 = usu_add_trasacao.getToken_gcm();
+                email_user2 = usu_add_trasacao.getEmail();
 
                 //data vencimento, convertendo para padrao utc
                 DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
@@ -238,6 +236,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
                 trans.setUsu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF)));
                 trans.setUsu2(usu_add_trasacao.getCpf());
                 trans.setValor(String.valueOf(valor));
+                trans.setValor_servico(String.valueOf(taxa_servico));
                 trans.setVencimento(vencimento_utf);
                 trans.setNome_usu2(usu_add_trasacao.getNome());
                 trans.setNome_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME)));
@@ -255,8 +254,8 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
                 Intent it = new Intent(SimuladorResultado.this,TelaPagamento.class);
                 it.putExtra("transacao",trans);
                 it.putExtra("token_user2",token_user2);
+                it.putExtra("email_user2",email_user2);
                 startActivity(it);
-
             }
         }else{
             mensagem("Erro crítico!", "Parece que houve um erro de conexão, por favor tente novamente.", "Ok");

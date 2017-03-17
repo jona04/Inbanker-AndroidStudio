@@ -94,8 +94,8 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
     String id_face,nome_face,url_face;
 
-    private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-    private DatabaseReference usuarioReferencia = databaseReference.child("usuarios");
+    //private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+    //private DatabaseReference usuarioReferencia = databaseReference.child("usuarios");
 
     public PedirEmprestimoFragment() {
         // Required empty public constructor
@@ -299,10 +299,11 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
                             amigosRef.child(id).updateChildren(infos);*/
 
-                            if (usuario_logado)
+                            if (usuario_logado) {
                                 listaAmigos();
-                            else
+                            }else{
                                 verifica_usuario_existe();
+                            }
                         }
                         catch(Exception e){
                             Log.i("Facebook","exception = "+e);
@@ -334,7 +335,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
         if(usu!=null) {
 
-            if (!usu.getId_face().equals(id_face_logado) && !id_face_logado.equals("")){
+            if (!usu.getId_face().equals(id_face_logado)){
                 //erro
                 mensagem("Houve um erro!","Olá, parece que o usuário que você esta tentando logar, já esta vinculado a outra conta. " +
                         "Tente fazer o login diretamente pelo Facebook na tela inicial do aplicativo.","Ok");
@@ -592,7 +593,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                  if (campos) {
 
                      String valor_normal_ = valor_normal.substring(0, valor_normal.length() - 2);
-                     if (Double.parseDouble(valor_normal_) > 10){
+                     if (Double.parseDouble(valor_normal_) > 9.9){
                          if (Double.parseDouble(valor_normal_) < 1001) {
 
                              DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");

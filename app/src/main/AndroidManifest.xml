@@ -71,23 +71,34 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".TelaLogin"
+        <activity
+            android:name=".TelaLogin"
             android:label="@string/title_activity_tela_login"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:parentActivityName=".SlideInicial"/>
-        <activity android:name=".TelaCadastro"
+            android:parentActivityName=".SlideInicial"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".TelaCadastro"
             android:label="@string/title_activity_tela_cadastro"
             android:parentActivityName=".SlideInicial" />
-        <activity android:name=".TelaCadastroMinhaConta"
+        <activity
+            android:name=".TelaCadastroMinhaConta"
             android:label="@string/title_activity_tela_cadastro"
             android:parentActivityName=".MinhaConta" />
-        <activity android:name=".TelaCadastroSimulador"
-            android:label="@string/title_activity_tela_cadastro"/>
-        <activity android:name=".SlideInicial"
-            android:theme="@style/Theme.AppCompat.NoActionBar"/>
-        <activity android:name=".TelaPagamento"
+        <activity
+            android:name=".TelaCadastroSimulador"
+            android:label="@string/title_activity_tela_cadastro" />
+        <activity
+            android:name=".SlideInicial"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
+            android:name=".TelaPagamento"
             android:label="@string/title_activity_tela_pagamento"
+            android:windowSoftInputMode="adjustPan"
             android:parentActivityName=".NavigationDrawerActivity" />
+        <activity
+            android:name=".TelaNotificacoes"
+            android:label="@string/title_activity_tela_notificacoes"
+            android:parentActivityName=".NavigationDrawerActivity"/>
     </application>
 
 </manifest>

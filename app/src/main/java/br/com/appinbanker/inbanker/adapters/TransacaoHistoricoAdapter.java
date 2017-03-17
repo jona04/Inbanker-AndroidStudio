@@ -50,9 +50,10 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
     TextView tv_dias_corridos_child;
     TextView tv_taxa_juros_am_child;
     TextView tv_valor_multa_child;
-    TextView tv_valor_taxa_servico_child;
-    TextView tv_taxa;
+    //TextView tv_valor_taxa_servico_child;
+    //TextView tv_taxa;
     TextView tv_valor_total_child;
+    TextView tv_valor_juros_totais_child;
 
     TextView tv_tipo_finalizado_child;
 
@@ -85,12 +86,13 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
             convertView = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.adapter_historico_child, parent, false);
         }
+        tv_valor_juros_totais_child = (TextView) convertView.findViewById(R.id.tv_valor_juros_totais);
         tv_data_pagamento_child  = (TextView) convertView.findViewById(R.id.tv_data_pagamento);
         tv_dias_corridos_child  = (TextView) convertView.findViewById(R.id.tv_dias_corridos);
         tv_taxa_juros_am_child  = (TextView) convertView.findViewById(R.id.tv_taxa_juros_am);
         tv_valor_multa_child = (TextView) convertView.findViewById(R.id.tv_valor_multa);
-        tv_valor_taxa_servico_child  = (TextView) convertView.findViewById(R.id.tv_valor_taxa_servico);
-        tv_taxa  = (TextView) convertView.findViewById(R.id.tv_taxa);
+        //tv_valor_taxa_servico_child  = (TextView) convertView.findViewById(R.id.tv_valor_taxa_servico);
+       // tv_taxa  = (TextView) convertView.findViewById(R.id.tv_taxa);
         tv_valor_total_child  = (TextView) convertView.findViewById(R.id.tv_valor_total);
         tv_tipo_finalizado_child  = (TextView) convertView.findViewById(R.id.tv_tipo_finalizado);
 
@@ -140,50 +142,14 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
 
         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         DateTimeFormatter dtfOut = DateTimeFormat.forPattern("dd/MM/yyyy");
-        DateTimeFormatter dtfOut_hora = DateTimeFormat.forPattern("HH:mm:ss");
 
-        DateTime hora_pedido_parse = fmt.parseDateTime(trans_global.getDataPedido());
-        DateTime vencimento_parse_utc = fmt.parseDateTime(trans_global.getVencimento());
         DateTime data_pedido_parse_utc = fmt.parseDateTime(trans_global.getDataPedido());
 
-        String vencimento_parse_string = dtfOut.print(vencimento_parse_utc);
         String data_pedido_parse_string = dtfOut.print(data_pedido_parse_utc);
-        String hora_pedido = dtfOut_hora.print(hora_pedido_parse);
 
-        DateTime vencimento_parse = dtfOut.parseDateTime(vencimento_parse_string);
-        DateTime data_pedido_parse = dtfOut.parseDateTime(data_pedido_parse_string);
-
-        //calculamos o total de dias para mostramos na tela inicial antes do usuario-2 aceitar ou recusar o pedido recebido
-
-        DateTime data_finalizado;
-        if(!trans_global.getData_pagamento().equals("")){ // verifica se o pedido foi quitado ou cancelado
-            DateTime data_finalizado_parse_utc = fmt.parseDateTime(trans_global.getData_pagamento());
-            String data_finalizado_string = dtfOut.print(data_finalizado_parse_utc);
-            data_finalizado = dtfOut.parseDateTime(data_finalizado_string);
-        }else{
-            DateTime data_finalizado_parse_utc = fmt.parseDateTime(trans_global.getData_recusada());
-            String data_finalizado_string = dtfOut.print(data_finalizado_parse_utc);
-            data_finalizado = dtfOut.parseDateTime(data_finalizado_string);
-        }
-
-        Double multa_atraso = 0.0;
-        Double juros_mora = 0.0;
-        if(data_finalizado.isAfter(vencimento_parse.plusDays(1))) {
-
-            Days d_atraso = Days.daysBetween(vencimento_parse, data_finalizado);
-            int dias_atraso = d_atraso.getDays();
-
-            Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
-
-            juros_mora = Double.parseDouble(trans_global.getValor()) * (0.00099667 * dias_atraso);
-            multa_atraso = Double.parseDouble(trans_global.getValor())*0.1;
-        }
-
-        Days dias_aux = Days.daysBetween(data_pedido_parse, data_finalizado);
-        int dias_finalizado = dias_aux.getDays();
-        double juros_mensal = Double.parseDouble(trans_global.getValor()) * (0.00066333 * dias_finalizado);
-
-        double redimento = juros_mora + multa_atraso + juros_mensal;
+        double redimento = Double.parseDouble(trans_global.getValor_juros_mora())
+                + Double.parseDouble(trans_global.getValor_multa())
+                + Double.parseDouble(trans_global.getValor_juros_mensal());
 
         if(!trans_global.getData_recusada().equals(""))
             redimento = 0.0;
@@ -230,17 +196,11 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
 
         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         DateTimeFormatter dtfOut = DateTimeFormat.forPattern("dd/MM/yyyy");
-        DateTimeFormatter dtfOut_hora = DateTimeFormat.forPattern("HH:mm:ss");
+        //DateTimeFormatter dtfOut_hora = DateTimeFormat.forPattern("HH:mm:ss");
 
-        DateTime hora_pedido_parse = fmt.parseDateTime(item.getDataPedido());
-        DateTime vencimento_parse_utc = fmt.parseDateTime(item.getVencimento());
         DateTime data_pedido_parse_utc = fmt.parseDateTime(item.getDataPedido());
 
-        String vencimento_parse_string = dtfOut.print(vencimento_parse_utc);
         String data_pedido_parse_string = dtfOut.print(data_pedido_parse_utc);
-        String hora_pedido = dtfOut_hora.print(hora_pedido_parse);
-
-        DateTime vencimento_parse = dtfOut.parseDateTime(vencimento_parse_string);
         DateTime data_pedido_parse = dtfOut.parseDateTime(data_pedido_parse_string);
 
         //calculamos o total de dias para mostramos na tela inicial antes do usuario-2 aceitar ou recusar o pedido recebido
@@ -264,26 +224,9 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
             dias = d.getDays();
 
             tv_data_pagamento_child.setText(data_finalizado_string.substring(0, data_finalizado_string.length() - 5));
-            tv_tipo_finalizado_child.setText(" Recusado  ");
+            tv_tipo_finalizado_child.setText(" Recusado  "); //colocamos espaço para regular no layout
         }
 
-        Double multa_atraso = 0.0;
-        Double juros_mora = 0.0;
-        if(data_finalizado.isAfter(vencimento_parse.plusDays(1))) {
-
-            Days d_atraso = Days.daysBetween(vencimento_parse, data_finalizado);
-            int dias_atraso = d_atraso.getDays();
-
-            Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
-
-            juros_mora = Double.parseDouble(item.getValor()) * (0.00099667 * dias_atraso);
-            multa_atraso = Double.parseDouble(item.getValor())*0.1;
-        }
-
-        Days dias_aux = Days.daysBetween(data_pedido_parse, data_finalizado);
-        int dias_finalizado = dias_aux.getDays();
-        double juros_mensal = Double.parseDouble(item.getValor()) * (0.00066333 * dias_finalizado);
-        double taxa_fixa = Double.parseDouble(item.getValor()) * 0.0099;
         double valor_total;
 
         if(!item.getData_recusada().equals(""))
@@ -292,14 +235,17 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
         Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
 
-        //String juros_mensal_formatado = nf.format (juros_mensal);
-        String taxa_fixa_formatado = nf.format (taxa_fixa);
+        double juros_totais = Double.parseDouble(item.getValor_juros_mensal())+Double.parseDouble(item.getValor_juros_mora());
 
-        String multa_formatado = nf.format (multa_atraso);
+        //String juros_mensal_formatado = nf.format (juros_mensal);
+        //String taxa_fixa_formatado = nf.format (Double.parseDouble(item.getValor_servico()));
+        String juros_totais_formatado = nf.format (juros_totais);
+        String multa_formatado = nf.format (Double.parseDouble(item.getValor_multa()));
 
         tv_dias_corridos_child.setText(String.valueOf(dias));
         tv_taxa_juros_am_child.setText("1.99%");
-        tv_valor_taxa_servico_child.setText(taxa_fixa_formatado);
+        tv_valor_juros_totais_child.setText(juros_totais_formatado);
+        //tv_valor_taxa_servico_child.setText(taxa_fixa_formatado);
         tv_valor_multa_child.setText(multa_formatado);
 
         BancoControllerUsuario crud = new BancoControllerUsuario(_context);
@@ -307,26 +253,37 @@ public class TransacaoHistoricoAdapter extends BaseExpandableListAdapter{
         String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
         if(cpf.equals(item.getUsu1())) {
             //colocamos o valor da taxa fixa no total do pedido para o usuario que enviou o pedido
-            valor_total = Double.parseDouble(item.getValor()) + juros_mora + taxa_fixa + multa_atraso + juros_mensal;
+            valor_total = Double.parseDouble(item.getValor())
+                    + Double.parseDouble(item.getValor_juros_mora())
+                    + Double.parseDouble(item.getValor_multa())
+                    + Double.parseDouble(item.getValor_juros_mensal());
+                    //+ Double.parseDouble(item.getValor_servico())
+
 
             tv_dias_corridos_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorRed)));
             tv_taxa_juros_am_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorRed)));
             tv_valor_multa_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorRed)));
-            tv_valor_taxa_servico_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorRed)));
+            //tv_valor_taxa_servico_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorRed)));
+            tv_valor_juros_totais_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorRed)));
             tv_valor_total_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorOrange)));
+
 
         }else{
             //tiramos o valor da taxa fixa do total do pedido para o usuario que apenas recebeu o pedido
-            valor_total = Double.parseDouble(item.getValor()) + juros_mora + multa_atraso + juros_mensal;
+            valor_total = Double.parseDouble(item.getValor())
+                    + Double.parseDouble(item.getValor_juros_mora())
+                    + Double.parseDouble(item.getValor_multa())
+                    + Double.parseDouble(item.getValor_juros_mensal());
 
             //deixamos tava de servico invisievl para que recebeu o pedido
-            tv_valor_taxa_servico_child.setVisibility(View.GONE);
-            tv_taxa.setVisibility(View.GONE);
+            //tv_valor_taxa_servico_child.setVisibility(View.GONE);
+            //tv_taxa.setVisibility(View.GONE);
 
             tv_dias_corridos_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
             tv_taxa_juros_am_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
             tv_valor_multa_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
             //tv_valor_taxa_servico_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
+            tv_valor_juros_totais_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
             tv_valor_total_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorOrange)));
 
         }

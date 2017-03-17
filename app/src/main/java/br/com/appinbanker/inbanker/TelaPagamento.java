@@ -47,6 +47,7 @@ import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AddCartaoUsuario;
 import br.com.appinbanker.inbanker.webservice.AddTransacao;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
+import br.com.appinbanker.inbanker.webservice.EnviaEmailEnvioPedido;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 import br.com.appinbanker.inbanker.webservice.SubmetePagamento;
 import br.com.appinbanker.inbanker.webservice.SubmetePagamentoToken;
@@ -71,8 +72,8 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
     String mes_validade;
     String ano_validade;
     Transacao trans;
-    double taxa_fixa = 0;
     String token_user2;
+    String email_user2;
 
     boolean mesmo_cartao;
 
@@ -92,19 +93,13 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
         Intent it = getIntent();
         trans = (Transacao) it.getExtras().getSerializable("transacao");
         token_user2 = it.getStringExtra("token_user2");
+        email_user2 = it.getStringExtra("email_user2");
 
-        //double taxa_fixa = Double.parseDouble(trans.getValor()) * 0.0099;
-        try {
-            DecimalFormat df=new DecimalFormat("0.00");
-            String formate = df.format(Double.parseDouble(trans.getValor()) * 0.0099);
-            taxa_fixa = (Double)df.parse(formate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+
 
         Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
-        String taxa_fixa_string = nf.format (taxa_fixa);
+        String taxa_fixa_string = nf.format (Double.parseDouble(trans.getValor_servico()));
 
         //Log.i("Script","valor trans = "+taxa_fixa_string + " - "+taxa_fixa);
 
@@ -223,8 +218,16 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
         }
     }
 
+    public void desabilitaBtn(){
+        btn_pagamento.setEnabled(false);
+    }
+    public void habilitaBtn(){
+        btn_pagamento.setEnabled(true);
+    }
     public void realizarPagamento(View view){
         Log.i("Script","btn ralizzar pagamento");
+
+        desabilitaBtn();
 
         progress = ProgressDialog.show(TelaPagamento.this, "Verificando Dados",
                 "Olá, esse processo pode demorar alguns segundos...", true);
@@ -244,7 +247,7 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
             pagamentoToken.setIdRequest("4");
             pagamentoToken.setClientAcount(KeyAccountPagamento.CLIENT_ACCOUNT);
             pagamentoToken.setClientKey(KeyAccountPagamento.CLIENT_KEY);
-            pagamentoToken.setPaymentsAmount(String.valueOf(taxa_fixa));
+            pagamentoToken.setPaymentsAmount(String.valueOf(trans.getValor_servico()));
             pagamentoToken.setPaymentsInstallments("1");
             pagamentoToken.setPaymentsSoftDescriptor("INBANKER");
             pagamentoToken.setPaymentsCapture("FALSE");
@@ -269,7 +272,7 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
                 pagamento.setClientAcount(KeyAccountPagamento.CLIENT_ACCOUNT);
                 pagamento.setClientKey(KeyAccountPagamento.CLIENT_KEY);
                 pagamento.setCustomerName(et_nome_cartao.getText().toString());
-                pagamento.setPaymentsAmount(String.valueOf(taxa_fixa));
+                pagamento.setPaymentsAmount(String.valueOf(trans.getValor_servico()));
                 pagamento.setPaymentsInstallments("1");
                 pagamento.setPaymentsSoftDescriptor("INBANKER");
                 pagamento.setPaymentsType("Creditcard");
@@ -293,12 +296,12 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
                 //JSON from String to Object
                 retornoPagamento = mapper.readValue(rp, RetornoPagamento.class);
 
-                Log.i("Script", "resultado = pagamento = " + retornoPagamento.getAmount_first());
+                /*Log.i("Script", "resultado = pagamento = " + retornoPagamento.getAmount_first());
                 Log.i("Script", "resultado = pagamento = " + retornoPagamento.getReturn_CardNumber());
                 Log.i("Script", "resultado = pagamento = " + retornoPagamento.getReturn_Status());
                 Log.i("Script", "resultado = pagamento = " + retornoPagamento.getTid_first());
                 Log.i("Script", "resultado = pagamento = " + retornoPagamento.getReturn_message_first());
-                Log.i("Script", "resultado = pagamento = " + retornoPagamento.getToken());
+                Log.i("Script", "resultado = pagamento = " + retornoPagamento.getToken());*/
 
                 if(retornoPagamento.getReturn_Status().equals("3")){
                     progress.dismiss();
@@ -312,15 +315,18 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
                     new AddTransacao(trans, TelaPagamento.this).execute();
 
                 }else{
+                    habilitaBtn();
                     progress.dismiss();
                     mensagem("Erro crítico!", "Parece que houve um erro de pagamento, por favor tente novamente.", "Ok");
                 }
 
             } catch (IOException e) {
                 e.printStackTrace();
+                habilitaBtn();
             }
 
         }else{
+            habilitaBtn();
             progress.dismiss();
             mensagem("Erro crítico!", "Parece que houve um erro de conexão, por favor tente novamente.", "Ok");
 
@@ -330,6 +336,10 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
     public void retornoAddTransacao(String result){
 
         progress.dismiss();
+
+        BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
+        Cursor cursor = crud.carregaDados();
+        String email = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.EMAIL));
 
         if(result!=null) {
             if (result.equals("sucesso_edit")) {
@@ -351,6 +361,10 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
 
                     //envia notificação
                     new EnviaNotificacao(trans, token_user2).execute();
+
+                    //envia email para usuarios
+                    new EnviaEmailEnvioPedido(trans,email,email_user2).execute();
+
                     //aletar e redirecionamento para tela inicial
                     mensagemIntent("InBanker", "Pedido enviado, aguarde a resposta de seu amigo(a) " + trans.getNome_usu2(), "Ok");
                 }else{

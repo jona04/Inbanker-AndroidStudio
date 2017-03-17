@@ -54,7 +54,7 @@ public class SplashScreen extends Activity {
         BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
         Cursor cursor = crud.carregaDados();
         if (cursor.getCount() > 0) {
-
+            Log.i("Splash","vai navigation");
             Intent it = new Intent(SplashScreen.this, NavigationDrawerActivity.class);
             startActivity(it);
 
@@ -62,7 +62,7 @@ public class SplashScreen extends Activity {
             finish();
 
         }else{
-            Log.i("Splash","chama splash");
+            Log.i("Splash","vai inicio");
             //chama função que dura 2 segundo antes de ir para inicio(menu principal)
             //mSplashThread.start();
             vaiInicio();

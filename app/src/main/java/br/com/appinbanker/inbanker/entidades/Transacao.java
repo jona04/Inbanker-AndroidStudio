@@ -38,6 +38,14 @@ public class Transacao implements Serializable {
     private String url_img_usu2;
     @JsonProperty("valor")
     private String valor;
+    @JsonProperty("valor_servico")
+    private String valor_servico;
+    @JsonProperty("valor_juros_mensal")
+    private String valor_juros_mensal;
+    @JsonProperty("valor_juros_mora")
+    private String valor_juros_mora;
+    @JsonProperty("valor_multa")
+    private String valor_multa;
     @JsonProperty("vencimento")
     private String vencimento;
     @JsonProperty("data_pedido")
@@ -82,6 +90,38 @@ public class Transacao implements Serializable {
     }
     public void setId_trans(String id) {
         id_trans = (id == null) ? String.valueOf(randomInteger(1000000,9999999)) : id;
+    }
+
+    public String getValor_multa() {
+        return valor_multa;
+    }
+
+    public void setValor_multa(String valor_multa) {
+        this.valor_multa = valor_multa;
+    }
+
+    public String getValor_juros_mora() {
+        return valor_juros_mora;
+    }
+
+    public void setValor_juros_mora(String valor_juros_mora) {
+        this.valor_juros_mora = valor_juros_mora;
+    }
+
+    public String getValor_juros_mensal() {
+        return valor_juros_mensal;
+    }
+
+    public void setValor_juros_mensal(String valor_juros_mensal) {
+        this.valor_juros_mensal = valor_juros_mensal;
+    }
+
+    public String getValor_servico() {
+        return valor_servico;
+    }
+
+    public void setValor_servico(String valor_servico) {
+        this.valor_servico = valor_servico;
     }
 
     public void setData_pagamento(String data_pagamento) {

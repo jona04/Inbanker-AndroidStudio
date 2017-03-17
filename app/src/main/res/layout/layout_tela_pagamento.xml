@@ -79,50 +79,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_below="@+id/rl_cartao"
             android:layout_marginTop="20dp"
-            android:visibility="gone">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/size_fields_tv"
-                    android:text="Número do cartão"/>
-
-                <com.github.pinball83.maskededittext.MaskedEditText
-                    android:id="@+id/et_numero_cartao"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    app:mask="**** **** **** ****"
-                    app:notMaskedSymbol="*"
-                    app:maskIconColor="@color/colorPrimary" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/size_fields_tv"
-                    android:text="Nome impresso no cartão"/>
-
-                <EditText
-                    android:id="@+id/et_nome_cartao"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"/>
-
-            </LinearLayout>
+            android:visibility="gone"
+            android:layout_below="@+id/rl_cartao"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -131,24 +92,22 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_weight="1">
-
+                    android:layout_weight="1"
+                    android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/size_fields_tv"
-                        android:text="Código de segurança"/>
+                        android:text="Número do cartão"/>
 
                     <com.github.pinball83.maskededittext.MaskedEditText
-                        android:id="@+id/et_cod_seguranca"
+                        android:id="@+id/et_numero_cartao"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="number"
-                        app:mask="***"
+                        app:mask="**** **** **** ****"
                         app:notMaskedSymbol="*"
                         app:maskIconColor="@color/colorPrimary" />
-
                 </LinearLayout>
 
                 <LinearLayout
@@ -181,43 +140,82 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/size_fields_tv"
-                    android:text="Validade"/>
+                    android:text="Nome impresso no cartão"/>
+
+                <EditText
+                    android:id="@+id/et_nome_cartao"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <Spinner
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/mes_validade_pagamento"/>
-                    <Spinner
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/ano_validade_pagamento"/>
-                </LinearLayout>
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/size_fields_tv"
+                        android:text="Validade"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <Spinner
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:id="@+id/mes_validade_pagamento"/>
+                        <Spinner
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:id="@+id/ano_validade_pagamento"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/size_fields_tv"
+                        android:text="Código de segurança"/>
+
+                    <com.github.pinball83.maskededittext.MaskedEditText
+                        android:id="@+id/et_cod_seguranca"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        app:mask="***"
+                        app:notMaskedSymbol="*"
+                        app:maskIconColor="@color/colorPrimary" />
+
+                </LinearLayout>
             </LinearLayout>
 
 
         </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/preenche_espacho_tela_pagamento"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/add_cartao_pagamento"
-            android:layout_above="@+id/btn_pagamento"
-            android:orientation="vertical">
-
-        </LinearLayout>
-
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/btn_pagamento"
             android:background="@drawable/borda_cinza"
             android:text="Confirmar"
             android:padding="20dp"
+            android:layout_marginTop="15dp"
             android:onClick="realizarPagamento"
             android:visibility="gone"
             android:layout_centerHorizontal="true"
