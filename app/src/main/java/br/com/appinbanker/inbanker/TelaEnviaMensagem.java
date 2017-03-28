@@ -14,6 +14,7 @@ import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.EnviaEmailMensagem;
 
 public class TelaEnviaMensagem extends AppCompatActivity implements WebServiceReturnString {
@@ -52,12 +53,40 @@ public class TelaEnviaMensagem extends AppCompatActivity implements WebServiceRe
         btn_enviar_mensagem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new EnviaEmailMensagem(usu,et_mensagem.getText().toString(),TelaEnviaMensagem.this).execute();
+                if(clickEnviaMensagem()) {
+                    new EnviaEmailMensagem(usu, et_mensagem.getText().toString(), TelaEnviaMensagem.this).execute();
 
-                progress = ProgressDialog.show(TelaEnviaMensagem.this, "Enviando Mensagem",
-                        "Olá, esse processo pode demorar alguns segundos...", true);
+                    progress = ProgressDialog.show(TelaEnviaMensagem.this, "Enviando Mensagem",
+                            "Olá, esse processo pode demorar alguns segundos...", true);
+                }
             }
         });
+
+    }
+
+    public boolean clickEnviaMensagem(){
+
+        boolean campos_ok = true;
+
+        boolean dialog_email = Validador.validateNotNull(et_email.getText().toString());
+        if(!dialog_email){
+            et_email.setError("Informe Email");
+            et_email.setFocusable(true);
+            et_email.requestFocus();
+
+            campos_ok = false;
+        }
+
+        boolean dialog_mensagem = Validador.validateNotNull(et_mensagem.getText().toString());
+        if(!dialog_mensagem){
+            et_mensagem.setError("Informe Mensagem");
+            et_mensagem.setFocusable(true);
+            et_mensagem.requestFocus();
+
+            campos_ok = false;
+        }
+
+        return campos_ok;
 
     }
 

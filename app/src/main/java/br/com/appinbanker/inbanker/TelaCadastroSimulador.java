@@ -537,14 +537,14 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
         Log.i("Script","result cpf = "+result);
 
         if(result!=null){
-            if(result.equals("cpf")) {
-                //erro
-                progress.dismiss();
-                mensagem("CPF já existe!","Olá, o CPF informado já existe. Por favor tente outro!","Ok");
-            }else{
+            if(result.equals("vazio")) {
                 //realiza cadastro
 
                 verificaCpfReceita();
+            }else{
+                //erro
+                progress.dismiss();
+                mensagem("CPF já existe!","Olá, o CPF informado já existe. Por favor tente outro!","Ok");
             }
         }else{
             //erro

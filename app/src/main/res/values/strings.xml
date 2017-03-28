@@ -15,6 +15,7 @@
 
     <string name="app_id">379815145741560</string>
 
+    <string name="btn_esqueceu_senha"><u>Esqueceu sua senha?</u></string>
     <string name="tv_termos_cadastro"><u>Termos de uso</u></string>
     <string name="tv_politica_privacidade"><u>Políticas de privacidade</u></string>
 

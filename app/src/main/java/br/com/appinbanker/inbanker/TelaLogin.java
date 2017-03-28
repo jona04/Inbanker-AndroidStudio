@@ -1,6 +1,7 @@
 package br.com.appinbanker.inbanker;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +32,8 @@ import org.json.JSONObject;
 import java.text.Normalizer;
 
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringCPF;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
@@ -38,16 +41,25 @@ import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AtualizaTokenGcm;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
+import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPFAux;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
+import br.com.appinbanker.inbanker.webservice.EnviaEmailMensagem;
+import br.com.appinbanker.inbanker.webservice.EnviaEmailNovaSenha;
+import br.com.appinbanker.inbanker.webservice.VerificaCPF;
 
-public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsuario,WebServiceReturnUsuarioFace {
+public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsuario,WebServiceReturnUsuarioFace,WebServiceReturnString {
 
     private CallbackManager callbackManager;
 
     private EditText et_cpf,et_senha;
-    private Button btn_entrar_usuario;
+    private Button btn_entrar_usuario,btn_esqueceu_senha;
 
-    private ProgressBar progress_bar_entrar;
+    private ProgressBar progress_bar_entrar,progress_bar_esq_senha;
+
+    private Dialog dialog;
+    private EditText et_dialog_senha;
+    private Button btn_confirmar_esq_senha;
+    private Button btn_voltar_esq_senha;
 
     //dado face
     private String id_face,nome_face,email_face,url_img_face;
@@ -131,6 +143,44 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
                 //dialog.dismiss();
             }
         });
+
+        btn_esqueceu_senha = (Button) findViewById(R.id.btn_esqueceu_senha);
+        btn_esqueceu_senha.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog = new Dialog(TelaLogin.this,R.style.AppThemeDialog);
+                dialog.setContentView(R.layout.dialog_esqueceu_senha);
+                dialog.setTitle("Solicitar nova senha");
+
+                progress_bar_esq_senha = (ProgressBar) dialog.findViewById(R.id.progress_bar_esq_senha);
+                btn_confirmar_esq_senha = (Button) dialog.findViewById(R.id.btn_confirmar_esq_senha);
+                btn_voltar_esq_senha = (Button) dialog.findViewById(R.id.btn_voltar_esq_senha);
+                et_dialog_senha = (EditText) dialog.findViewById(R.id.et_dialog_senha);
+
+                btn_confirmar_esq_senha.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(clickRecuperaSenha()) {
+                            new BuscaUsuarioCPFAux(et_dialog_senha.getText().toString(),TelaLogin.this, TelaLogin.this).execute();
+                            progress_bar_esq_senha.setVisibility(View.VISIBLE);
+                            btn_confirmar_esq_senha.setEnabled(false);
+                            btn_voltar_esq_senha.setEnabled(false);
+                        }
+                    }
+                });
+
+                btn_voltar_esq_senha.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialog.dismiss();
+                    }
+                });
+
+                dialog.setCancelable(false);
+                dialog.show();
+
+            }
+        });
     }
 
     @Override
@@ -138,6 +188,33 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
         super.onActivityResult(requestCode, resultCode, data);
         Log.i("Facebook", "onActivitResult");
         callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public boolean clickRecuperaSenha(){
+
+        esconderTeclado();
+
+        boolean campos_ok = true;
+
+        boolean cpf_valido = Validador.isCPF(et_dialog_senha.getText().toString());
+        if(!cpf_valido){
+            et_dialog_senha.setError("CPF inválido");
+            et_dialog_senha.setFocusable(true);
+            et_dialog_senha.requestFocus();
+
+            campos_ok = false;
+        }
+
+        boolean dialog_senha = Validador.validateNotNull(et_dialog_senha.getText().toString());
+        if(!dialog_senha){
+            et_dialog_senha.setError("Informe CPF");
+            et_dialog_senha.setFocusable(true);
+            et_dialog_senha.requestFocus();
+
+            campos_ok = false;
+        }
+        return campos_ok;
+
     }
 
     public void clickLogin(){
@@ -234,7 +311,17 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
 
     @Override
     public void retornoUsuarioWebServiceAux(Usuario usu) {
+        if(usu!=null) {
 
+            Log.i("Esqueceu senha","Cpf encontrado");
+            new EnviaEmailNovaSenha(usu,TelaLogin.this).execute();
+
+        }else{
+            mensagem("Erro conexão!","Olá, parece que tivemos um problema de conexão. Por favor tente novamente.","Ok");
+            progress_bar_esq_senha.setVisibility(View.INVISIBLE);
+            btn_confirmar_esq_senha.setEnabled(true);
+            btn_voltar_esq_senha.setEnabled(true);
+        }
     }
 
     public void graphFacebook(final AccessToken accessToken){
@@ -391,5 +478,22 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
 
     public static String removerAcentos(String str) {
         return Normalizer.normalize(str, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
+    }
+
+    @Override
+    public void retornoStringWebService(String result) {
+        progress_bar_esq_senha.setVisibility(View.INVISIBLE);
+        btn_confirmar_esq_senha.setEnabled(true);
+        btn_voltar_esq_senha.setEnabled(true);
+        if(result!=null) {
+            if (result.equals("feito")){
+
+                mensagem("Nova senha enviada","Olá, uma nova senha foi enviada para seu email cadastrado.","Ok");
+            }else{
+                mensagem("Erro mensagem!","Olá, houve um erro no envio da sua senha. Por favor tente novamente.","Ok");
+            }
+        }else{
+            mensagem("Erro conexão!","Olá, parece que tivemos um problema de conexão. Por favor tente novamente.","Ok");
+        }
     }
 }

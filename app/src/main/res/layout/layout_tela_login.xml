@@ -113,7 +113,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@null"
-        android:text="Esqueceu sua senha?"
+        android:textAllCaps="false"
+        android:text="@string/btn_esqueceu_senha"
         android:layout_below="@+id/layoutInserirDados"
         android:layout_centerHorizontal="true" />
 
