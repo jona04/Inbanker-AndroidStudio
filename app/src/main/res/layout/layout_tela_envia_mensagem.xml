@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_tela_envia_mensagem"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:orientation="vertical"
+    tools:context="br.com.appinbanker.inbanker.TelaEnviaMensagem">
+
+    <TextView
+        android:id="@+id/nome_usuario"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nome usuario"
+        android:padding="5dp"
+        android:layout_marginTop="10dp"
+        android:textSize="17dp"/>
+
+    <EditText
+        android:id="@+id/et_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="left"
+        android:hint="Informe seu email..."
+        android:layout_below="@+id/nome_usuario"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:id="@+id/et_mensagem"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/fundo_borda"
+        android:padding="10dp"
+        android:layout_marginTop="10dp"
+        android:gravity="left"
+        android:hint="Digite aqui sua mensagem..."
+        android:layout_below="@+id/et_email"
+        android:layout_above="@+id/btn_enviar_mensagem"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:id="@+id/btn_enviar_mensagem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/borda_cinza"
+        android:layout_centerHorizontal="true"
+        android:text="Enviar"/>
+
+</RelativeLayout>

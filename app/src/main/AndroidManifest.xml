@@ -74,8 +74,7 @@
         <activity
             android:name=".TelaLogin"
             android:label="@string/title_activity_tela_login"
-            android:parentActivityName=".SlideInicial"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:parentActivityName=".SlideInicial" />
         <activity
             android:name=".TelaCadastro"
             android:label="@string/title_activity_tela_cadastro"
@@ -89,15 +88,20 @@
             android:label="@string/title_activity_tela_cadastro" />
         <activity
             android:name=".SlideInicial"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".TelaPagamento"
             android:label="@string/title_activity_tela_pagamento"
-            android:windowSoftInputMode="adjustPan"
-            android:parentActivityName=".NavigationDrawerActivity" />
+            android:parentActivityName=".NavigationDrawerActivity"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".TelaNotificacoes"
             android:label="@string/title_activity_tela_notificacoes"
+            android:parentActivityName=".NavigationDrawerActivity" />
+        <activity
+            android:name=".TelaEnviaMensagem"
+            android:label="@string/title_activity_tela_envia_mensagem"
+            android:windowSoftInputMode="adjustPan"
             android:parentActivityName=".NavigationDrawerActivity"/>
     </application>
 

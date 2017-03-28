@@ -57,6 +57,8 @@ dependencies {
     compile 'com.google.firebase:firebase-messaging:9.6.1'
 
     compile 'com.github.pinball83:masked-edittext:1.0.3'
+
+    compile 'com.joanzapata.iconify:android-iconify-fontawesome:2.1.+' //icon badge menu
 }
 
 apply plugin: 'com.google.gms.google-services'

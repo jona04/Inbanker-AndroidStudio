@@ -109,7 +109,7 @@ public class HistoricoFragment extends Fragment{
 
                 for(int i = 0; i < usu.getTransacoes_enviadas().size(); i++){
                     int status = Integer.parseInt(usu.getTransacoes_enviadas().get(i).getStatus_transacao());
-                    if(status == 2 || status >= 6){
+                    if(status == 6){
                         list.add(usu.getTransacoes_enviadas().get(i));
                     }
                 }
@@ -120,7 +120,7 @@ public class HistoricoFragment extends Fragment{
                 for(int i = 0; i < usu.getTransacoes_recebidas().size(); i++){
                     //Log.i("webservice", "lista list = " + i+" - "+mList.get(i).getStatus_transacao());
                     int status = Integer.parseInt(usu.getTransacoes_recebidas().get(i).getStatus_transacao());
-                    if(status == 2 || status >= 6){
+                    if(status == 6){
                         list.add(usu.getTransacoes_recebidas().get(i));
                     }
                 }

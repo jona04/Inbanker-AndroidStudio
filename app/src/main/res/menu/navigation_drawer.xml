@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
+    <!--<item
         android:id="@+id/menu_notificacao"
         android:orderInCategory="100"
         android:title="@string/menu_notificacao"
         android:icon="@android:drawable/ic_dialog_email"
-        app:showAsAction="always" />
-    <!--<item
-        android:id="@+id/menu_minha_conta"
-        android:orderInCategory="100"
-        android:title="@string/menu_minha_conta"
-        app:showAsAction="never" />
+        app:showAsAction="always" /> -->
     <item
-        android:id="@+id/menu_ajuda"
+        android:id="@+id/menu_notificacao"
         android:orderInCategory="100"
-        android:title="@string/menu_ajuda"
-        app:showAsAction="never" />
-     <item
+        android:title="@string/menu_notificacao"
+        app:actionLayout="@layout/badge_menu_layout"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/menu_email"
+        android:orderInCategory="100"
+        android:title="@string/menu_notificacao"
+        android:icon="@android:drawable/sym_action_chat"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/menu_sair"
         android:orderInCategory="100"
         android:title="@string/menu_sair"
-        app:showAsAction="never" /> -->
+        app:showAsAction="always" />
 </menu>

@@ -1,14 +1,18 @@
 package br.com.appinbanker.inbanker.fragments_navigation;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -21,6 +25,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.joanzapata.iconify.widget.IconButton;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -37,6 +42,7 @@ import java.util.Locale;
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
 import br.com.appinbanker.inbanker.TelaLogin;
+import br.com.appinbanker.inbanker.TelaNotificacoes;
 import br.com.appinbanker.inbanker.adapters.TransacaoEnvAdapter;
 import br.com.appinbanker.inbanker.adapters.TransacaoRecebidaAdapter;
 import br.com.appinbanker.inbanker.entidades.AlteraPagamento;
@@ -50,6 +56,7 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringPagamento;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.webservice.AlteraPagamentoService;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPFAux;
@@ -85,6 +92,8 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
     Double multa_atraso;
     Double juros_mensal;
 
+
+
     public InicioFragment() {
         // Required empty public constructor
     }
@@ -94,6 +103,8 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_inicio, container, false);
+
+        setHasOptionsMenu(true);
 
         progress_bar_inicio = (ProgressBar) view.findViewById(R.id.progress_bar_inicio);
         badge_notification_ped_rec = (TextView) view.findViewById(R.id.badge_notification_ped_rec);
@@ -175,6 +186,47 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         return view;
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Do something that differs the Activity's menu here
+        super.onCreateOptionsMenu(menu, inflater);
+
+        View menuNotificacao = menu.findItem(R.id.menu_notificacao).getActionView();
+        TextView itemMessagesBadgeTextView = (TextView) menuNotificacao.findViewById(R.id.badge_textView);
+
+        int count = 0;
+        if(AllSharedPreferences.getPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA,getActivity()) != null) {
+            if (!AllSharedPreferences.getPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA, getActivity()).equals("")) {
+                count = Integer.parseInt(AllSharedPreferences.getPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA, getActivity()));
+            }
+        }
+
+        if(count == 0){
+            itemMessagesBadgeTextView.setVisibility(View.GONE); // initially hidden
+        }else{
+            itemMessagesBadgeTextView.setVisibility(View.VISIBLE); // initially hidden
+            itemMessagesBadgeTextView.setText(String.valueOf(count));
+        }
+
+        Log.i("Script","numero count ="+count);
+
+        itemMessagesBadgeTextView.setText(String.valueOf(count));
+
+        IconButton iconButtonMessages = (IconButton) menuNotificacao.findViewById(R.id.iconButton);
+        //iconButtonMessages.setText("30");
+
+        iconButtonMessages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //esconde badge
+                Log.i("Script","some bagde menu cartinha");
+
+                Intent it = new Intent(getActivity(),TelaNotificacoes.class);
+                startActivity(it);
+            }
+        });
+
+    }
 
     @Override
     public void retornoUsuarioWebService(Usuario usu) {
@@ -182,6 +234,42 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         progress_bar_inicio.setVisibility(View.INVISIBLE);
 
         if(usu != null){
+
+            //count notificacoes cartinha
+            if(usu.getNotificacaoContrato()!= null){
+
+                int result_count = 0;
+                int count_notify = 0;
+
+                count_notify = usu.getNotificacaoContrato().size();
+                Log.i("Script","count_notify 0 = "+count_notify);
+
+                if(!AllSharedPreferences.getPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA,getActivity()).equals("")) {
+                    if(!AllSharedPreferences.getPreferences(AllSharedPreferences.VERIFY_NOTIFY_CARTA,getActivity()).equals("")) {
+                        Log.i("Script", "count_notify neutro");
+                        //int count_aux = Integer.parseInt(AllSharedPreferences.getPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA_AUX, getActivity()));
+                        int count = Integer.parseInt(AllSharedPreferences.getPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA_AUX, getActivity()));
+                        Log.i("Script","count = "+count);
+                        //AllSharedPreferences.putPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA_AUX, String.valueOf(count_notify), getActivity());
+
+                        result_count = count_notify - count;
+                        if(result_count > 0) {
+                            Log.i("Script", "count_notify 1 = " + result_count);
+                            AllSharedPreferences.putPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA, String.valueOf(result_count), getActivity());
+                            AllSharedPreferences.putPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA_AUX, String.valueOf(count_notify), getActivity());
+                        }
+                    }else{
+                        Log.i("Script", "VERIFY_NOTIFY_CARTA vazio = ");
+                        AllSharedPreferences.putPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA, String.valueOf(count_notify), getActivity());
+                        AllSharedPreferences.putPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA_AUX, String.valueOf(count_notify), getActivity());
+                    }
+                }else {
+                    Log.i("Script","count_notify 2 = "+count_notify);
+                    AllSharedPreferences.putPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA, String.valueOf(count_notify), getActivity());
+                    AllSharedPreferences.putPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA_AUX, String.valueOf(count_notify), getActivity());
+
+                }
+            }
 
             int count_trans_env = 0;
             int count_trans_rec = 0;
@@ -262,6 +350,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
             Intent it = new Intent(getActivity(),TelaLogin.class);
             startActivity(it);
             getActivity().finish();
+
         }
 
     }
@@ -411,7 +500,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
             Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
 
-            multa_atraso = Double.parseDouble(trans.getValor())*0.1;
+            multa_atraso = Double.parseDouble(trans.getValor())*0.02;
 
         }
 
@@ -438,6 +527,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
                 if (senha.equals(et_dialog_senha.getText().toString())) {
 
                     trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA));
+                    trans.setId_recibo("");
 
                     List<Historico> list_hist;
                     if(trans.getHistorico() == null){
@@ -504,6 +594,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
                     trans.setHistorico(list_hist);
 
+
                     metodoEditaTransResposta(trans);
 
                     desabilitaBotoes();
@@ -555,6 +646,8 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
                     desabilitaBotoes();
 
                     trans.setStatus_transacao(String.valueOf(Transacao.AGUARDANDO_RESPOSTA));
+                    trans.setId_contrato("");
+                    trans.setId_recibo("");
 
                     List<Historico> list_hist;
                     if(trans.getHistorico() == null){
@@ -642,8 +735,11 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
             Log.i("Script","Exception retornoStringWebServicePagamento = "+e);
         }
 
-        //se cancelemento sucesso
+        //se confirmacao sucesso
         if(success) {
+
+            //cria recibo e contrato
+
             trans_global_ped_env.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
 
             List<Historico> list_hist;
@@ -658,6 +754,9 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
             hist.setStatus_transacao(String.valueOf(Transacao.CONFIRMADO_RECEBIMENTO));
 
             list_hist.add(hist);
+
+            trans_global_ped_env.setId_contrato("");
+            trans_global_ped_env.setId_recibo("");
 
             trans_global_ped_env.setHistorico(list_hist);
 
@@ -701,21 +800,32 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         Cursor cursor = crud.carregaDados();
         String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
 
-        if(result.equals("sucesso_edit")){
+        if(result != null) {
+            if (!result.equals("error_edit_trans")) {
 
-            //verificamos para qual usuario enviar a notificacao
-            if(cpf.equals(trans_global.getUsu1())) {
-                //busca token do usuario 2 para enviarmos notificacao
-                new BuscaUsuarioCPFAux(trans_global.getUsu2(), getActivity(), this).execute();
-            }else{
-                //busca token do usuario 1 para enviarmos notificacao
-                new BuscaUsuarioCPFAux(trans_global.getUsu1(), getActivity(), this).execute();
+                //verifica se result é contrato ou recibo
+                if(trans_global.getId_contrato().equals("")){
+                    trans_global.setId_contrato(result);
+                }else{
+                    trans_global.setId_recibo(result);
+                }
+
+                //verificamos para qual usuario enviar a notificacao
+                if (cpf.equals(trans_global.getUsu1())) {
+                    //busca token do usuario 2 para enviarmos notificacao
+                    new BuscaUsuarioCPFAux(trans_global.getUsu2(), getActivity(), this).execute();
+                } else {
+                    //busca token do usuario 1 para enviarmos notificacao
+                    new BuscaUsuarioCPFAux(trans_global.getUsu1(), getActivity(), this).execute();
+                }
+            } else {
+
+                habilitaBotoes();
+
+                mensagem("Houve um erro!", "Olá, parece que tivemos algum problema de conexão, por favor tente novamente.", "Ok");
             }
         }else{
-
-            habilitaBotoes();
-
-            mensagem("Houve um erro!","Olá, parece que tivemos algum problema de conexão, por favor tente novamente.","Ok");
+            mensagem("Erro crítico!", "Olá, parece que tivemos algum problema de conexão, por favor tente novamente.", "Ok");
         }
 
     }

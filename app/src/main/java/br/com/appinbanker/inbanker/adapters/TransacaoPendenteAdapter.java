@@ -292,7 +292,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
 
             juros_mora = Double.parseDouble(item.getValor()) * (0.00099667 * dias_atraso);
 
-            multa_atraso = Double.parseDouble(item.getValor())*0.1;
+            multa_atraso = Double.parseDouble(item.getValor())*0.02;
             tv_valor_multa_child.setText(String.valueOf(nf.format(multa_atraso)));
             //tv_dias_atraso.setText(String.valueOf(dias_atraso));
         }else{
@@ -365,7 +365,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
 
                         //Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
 
-                        //Double multa_atraso = Double.parseDouble(item.getValor())*0.1;
+                        //Double multa_atraso = Double.parseDouble(item.getValor())*0.02;
                         //tv_valor_multa_child.setText(String.valueOf(nf.format(multa_atraso)));
                         //tv_dias_atraso.setText(String.valueOf(dias_atraso));
                     }
@@ -393,7 +393,6 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
             tv_taxa_juros_am_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
             tv_valor_multa_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
             //tv_valor_taxa_servico_child.setTextColor(ColorStateList.valueOf(_context.getResources().getColor(R.color.colorGreen)));
-
         }
 
         btn_solicita_quitacao_child.setOnClickListener(new View.OnClickListener() {
@@ -403,6 +402,8 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
                 Transacao trans = new Transacao();
                 trans.setId_trans(item.getId_trans());
                 trans.setStatus_transacao(String.valueOf(Transacao.QUITACAO_SOLICITADA));
+                trans.setId_contrato(item.getId_contrato());
+                trans.setId_recibo("");
 
                 List<Historico> list_hist;
                 if(item.getHistorico() == null){
@@ -466,6 +467,8 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
         trans.setVencimento(trans_global.getVencimento());
         trans.setUrl_img_usu1(trans_global.getUrl_img_usu1());
         trans.setUrl_img_usu2(trans_global.getUrl_img_usu2());
+        trans.setId_contrato("");
+        trans.setId_recibo("");
 
         trans.setStatus_transacao(String.valueOf(Transacao.QUITACAO_SOLICITADA));
 

@@ -453,20 +453,36 @@
                 android:layout_marginTop="15dp"
                 android:orientation="vertical">
 
-                <Button
-                    android:id="@+id/btn_ver_termos_uso"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@null"
-                    android:textAllCaps="false"
-                    android:layout_gravity="center_horizontal"
-                    android:textSize="16dp"
-                    android:text="@string/tv_termos_cadastro"/>
+                    android:orientation="horizontal"
+                    android:layout_gravity="center_horizontal">
+                    <Button
+                        android:id="@+id/btn_ver_termos_uso"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:textAllCaps="false"
+                        android:maxLines="1"
+                        android:textSize="16dp"
+                        android:text="@string/tv_termos_cadastro"/>
+                    <Button
+                        android:id="@+id/btn_ver_politica_privacidade"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:textAllCaps="false"
+                        android:textSize="16dp"
+                        android:maxLines="1"
+                        android:layout_marginLeft="20dp"
+                        android:text="@string/tv_politica_privacidade"/>
+                </LinearLayout>
                 <CheckBox
                     android:id="@+id/checkbox_termos_uso"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Li e aceito os termos de uso"
+                    android:text="Li e aceito os Termos de uso e Política de privacidade"
                     android:textColor="#000"/>
 
             </LinearLayout>

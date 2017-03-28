@@ -269,6 +269,8 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
             trans.setValor_multa("0");
             trans.setValor_juros_mensal("0");
             trans.setValor_juros_mora("0");
+            trans.setId_contrato(trans_global.getId_contrato());
+            trans.setId_recibo("");
 
             //esse valor sera passado para o metodo notificacao
             status_transacao = Transacao.ENVIO_CANCELADO_ANTES_RESPOSTA;
@@ -336,7 +338,6 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
         trans.setVencimento(trans_global.getVencimento());
         trans.setUrl_img_usu1(trans_global.getUrl_img_usu1());
         trans.setUrl_img_usu2(trans_global.getUrl_img_usu2());
-
 
         if(!usu.getToken_gcm().equals("")) {
             //envia notificacao

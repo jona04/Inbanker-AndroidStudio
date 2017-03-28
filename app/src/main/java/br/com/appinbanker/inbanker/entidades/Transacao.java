@@ -60,7 +60,26 @@ public class Transacao implements Serializable {
     private String data_recusada;
     @JsonProperty("data_pagamento")
     private String data_pagamento;
+    @JsonProperty("id_recibo")
+    private String id_recibo;
+    @JsonProperty("id_contrato")
+    private String id_contrato;
 
+    public String getId_recibo() {
+        return id_recibo;
+    }
+
+    public void setId_recibo(String id_recibo) {
+        this.id_recibo = id_recibo;
+    }
+
+    public String getId_contrato() {
+        return id_contrato;
+    }
+
+    public void setId_contrato(String id_contrato) {
+        this.id_contrato = id_contrato;
+    }
 
     @JsonProperty("historico")
     private List<Historico> historico;

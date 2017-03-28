@@ -48,7 +48,7 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
     EditText et_logradouro,et_complemento,et_bairro,et_cidade,et_estado,et_numero,et_nome,et_email,et_senha,et_confirma_senha;
 
     Button btn_cadastrar_continuar_cpf,btn_cadastrar_continuar_endereco,btn_cadastrar_usuario,btn_cadastrar_continuar_senha;
-    Button btn_ver_termos_uso;
+    Button btn_ver_termos_uso,btn_ver_politica_privacidade;
 
     LinearLayout ll_campos_dados_endereco,cep_endereco_completar,ll_et_nome,ll_campos_senha;
 
@@ -84,6 +84,7 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
         radio_op = (RadioGroup) findViewById(R.id.radio_op);
 
         btn_ver_termos_uso = (Button) findViewById(R.id.btn_ver_termos_uso);
+        btn_ver_politica_privacidade = (Button) findViewById(R.id.btn_ver_politica_privacidade);
         btn_cadastrar_continuar_cpf = (Button) findViewById(R.id.btn_cadastrar_continuar_cpf);
         btn_cadastrar_continuar_endereco = (Button) findViewById(R.id.btn_cadastrar_continuar_endereco);
         btn_cadastrar_usuario = (Button) findViewById(R.id.btn_cadastrar_usuario);
@@ -107,7 +108,12 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
                 dialog_termos_uso();
             }
         });
-
+        btn_ver_politica_privacidade.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog_politica_privacidade();
+            }
+        });
         btn_cadastrar_continuar_cpf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -319,6 +325,15 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
             campos_ok = false;
         }
 
+        if (!checkbox_termos_uso.isChecked()) {
+
+            checkbox_termos_uso.setError("Ver termos");
+            checkbox_termos_uso.setFocusable(true);
+            checkbox_termos_uso.requestFocus();
+
+            campos_ok = false;
+        }
+
         return campos_ok;
     }
 
@@ -472,9 +487,22 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
     public void dialog_termos_uso(){
         final Dialog dialog = new Dialog(this,R.style.AppThemeDialog);
         dialog.setContentView(R.layout.dialog_termos_uso);
-        dialog.setTitle("Termos de uso");
 
         Button btn_ok_termos_uso = (Button) dialog.findViewById(R.id.btn_ok_termos_uso);
+        btn_ok_termos_uso.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
+    public void dialog_politica_privacidade(){
+        final Dialog dialog = new Dialog(this,R.style.AppThemeDialog);
+        dialog.setContentView(R.layout.dialog_politica_privacidade);
+
+        Button btn_ok_termos_uso = (Button) dialog.findViewById(R.id.btn_ok_politica_privacidade);
         btn_ok_termos_uso.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

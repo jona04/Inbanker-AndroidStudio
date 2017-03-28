@@ -10,13 +10,14 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:textStyle="bold"
             android:layout_gravity="center"
-            android:text="@string/tv_termos_cadastro"
+            android:text="@string/tv_politica_privacidade"
             android:layout_centerHorizontal="true"/>
 
         <View
@@ -27,25 +28,22 @@
             />
 
         <TextView
-            android:id="@+id/tv_msg_dialog_cadastro"
+            android:id="@+id/tv_msg_dialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/texto_termos_usu"
-            android:layout_centerHorizontal="true"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"/>
+            android:layout_margin="10dp"
+            android:text="@string/texto_politica_privacidade"
+            android:layout_centerHorizontal="true"/>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#ccc"
             android:layout_marginTop="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
             />
 
         <LinearLayout
+            android:layout_below="@+id/tv_msg_dialog"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:padding="25dp"
@@ -61,7 +59,7 @@
 
 
                 <Button
-                    android:id="@+id/btn_ok_termos_uso"
+                    android:id="@+id/btn_ok_politica_privacidade"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#3e3e3e"

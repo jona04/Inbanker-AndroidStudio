@@ -593,7 +593,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                  if (campos) {
 
                      String valor_normal_ = valor_normal.substring(0, valor_normal.length() - 2);
-                     if (Double.parseDouble(valor_normal_) > 9.9){
+                     if (Double.parseDouble(valor_normal_) > 19.99){
                          if (Double.parseDouble(valor_normal_) < 1001) {
 
                              DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
@@ -617,10 +617,10 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                              dialog.dismiss();
                          } else {
                              //Log.i("Scrip", "valor normal = " + valor_normal_);
-                             mensagem("InBanker", "Olá, no momento só é permitido valores menores que R$ 1.000,00. Por favor insira um valor menor.", "Ok");
+                             mensagem("InBanker", "Olá, no momento só é permitido valores menores ou igual R$ 1.000,00. Por favor insira um valor menor.", "Ok");
                          }
                     }else{
-                         mensagem("InBanker", "Olá, no momento só é permitido valores maiores que R$ 10,00. Por favor insira um valor maior.", "Ok");
+                         mensagem("InBanker", "Olá, no momento só é permitido valores maiores ou igual a R$ 20,00. Por favor insira um valor maior.", "Ok");
 
                      }
                  }

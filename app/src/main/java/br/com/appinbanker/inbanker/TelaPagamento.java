@@ -363,7 +363,7 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
                     new EnviaNotificacao(trans, token_user2).execute();
 
                     //envia email para usuarios
-                    new EnviaEmailEnvioPedido(trans,email,email_user2).execute();
+                    //new EnviaEmailEnvioPedido(trans,email,email_user2).execute();
 
                     //aletar e redirecionamento para tela inicial
                     mensagemIntent("InBanker", "Pedido enviado, aguarde a resposta de seu amigo(a) " + trans.getNome_usu2(), "Ok");

@@ -24,6 +24,7 @@ import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.ObterHora;
 
@@ -44,6 +45,8 @@ public class TelaNotificacoes extends AppCompatActivity implements WebServiceRet
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_tela_notificacoes);
 
+        AllSharedPreferences.putPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA,String.valueOf(0),this);
+        AllSharedPreferences.putPreferences(AllSharedPreferences.VERIFY_NOTIFY_CARTA, "verificado", this);
 
         progress_lista_notificacoes = (LinearLayout) findViewById(R.id.progress_lista_notificacoes);
 

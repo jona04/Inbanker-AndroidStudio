@@ -15,13 +15,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
+import com.joanzapata.iconify.widget.IconButton;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
@@ -118,6 +121,8 @@ public class NavigationDrawerActivity extends AppCompatActivity
                             .into(img_usu_logado);
                 }
         }
+
+
        //para iniciar com o primeiro item do menu navigation drawer (TelaInicio)
         //se tiver tiver algum parametro o menu é alterado
         onNavigationItemSelected(navigationView.getMenu().getItem(menu).setChecked(true));
@@ -155,8 +160,42 @@ public class NavigationDrawerActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.navigation_drawer, menu);
-        return true;
+        //getMenuInflater().inflate(R.menu.navigation_drawer, menu);
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.navigation_drawer, menu);
+
+        View menuNotificacao = menu.findItem(R.id.menu_notificacao).getActionView();
+        TextView itemMessagesBadgeTextView = (TextView) menuNotificacao.findViewById(R.id.badge_textView);
+
+        int count = 0;
+        if(AllSharedPreferences.getPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA,this) != null) {
+            if (!AllSharedPreferences.getPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA, this).equals("")) {
+                count = Integer.parseInt(AllSharedPreferences.getPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA, this));
+            }
+        }
+
+        if(count == 0){
+            itemMessagesBadgeTextView.setVisibility(View.GONE); // initially hidden
+        }else{
+            itemMessagesBadgeTextView.setVisibility(View.VISIBLE); // initially hidden
+            itemMessagesBadgeTextView.setText(String.valueOf(count));
+        }
+
+        IconButton iconButtonMessages = (IconButton) menuNotificacao.findViewById(R.id.iconButton);
+        //iconButtonMessages.setText("30");
+
+        iconButtonMessages.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //esconde badge
+                Log.i("Script","some bagde menu cartinha");
+
+                Intent it = new Intent(NavigationDrawerActivity.this,TelaNotificacoes.class);
+                startActivity(it);
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -176,27 +215,21 @@ public class NavigationDrawerActivity extends AppCompatActivity
             return true;
         }
 
-        /*if (id == R.id.menu_ajuda) {
+        if (id == R.id.menu_email) {
 
-            Intent it = new Intent(this,Ajuda.class);
+            Intent it = new Intent(this, TelaEnviaMensagem.class);
             startActivity(it);
 
             return true;
-        }else if (id == R.id.menu_minha_conta) {
-
-            Intent it = new Intent(this,MinhaConta.class);
-            startActivity(it);
-
-            return true;
-        }*/
-        /*else if (id == R.id.menu_sair) {
+        }
+        if (id == R.id.menu_sair) {
 
             Log.i("Script","menu sair");
 
             usuario_logoff();
 
             return true;
-        }*/
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -308,4 +341,8 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
 
     }
+    /*
+    public void addBadgeMenu(int count){
+        AllSharedPreferences.putPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA,String.valueOf(count),this);
+    }*/
 }

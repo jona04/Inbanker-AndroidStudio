@@ -297,6 +297,8 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
                 Transacao trans = new Transacao();
                 trans.setId_trans(trans_global.getId_trans());
                 trans.setStatus_transacao(String.valueOf(Transacao.PEDIDO_ACEITO));
+                trans.setId_contrato("");
+                trans.setId_recibo("");
 
                 List<Historico> list_hist;
                 if(item.getHistorico() == null){
@@ -371,6 +373,8 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
             trans.setValor_multa("0");
             trans.setValor_juros_mensal("0");
             trans.setValor_juros_mora("0");
+            trans.setId_contrato("");
+            trans.setId_recibo("");
 
             List<Historico> list_hist;
             if (trans_global.getHistorico() == null) {
@@ -444,6 +448,8 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
         trans.setVencimento(trans_global.getVencimento());
         trans.setUrl_img_usu1(trans_global.getUrl_img_usu1());
         trans.setUrl_img_usu2(trans_global.getUrl_img_usu2());
+        trans.setId_contrato("");
+        trans.setId_recibo("");
 
         if(aceitou_pedido) {
 
