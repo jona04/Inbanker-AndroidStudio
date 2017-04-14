@@ -42,10 +42,9 @@ public class AtualizaUsuario extends AsyncTask<String, String, String> {
     private WebServiceReturnString usu_return;
     private String tipo;
 
-    public AtualizaUsuario(Usuario usuario,WebServiceReturnString usu,String tipo){
+    public AtualizaUsuario(Usuario usuario,WebServiceReturnString usu){
         this.usuario = usuario;
         this.usu_return = usu;
-        this.tipo = tipo;
 
     }
 
@@ -54,11 +53,7 @@ public class AtualizaUsuario extends AsyncTask<String, String, String> {
 
         try {
 
-            String url = null;
-            if (tipo.equals("cpf"))
-                url = Host.host+"appinbanker/rest/usuario/editUserByCPF/"+ usuario.getCpf();
-            else if (tipo.equals("face"))
-                url = Host.host+"appinbanker/rest/usuario/editUserByFace/"+ usuario.getId_face();
+            String url = Host.host+"appinbanker/rest/usuario/editUserByCPF/"+ usuario.getCpf();
 
             //Log.i("WebService", "url atualiza = " + url);
             //Log.i("webservice", "id name e senha" + usuario.getIdFace() + " - " + usuario.getNomeFace() + " - " + usuario.getUrlImgFace());

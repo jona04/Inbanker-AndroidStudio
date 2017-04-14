@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
+import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringAlteraSenha;
 
 /**
  * Created by jonatassilva on 22/10/16.
@@ -21,9 +22,9 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 public class EditaSenha extends AsyncTask<String, String, String> {
 
     private Usuario usuario;
-    private WebServiceReturnString usu_return;
+    private WebServiceReturnStringAlteraSenha usu_return;
 
-    public EditaSenha(Usuario usuario, WebServiceReturnString usu){
+    public EditaSenha(Usuario usuario, WebServiceReturnStringAlteraSenha usu){
         this.usuario = usuario;
         this.usu_return = usu;
 
@@ -63,6 +64,6 @@ public class EditaSenha extends AsyncTask<String, String, String> {
     protected void onPostExecute(String result) {
         Log.i("Script","onPostExecute result edita senha ="+result);
 
-        usu_return.retornoStringWebService(result);
+        usu_return.retornoStringWebServiceAlteraSenha(result);
     }
 }

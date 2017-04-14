@@ -27,6 +27,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_data_mensagem"
         android:text="Nome usuario"
-        android:textSize="16sp" />
+        android:textSize="14sp" />
 
 </RelativeLayout>

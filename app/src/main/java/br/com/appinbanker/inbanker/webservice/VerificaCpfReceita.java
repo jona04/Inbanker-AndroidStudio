@@ -32,6 +32,8 @@ public class VerificaCpfReceita extends AsyncTask<String, String, String> {
         //String host = "http://10.0.2.2:8000/";
         try {
             //final String url = host+"appinbanker/cpf/consulta/"+cpf;
+            //5ae973d7a997af13f0aaf2bf60e65803 teste
+            //f7e4b915509f9d6c7fc924e524d24880 producao
             final String url = "https://api.cpfcnpj.com.br/f7e4b915509f9d6c7fc924e524d24880/1/json/"+cpf;
 
             RestTemplate restTemplate = new RestTemplate();

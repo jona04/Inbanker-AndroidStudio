@@ -260,7 +260,7 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
         }
 
         //se cancelemento sucesso
-        if(success) {
+        //if(success) {
             Transacao trans = new Transacao();
             trans.setId_trans(trans_global.getId_trans());
             trans.setStatus_transacao(String.valueOf(Transacao.ENVIO_CANCELADO_ANTES_RESPOSTA));
@@ -292,12 +292,12 @@ public class TransacaoEnvAdapter extends BaseExpandableListAdapter implements We
             trans.setHistorico(list_hist);
 
             new EditaTransacaoResposta(trans, trans_global.getUsu1(), trans_global.getUsu2(), this).execute();
-        }else{
+        //}else{
             mensagem("Houve um erro!","Olá, parece que tivemos algum problema no cancelamento do pagamento do pedido, por favor tente novamente. Se o erro" +
                     " persistir favor entrar em contato com InBanker","Ok");
             progress_bar_btn.setVisibility(View.GONE);
             btn_cancelar_pedido_antes_resp_child.setEnabled(true);
-        }
+        //}
     }
     public void retornoStringWebService(String result){
 

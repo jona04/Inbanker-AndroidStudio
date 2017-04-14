@@ -4,6 +4,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ExpandableListView;
+
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -56,7 +59,7 @@ public class Ajuda extends AppCompatActivity {
         ajuda3.setPergunta("Quais taxas de Juros serão cobradas?");
         ajuda3.setResposta("Valores permitidos: R$20,00 - R$1.000,00 \n " +
                 "Juros renuneratórios: 1,99% A.M. \n " +
-                "Multa por atraso: 2% \n" +
+                "Multa por atraso: 10% \n" +
                 "Juros moratórios: 1%");
 
         br.com.appinbanker.inbanker.entidades.Ajuda ajuda4 = new br.com.appinbanker.inbanker.entidades.Ajuda();
@@ -70,10 +73,10 @@ public class Ajuda extends AppCompatActivity {
 
         br.com.appinbanker.inbanker.entidades.Ajuda ajuda6 = new br.com.appinbanker.inbanker.entidades.Ajuda();
         ajuda6.setPergunta("Como vocês são remunerados?");
-        ajuda6.setResposta("O Download do Aplicativo InBanker, bem como o cadastro são feitos de forma gratuita. Nós cobramos apenas uma taxa de administração única de 0,99% sobre o valor de cada contrato que será administrado. Os valores auferidos pela cobrança da taxa de administração, são em sua grande parte reinvestidos na empresa, para que seja possível dar cada vez mais segurança e transparência aos nossos usuários.");
+        ajuda6.setResposta("O Download do Aplicativo InBanker, bem como o cadastro são feitos de forma gratuita. Nós cobramos apenas uma taxa de serviço única de 0,99% sobre o valor de cada contrato que será administrado. Os valores auferidos pela cobrança da taxa de serviço, são em sua grande parte reinvestidos na empresa, para que seja possível dar cada vez mais segurança e transparência aos nossos usuários.");
 
         br.com.appinbanker.inbanker.entidades.Ajuda ajuda7 = new br.com.appinbanker.inbanker.entidades.Ajuda();
-        ajuda7.setPergunta("Como será paga a Taxa de Administração?");
+        ajuda7.setPergunta("Como será paga a Taxa de Serviço?");
         ajuda7.setResposta("No ato da confirmação do pedido de empréstimo, o valor da taxa de serviço será debitada no cartão de crédito cadastrado pelo usuário.\n" +
                 " Caso não seja possível debitar a totalidade do valor devido, seja por motivo de expiração, fundos insuficientes ou outro, o usuário continuará responsável pela totalidade de valores a pagar não cobrados, assim nós o notificaremos e apresentaremos outras formas de pagamento.");
 

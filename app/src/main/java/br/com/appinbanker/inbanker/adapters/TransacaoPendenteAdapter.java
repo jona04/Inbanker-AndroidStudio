@@ -53,7 +53,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
     TextView tv_dias_corridos_child;
     TextView tv_taxa_juros_am_child;
     TextView tv_valor_multa_child;
-    TextView tv_multa;
+    //TextView tv_multa;
     //TextView tv_valor_taxa_servico_child;
     TextView tv_valor_total_child;
     LinearLayout ll_solicita_quitacao_child;
@@ -103,7 +103,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
         tv_dias_corridos_child  = (TextView) convertView.findViewById(R.id.tv_dias_corridos);
         tv_taxa_juros_am_child  = (TextView) convertView.findViewById(R.id.tv_taxa_juros_am);
         tv_valor_multa_child  = (TextView) convertView.findViewById(R.id.tv_valor_multa);
-        tv_multa  = (TextView) convertView.findViewById(R.id.tv_multa);
+        //tv_multa  = (TextView) convertView.findViewById(R.id.tv_multa);
         //tv_valor_taxa_servico_child  = (TextView) convertView.findViewById(R.id.tv_valor_taxa_servico);
         tv_valor_total_child  = (TextView) convertView.findViewById(R.id.tv_valor_total);
         msg_ver_pedido_child  = (TextView) convertView.findViewById(R.id.msg_ver_pedido);
@@ -292,7 +292,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
 
             juros_mora = Double.parseDouble(item.getValor()) * (0.00099667 * dias_atraso);
 
-            multa_atraso = Double.parseDouble(item.getValor())*0.02;
+            multa_atraso = Double.parseDouble(item.getValor())*0.1;
             tv_valor_multa_child.setText(String.valueOf(nf.format(multa_atraso)));
             //tv_dias_atraso.setText(String.valueOf(dias_atraso));
         }else{
@@ -336,7 +336,7 @@ public class TransacaoPendenteAdapter extends BaseExpandableListAdapter implemen
                 case Transacao.QUITACAO_SOLICITADA:
                     ll_solicita_quitacao_child.setVisibility(View.GONE);
 
-                    msg_ver_pedido_child.setText("Voce esta aguardando "+trans_global.getNome_usu2()+" responder sua solicitaçao de quitaçao da divida.");
+                    msg_ver_pedido_child.setText("Você esta aguardando "+trans_global.getNome_usu2()+" responder sua solicitação de quitação da dívida.");
                     msg_ver_pedido_child.setVisibility(View.VISIBLE);
                     break;
                 case Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA:

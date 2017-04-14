@@ -53,13 +53,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 Cursor cursor = crud.carregaDados();
                 String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
                 if (cpf != null) {
-                    if (cpf != "")
+                    if (cpf != ""){
                         if(remoteMessage.getData().get("tipo").equals("notificacao")) {
                             sendNotification(trans, remoteMessage.getData().get("title"), remoteMessage.getData().get("msg"));
+                        }else if(remoteMessage.getData().get("tipo").equals("divida")) {
+                            sendNotificationDivida(remoteMessage.getData().get("title"), remoteMessage.getData().get("msg"));
                         }else{
-                            Log.i("Notificatio","Notificacao de divida");
+                            Log.i("Notificatio", "Notificacao desconhecida");
                         }
-
+                    }
                 }
            }catch (Exception e){
                 Log.i("Notificatio","Excepition = "+e);
@@ -83,7 +85,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.logo)
+                .setSmallIcon(R.drawable.logo_b)
                 .setLargeIcon(rawBitmap)
                 .setContentTitle(title)
                 .setContentText(msg)
@@ -138,6 +140,48 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Intent it = new Intent(this,NavigationDrawerActivity.class);
         it.putExtra("menu_item",menu_item);
+
+        it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, it,
+                PendingIntent.FLAG_ONE_SHOT);
+
+        notificationBuilder.setContentIntent(pendingIntent);
+        notificationManager.notify(0, notificationBuilder.build());
+
+
+    }
+
+    private void sendNotificationDivida(String title,String msg) {
+
+        Bitmap rawBitmap = BitmapFactory.decodeResource(getResources(),
+                R.drawable.logo);
+
+        Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.logo_b)
+                .setLargeIcon(rawBitmap)
+                .setContentTitle(title)
+                .setContentText(msg)
+                .setAutoCancel(true)
+                .setSound(defaultSoundUri);
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
+        bigText.bigText(msg);
+        notificationBuilder.setStyle(bigText);
+
+        notificationBuilder.setPriority(NotificationCompat.PRIORITY_HIGH);
+        notificationBuilder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+
+        //tempo vibrando, dormindo, vibrando, dormindo
+        notificationBuilder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000});
+
+
+        Log.i("Notification Menu","Menu item = divida ");
+
+        Intent it = new Intent(this,NavigationDrawerActivity.class);
 
         it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, it,

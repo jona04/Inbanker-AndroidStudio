@@ -4,7 +4,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="#e6e6e6"
     android:orientation="vertical">
 
     <LinearLayout
@@ -25,19 +24,6 @@
 
 
 
-        <EditText
-            android:id="@+id/et_dialog_senha"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginTop="20dp"
-            android:hint="  Informe seu CPF"
-            android:textSize="13sp"
-            android:inputType="number"
-            android:textColor="#000"
-            android:background="@drawable/fundo_branco_borda_redonda"
-            android:imeOptions="actionNext"
-            android:lines="1"/>
-
         <ProgressBar
             android:id="@+id/progress_bar_esq_senha"
             android:layout_width="wrap_content"
@@ -46,35 +32,49 @@
             android:visibility="invisible"
             />
 
-        <LinearLayout
+        <EditText
+            android:id="@+id/et_dialog_cpf"
             android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="20dp"
+            android:paddingLeft="10dp"
+            android:hint="  Informe seu CPF"
+            android:textSize="13sp"
+            android:inputType="number"
+            android:textColor="#000"
+            android:background="@drawable/fundo_branco_borda_redonda"
+            android:imeOptions="actionNext"
+            android:lines="1"/>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:layout_gravity="center_horizontal"
-            android:orientation="vertical">
-
-
-            <Button
-                android:id="@+id/btn_confirmar_esq_senha"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="#3e3e3e"
-                android:background="@drawable/btn_dialog_confirma"
-                android:textSize="12sp"
-                android:padding="5dp"
-                android:text="Solicitar nova senha"
-                />
-
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btn_voltar_esq_senha"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/btn_dialog_recusa"
+                android:background="@null"
                 android:text="Voltar"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textColor="#3e3e3e"
+                />
+
+            <Button
+                android:id="@+id/btn_confirmar_esq_senha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#3e3e3e"
+                android:background="@drawable/borda_cinza"
+                android:textSize="15sp"
+                android:layout_marginLeft="20dp"
+                android:padding="10dp"
+                android:text="Solicitar nova senha"
                 />
 
 

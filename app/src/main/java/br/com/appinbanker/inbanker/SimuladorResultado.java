@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
@@ -27,6 +28,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -40,6 +42,7 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 import br.com.appinbanker.inbanker.webservice.ObterHora;
@@ -55,6 +58,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
     Button btn_fazer_pedido;
 
     double taxa_servico = 0;
+    String taxa_string;
 
     String token_user2;
     String email_user2;
@@ -92,18 +96,36 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         valor = Double.parseDouble(new StringBuffer(it.getStringExtra("valor")).insert(it.getStringExtra("valor").length()-2, ".").toString());
 
         double juros_mensal = valor * (0.00066333 * dias);
-        //double taxa_fixa = valor * 0.0099;
 
-        try {
-            DecimalFormat df=new DecimalFormat("0.00");
-            String formate = df.format(valor * 0.0099);
-            taxa_servico = (Double)df.parse(formate);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
 
+        Log.i("pagamento",""+valor);
+
+        taxa_servico = valor * 0.0099;
+
+        Log.i("pagamento1",""+taxa_servico);
 
         double valor_total = juros_mensal + taxa_servico +  valor;
+
+        DecimalFormatSymbols decimalSymbols = DecimalFormatSymbols.getInstance();
+        decimalSymbols.setDecimalSeparator('.');
+        DecimalFormat df = new DecimalFormat("0.00", decimalSymbols);
+        df.setMinimumFractionDigits(2);
+        taxa_string = df.format(taxa_servico);
+
+        taxa_servico = Double.parseDouble(taxa_string);
+
+
+        /*try {
+
+            DecimalFormat df=new DecimalFormat(".##");
+            String formate = df.format(taxa_servico);
+            Log.i("pagamento3",""+formate);
+            //taxa_servico = Double.parseDouble(new StringBuffer(formate).insert(formate.length()-2, ".").toString());
+            taxa_servico = (Double)df.parse(formate);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }*/
 
         ImageView img = (ImageView) findViewById(R.id.img_amigo);
 
@@ -168,6 +190,19 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
                 }
             }
         });
+
+
+        if(AllSharedPreferences.getPreferencesBoolean(AllSharedPreferences.VERIFY_TUTORIAL_SIMULADOR,this)==false) {
+            new ShowcaseView.Builder(this)
+                    .setStyle(R.style.CustomShowcaseTheme)
+                    .withMaterialShowcase()
+                    .setContentTitle("Simulaçao do pedido")
+                    .setContentText("Aqui você poderá visualizar os dados do empréstimo, como taxa de juros e valores \n\nAnalise atentamente, e se concordar com os valores confirme a solicitação apertando no botão FAZER PEDIDO.")
+                    .build();
+
+            AllSharedPreferences.putPreferencesBooleanTrue(AllSharedPreferences.VERIFY_TUTORIAL_SIMULADOR,this);
+
+        }
     }
 
     //buscamos pelo face, pois só temos o id_face do usuario 2
@@ -195,7 +230,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
             }
         }else{
-            mensagem("Houve um erro!","Olá, parece que o usuario solicitado não esta cadastrado. Por favor entre em contato com o usuario e tente novamente!","OK");
+            mensagem("Houve um erro!","Olá, parece que o usuário solicitado não esta cadastrado ou não está logado no Facebook. Por favor entre em contato com seu amigo e tente novamente!","OK");
 
             //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
             progress_bar_simulador.setVisibility(View.GONE);
@@ -236,7 +271,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
                 trans.setUsu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF)));
                 trans.setUsu2(usu_add_trasacao.getCpf());
                 trans.setValor(String.valueOf(valor));
-                trans.setValor_servico(String.valueOf(taxa_servico));
+                trans.setValor_servico(taxa_string);
                 trans.setVencimento(vencimento_utf);
                 trans.setNome_usu2(usu_add_trasacao.getNome());
                 trans.setNome_usu1(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME)));

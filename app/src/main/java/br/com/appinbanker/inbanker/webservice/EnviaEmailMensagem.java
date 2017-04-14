@@ -22,13 +22,15 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 public class EnviaEmailMensagem extends AsyncTask<String,String,String> {
 
     Usuario usuario;
+    String assunto;
     String mensagem;
     WebServiceReturnString ws;
 
-    public EnviaEmailMensagem(Usuario usuario, String mensagem, WebServiceReturnString ws){
+    public EnviaEmailMensagem(Usuario usuario, String mensagem,String assunto, WebServiceReturnString ws){
         this.ws= ws;
         this.usuario = usuario;
         this.mensagem = mensagem;
+        this.assunto = assunto;
 
     }
 
@@ -37,7 +39,7 @@ public class EnviaEmailMensagem extends AsyncTask<String,String,String> {
         String result = null;
         String host = Host.host;
         try {
-            final String url = host+"appinbanker/email/enviaEmail/mensagem/"+mensagem;
+            final String url = host+"appinbanker/email/enviaEmail/mensagem/"+mensagem+"/"+assunto;
 
             // Set the Content-Type header
             HttpHeaders requestHeaders = new HttpHeaders();

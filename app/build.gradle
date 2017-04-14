@@ -7,8 +7,8 @@ android {
         applicationId "br.com.appinbanker.inbanker"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 16
-        versionName "0.2.5"
+        versionCode 26
+        versionName "0.3.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
@@ -59,6 +59,8 @@ dependencies {
     compile 'com.github.pinball83:masked-edittext:1.0.3'
 
     compile 'com.joanzapata.iconify:android-iconify-fontawesome:2.1.+' //icon badge menu
+
+    compile 'com.github.amlcurran.showcaseview:library:5.4.3'
 }
 
 apply plugin: 'com.google.gms.google-services'

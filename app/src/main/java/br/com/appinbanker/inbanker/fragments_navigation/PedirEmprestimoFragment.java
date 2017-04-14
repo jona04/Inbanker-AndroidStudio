@@ -8,12 +8,15 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -38,8 +41,12 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.joanzapata.iconify.widget.IconButton;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
@@ -54,6 +61,8 @@ import org.json.JSONObject;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -61,6 +70,7 @@ import br.com.appinbanker.inbanker.R;
 import br.com.appinbanker.inbanker.SimuladorResultado;
 import br.com.appinbanker.inbanker.adapters.ListaAmigosAdapter;
 import br.com.appinbanker.inbanker.entidades.Amigos;
+import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
@@ -72,6 +82,7 @@ import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.util.MaskMoney;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AtualizaUsuario;
+import br.com.appinbanker.inbanker.webservice.AtualizaUsuarioFace;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 import br.com.appinbanker.inbanker.webservice.VerificaIdFace;
 
@@ -148,6 +159,10 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_pedir_emprestimo, container, false);
 
+        setHasOptionsMenu(true);
+
+        getActivity().setTitle("Pedir Empréstimo");
+
         msg_lista_amigos = (LinearLayout) view.findViewById(R.id.msg_lista_amigos);
         pb = (LinearLayout) view.findViewById(R.id.progress_lista_amigos);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_amigos);
@@ -206,6 +221,42 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
         });
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if(usuario_logado == false) {
+            if (AllSharedPreferences.getPreferencesBoolean(AllSharedPreferences.VERIFY_TUTORIAL_PEDIR_LOGAR_FACE, getActivity()) == false) {
+                new ShowcaseView.Builder(getActivity())
+                        .setStyle(R.style.CustomShowcaseTheme)
+                        .withMaterialShowcase()
+                        .setTarget(new ViewTarget(loginButton))
+                        .setContentTitle("Sicronizar com Facebook")
+                        .setContentText("Você precisa estar logado no Facebook para encontrar amigos e pedir o empréstimo \n\nSeu amigo só aparecerá na lista se ele estiver devidamente cadastrado e logado no InBanker.")
+                        .build();
+
+                AllSharedPreferences.putPreferencesBooleanTrue(AllSharedPreferences.VERIFY_TUTORIAL_PEDIR_LOGAR_FACE, getActivity());
+
+            }
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Do something that differs the Activity's menu here
+        super.onCreateOptionsMenu(menu, inflater);
+
+        View menuNotificacao = menu.findItem(R.id.menu_notificacao).getActionView();
+        IconButton iconButtonMessages = (IconButton) menuNotificacao.findViewById(R.id.iconButton);
+        TextView itemMessagesBadgeTextView = (TextView) menuNotificacao.findViewById(R.id.badge_textView);
+        iconButtonMessages.setVisibility(View.GONE);
+        itemMessagesBadgeTextView.setVisibility(View.GONE);
+
+        View menuChat = menu.findItem(R.id.menu_email).getActionView();
+        IconButton iconButtonChat = (IconButton) menuChat.findViewById(R.id.iconButton);
+        iconButtonChat.setVisibility(View.GONE);
     }
 
     public void graphFacebook(final AccessToken accessToken){
@@ -434,9 +485,31 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         if(mList.isEmpty() || mList == null){
             msg_lista_amigos.setVisibility(View.VISIBLE);
         }else {
+            Collections.sort(mList, new CustomComparator());
             ListaAmigosAdapter adapter = new ListaAmigosAdapter(getActivity(), mList);
             adapter.setRecyclerViewOnClickListenerHack(this);
             mRecyclerView.setAdapter(adapter);
+
+
+            if(AllSharedPreferences.getPreferencesBoolean(AllSharedPreferences.VERIFY_TUTORIAL_PEDIR_LISTA_AMIGOS,getActivity())==false) {
+                new ShowcaseView.Builder(getActivity())
+                        .setStyle(R.style.CustomShowcaseTheme)
+                        .withMaterialShowcase()
+                        .setContentTitle("Escolha um amigo")
+                        .setContentText("Escolha o amigo no qual você irá fazer o pedido de empréstimo. \n\nLembrete: Para que seu amigo aparece na lista, é necessário que ele realize o login pelo Facebook dentro do aplicativo InBanker.")
+                        .build();
+
+                AllSharedPreferences.putPreferencesBooleanTrue(AllSharedPreferences.VERIFY_TUTORIAL_PEDIR_LISTA_AMIGOS,getActivity());
+
+            }
+
+        }
+    }
+
+    public class CustomComparator implements Comparator<Amigos> {// may be it would be Model
+        @Override
+        public int compare(Amigos obj1, Amigos obj2) {
+            return obj1.getName().compareTo(obj2.getName());// compare two objects
         }
     }
 
@@ -458,11 +531,6 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
         Usuario usu = new Usuario();
 
-        //para nao da problema
-        usu.setNome(nome);
-        usu.setEmail(email);
-        usu.setSenha(senha);
-
         usu.setCpf(cpf);
         usu.setUrl_face(url_picture);
         usu.setId_face(id);
@@ -475,7 +543,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         //usuarioReferencia.child(cpf).child("token_gcm").setValue(token_gcm);
 
         //fazemos a chamada a classe responsavel por realizar a tarefa de webservice em doinbackground
-        new AtualizaUsuario(usu,this,"cpf").execute();
+        new AtualizaUsuarioFace(usu,this).execute();
 
     }
 
@@ -483,10 +551,14 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
     public void retornoStringWebService(String result) {
         Log.i("PedirEMprestimo","Atualizado com sucesso, primeiro login face");
 
-        if(result.equals("sucesso_edit")){
-            listaAmigos();
+        if(result!=null) {
+            if (result.equals("sucesso_edit")) {
+                listaAmigos();
+            } else {
+                mensagem("Houve um erro!", "Olá, parece que houve um problema de conexao. Favor tente novamente!", "Ok");
+            }
         }else{
-            mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","Ok");
+            mensagem("Erro crítico!", "Olá, parece que houve um problema de conexao. Favor tente novamente!", "Ok");
         }
 
     }
@@ -628,6 +700,37 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
 
          });
+
+
+
+
+        /*new ShowcaseView.Builder(getActivity())
+                .setStyle(R.style.CustomShowcaseTheme)
+                .withMaterialShowcase()
+                .setTarget(new ViewTarget(et_valor))
+                .hideOnTouchOutside()
+                .setContentTitle("Valor do Pedido")
+                .setContentText("Informe o valor do pedido de empréstimo. \n\n Os valores devem variar entre no mínimo R$ 20,00 e no máximo R$ 1.000,00.")
+                .setShowcaseEventListener(new SimpleShowcaseEventListener() {
+
+                    @Override
+                    public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+                        new ShowcaseView.Builder(getActivity())
+                                .setStyle(R.style.CustomShowcaseTheme)
+                                .withMaterialShowcase()
+                                .setTarget(new ViewTarget(et_calendario))
+                                .hideOnTouchOutside()
+                                .setContentTitle("Vencimento do Pedido")
+                                .setContentText("Informe a data prevista para pagamento. \n \n O prazo máximo permitido é de até 60 dias.")
+                                .build();
+                    }
+
+                })
+                .build();
+
+*/
+
+
         dialog.show();
 
     }

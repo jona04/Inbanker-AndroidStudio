@@ -46,18 +46,22 @@
         <activity
             android:name=".NavigationDrawerActivity"
             android:label="@string/title_activity_navigation_drawer"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".SimuladorResultado"
             android:label="@string/title_activity_simulador_resultado"
+            android:screenOrientation="portrait"
             android:parentActivityName=".NavigationDrawerActivity" />
         <activity
             android:name=".MinhaConta"
             android:label="@string/title_activity_minha_conta"
+            android:screenOrientation="portrait"
             android:parentActivityName=".NavigationDrawerActivity" />
         <activity
             android:name=".Ajuda"
             android:label="@string/title_activity_ajuda"
+            android:screenOrientation="portrait"
             android:parentActivityName=".NavigationDrawerActivity" />
 
         <service android:name=".fcm.MyFirebaseMessagingService">
@@ -74,33 +78,41 @@
         <activity
             android:name=".TelaLogin"
             android:label="@string/title_activity_tela_login"
+            android:screenOrientation="portrait"
             android:parentActivityName=".SlideInicial" />
         <activity
             android:name=".TelaCadastro"
             android:label="@string/title_activity_tela_cadastro"
+            android:screenOrientation="portrait"
             android:parentActivityName=".SlideInicial" />
         <activity
             android:name=".TelaCadastroMinhaConta"
             android:label="@string/title_activity_tela_cadastro"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MinhaConta" />
         <activity
             android:name=".TelaCadastroSimulador"
-            android:label="@string/title_activity_tela_cadastro" />
+            android:label="@string/title_activity_tela_cadastro"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".SlideInicial"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".TelaPagamento"
             android:label="@string/title_activity_tela_pagamento"
+            android:screenOrientation="portrait"
             android:parentActivityName=".NavigationDrawerActivity"
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".TelaNotificacoes"
             android:label="@string/title_activity_tela_notificacoes"
+            android:screenOrientation="portrait"
             android:parentActivityName=".NavigationDrawerActivity" />
         <activity
             android:name=".TelaEnviaMensagem"
             android:label="@string/title_activity_tela_envia_mensagem"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
             android:parentActivityName=".NavigationDrawerActivity"/>
     </application>

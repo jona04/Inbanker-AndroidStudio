@@ -53,7 +53,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
     public static final int MENU_PEDIDOS_RECEBIDOS = 5;
     public static final int MENU_HISTORICO = 6;
 
-    int menu = MENU_INICIO;
+    int menu_page = MENU_INICIO;
 
     // Create a new fragment and specify the fragment to show based on nav item clicked
     Fragment fragment = null;
@@ -87,7 +87,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
         Log.i("ParametroNavigation","Param 1 ="+parametro);
         if(parametro!=null){
             Log.i("ParametroNavigation","Param 2 ="+parametro);
-            menu = parametro.getInt("menu_item");
+            menu_page = parametro.getInt("menu_item");
         }
 
         BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
@@ -125,7 +125,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
        //para iniciar com o primeiro item do menu navigation drawer (TelaInicio)
         //se tiver tiver algum parametro o menu é alterado
-        onNavigationItemSelected(navigationView.getMenu().getItem(menu).setChecked(true));
+        onNavigationItemSelected(navigationView.getMenu().getItem(menu_page).setChecked(true));
 
     }
 
@@ -165,6 +165,8 @@ public class NavigationDrawerActivity extends AppCompatActivity
         menuInflater.inflate(R.menu.navigation_drawer, menu);
 
         View menuNotificacao = menu.findItem(R.id.menu_notificacao).getActionView();
+        View menuChat = menu.findItem(R.id.menu_email).getActionView();
+
         TextView itemMessagesBadgeTextView = (TextView) menuNotificacao.findViewById(R.id.badge_textView);
 
         int count = 0;
@@ -182,6 +184,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
         }
 
         IconButton iconButtonMessages = (IconButton) menuNotificacao.findViewById(R.id.iconButton);
+        IconButton iconButtonChat = (IconButton) menuChat.findViewById(R.id.iconButton);
         //iconButtonMessages.setText("30");
 
         iconButtonMessages.setOnClickListener(new View.OnClickListener() {
@@ -191,6 +194,15 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 Log.i("Script","some bagde menu cartinha");
 
                 Intent it = new Intent(NavigationDrawerActivity.this,TelaNotificacoes.class);
+                startActivity(it);
+            }
+        });
+
+        iconButtonChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent it = new Intent(NavigationDrawerActivity.this,TelaEnviaMensagem.class);
                 startActivity(it);
             }
         });
@@ -314,6 +326,8 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
         //faz o logout do usuario logado facebook
         LoginManager.getInstance().logOut();
+
+        AllSharedPreferences.putPreferences(AllSharedPreferences.VERIFY_NOTIFY_CARTA, "", this);
 
         BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
         Cursor cursor = crud.carregaDados();

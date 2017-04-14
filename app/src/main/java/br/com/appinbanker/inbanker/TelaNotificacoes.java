@@ -11,15 +11,21 @@ import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.github.amlcurran.showcaseview.ShowcaseView;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import br.com.appinbanker.inbanker.adapters.ListaAmigosAdapter;
 import br.com.appinbanker.inbanker.adapters.ListaNotificacaoAdapter;
 import br.com.appinbanker.inbanker.adapters.TransacaoEnvAdapter;
+import br.com.appinbanker.inbanker.entidades.Amigos;
 import br.com.appinbanker.inbanker.entidades.NotificacaoContrato;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
+import br.com.appinbanker.inbanker.fragments_navigation.HistoricoFragment;
 import br.com.appinbanker.inbanker.interfaces.RecyclerViewOnClickListenerHack;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
@@ -75,6 +81,18 @@ public class TelaNotificacoes extends AppCompatActivity implements WebServiceRet
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(mLinearLayoutManager);
 
+        if(AllSharedPreferences.getPreferencesBoolean(AllSharedPreferences.VERIFY_TUTORIAL_NOTIFICACOES,this)==false) {
+            new ShowcaseView.Builder(this)
+                    .setStyle(R.style.CustomShowcaseTheme)
+                    .withMaterialShowcase()
+                    .setContentTitle("Notificações de contratos")
+                    .setContentText("Aqui ficará todas as notificações referente aos contratos em andamento.")
+                    .build();
+
+            AllSharedPreferences.putPreferencesBooleanTrue(AllSharedPreferences.VERIFY_TUTORIAL_NOTIFICACOES,this);
+
+        }
+
     }
 
     @Override
@@ -85,6 +103,7 @@ public class TelaNotificacoes extends AppCompatActivity implements WebServiceRet
         if(usu != null){
             if(usu.getNotificacaoContrato() != null) {
 
+                Collections.sort(usu.getNotificacaoContrato(), new CustomComparator());
                 ListaNotificacaoAdapter adapter = new ListaNotificacaoAdapter(this, usu.getNotificacaoContrato());
                 adapter.setRecyclerViewOnClickListenerHack(this);
                 mRecyclerView.setAdapter(adapter);
@@ -96,6 +115,14 @@ public class TelaNotificacoes extends AppCompatActivity implements WebServiceRet
 
         }else{
             //mensagem();
+        }
+    }
+
+    public class CustomComparator implements Comparator<NotificacaoContrato> {// may be it would be Model
+
+        @Override
+        public int compare(NotificacaoContrato obj1, NotificacaoContrato obj2) {
+            return obj2.getDate().compareTo(obj1.getDate());// compare two objects
         }
     }
 

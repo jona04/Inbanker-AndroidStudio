@@ -1,16 +1,27 @@
 package br.com.appinbanker.inbanker.fragments_navigation;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
+import com.joanzapata.iconify.widget.IconButton;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,11 +30,13 @@ import java.util.HashMap;
 import java.util.List;
 
 import br.com.appinbanker.inbanker.R;
+import br.com.appinbanker.inbanker.TelaNotificacoes;
 import br.com.appinbanker.inbanker.adapters.TransacaoHistoricoAdapter;
 import br.com.appinbanker.inbanker.entidades.Transacao;
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioHistoricoCPF;
 
 public class HistoricoFragment extends Fragment{
@@ -58,6 +71,11 @@ public class HistoricoFragment extends Fragment{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_historico, container, false);
+
+        //habilita manuseio do menu no action bar
+        setHasOptionsMenu(true);
+
+        getActivity().setTitle("Histórico");
 
         progress_lista_historico = (LinearLayout) view.findViewById(R.id.progress_lista_historico);
 
@@ -95,6 +113,39 @@ public class HistoricoFragment extends Fragment{
         });
 
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (AllSharedPreferences.getPreferencesBoolean(AllSharedPreferences.VERIFY_TUTORIAL_HISTORICO, getActivity()) == false) {
+            new ShowcaseView.Builder(getActivity())
+                    .setStyle(R.style.CustomShowcaseTheme)
+                    .withMaterialShowcase()
+                    .setContentTitle("Históricos de pedidos")
+                    .setContentText("Aqui ficarão todos os pedidos que foram finalizados com sucesso. \n\nLembrete: Pedidos cancelados não serão exibidos nessa tela.")
+                    .build();
+
+            AllSharedPreferences.putPreferencesBooleanTrue(AllSharedPreferences.VERIFY_TUTORIAL_HISTORICO, getActivity());
+
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Do something that differs the Activity's menu here
+        super.onCreateOptionsMenu(menu, inflater);
+
+        View menuNotificacao = menu.findItem(R.id.menu_notificacao).getActionView();
+        IconButton iconButtonMessages = (IconButton) menuNotificacao.findViewById(R.id.iconButton);
+        TextView itemMessagesBadgeTextView = (TextView) menuNotificacao.findViewById(R.id.badge_textView);
+        iconButtonMessages.setVisibility(View.GONE);
+        itemMessagesBadgeTextView.setVisibility(View.GONE);
+
+        View menuChat = menu.findItem(R.id.menu_email).getActionView();
+        IconButton iconButtonChat = (IconButton) menuChat.findViewById(R.id.iconButton);
+        iconButtonChat.setVisibility(View.GONE);
     }
 
     public void retornoBuscaUsuario(Usuario usu){
@@ -150,7 +201,7 @@ public class HistoricoFragment extends Fragment{
     public class CustomComparator implements Comparator<Transacao> {// may be it would be Model
         @Override
         public int compare(Transacao obj1, Transacao obj2) {
-            return obj1.getDataPedido().compareTo(obj2.getDataPedido());// compare two objects
+            return obj2.getDataPedido().compareTo(obj1.getDataPedido());// compare two objects
         }
     }
 

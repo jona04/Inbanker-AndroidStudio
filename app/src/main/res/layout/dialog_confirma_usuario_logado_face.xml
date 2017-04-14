@@ -3,8 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:background="#e6e6e6">
+    android:layout_height="wrap_content">
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -27,7 +26,7 @@
                 android:layout_height="90sp"
                 android:layout_marginTop="10dp"
                 android:layout_gravity="center_horizontal"
-                android:src="@drawable/icon"/>
+                android:src="@drawable/logo"/>
             <TextView
                 android:id="@+id/nome_usuario"
                 android:layout_width="wrap_content"
@@ -50,35 +49,33 @@
 
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="30dp"
-            android:orientation="vertical">
-
-
-            <Button
-                android:id="@+id/btn_confirmar_login"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="#3e3e3e"
-                android:background="@drawable/btn_dialog_confirma"
-                android:textSize="12sp"
-                android:padding="5dp"
-                android:text="Sim, sou eu"
-                />
-
+            android:orientation="horizontal">
 
             <Button
                 android:id="@+id/btn_cancelar_login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/btn_dialog_recusa"
+                android:background="@null"
                 android:text="Voltar"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textColor="#3e3e3e"
+                />
+
+            <Button
+                android:id="@+id/btn_confirmar_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#3e3e3e"
+                android:background="@drawable/borda_cinza"
+                android:textSize="15sp"
+                android:layout_marginLeft="20dp"
+                android:padding="10dp"
+                android:text="Sim, sou eu"
                 />
 
         </LinearLayout>

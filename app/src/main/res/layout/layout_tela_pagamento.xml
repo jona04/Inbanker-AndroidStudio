@@ -50,27 +50,45 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:layout_below="@+id/ll_valor"
             android:visibility="gone">
 
 
-            <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+            <RadioGroup
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#ccc"/>
                 <RadioButton android:id="@+id/radio_mesmo_cartao"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
                     android:text="123322******1111"
                     android:checked="true"
                     android:onClick="onRadioButtonClicked"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="5dp"
+                    android:background="#ccc"/>
                 <RadioButton android:id="@+id/radio_outro_cartao"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="15dp"
+                    android:layout_marginTop="5dp"
                     android:text="Pagar com outro cartão"
                     android:onClick="onRadioButtonClicked"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="5dp"
+                    android:background="#ccc"/>
             </RadioGroup>
         </RelativeLayout>
 
@@ -106,15 +124,14 @@
                         android:layout_height="wrap_content"
                         android:inputType="number"
                         app:mask="**** **** **** ****"
-                        app:notMaskedSymbol="*"
-                        app:maskIconColor="@color/colorPrimary" />
+                        app:notMaskedSymbol="*"/>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_weight="1">
+                    android:layout_weight="2">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -125,6 +142,8 @@
                     <Spinner
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="13dp"
+                        android:layout_marginLeft="-7dp"
                         android:id="@+id/bandeira_pagamento"/>
 
 
@@ -165,7 +184,7 @@
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/size_fields_tv"
                         android:text="Validade"/>
-                    <LinearLayout
+                    <!--<LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
@@ -179,29 +198,32 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:id="@+id/ano_validade_pagamento"/>
-                    </LinearLayout>
+                    </LinearLayout>-->
+                    <EditText
+                        android:id="@+id/et_validade"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="mm/aaaa"
+                        android:inputType="number"/>
 
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_weight="1">
+                    android:layout_weight="2">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/size_fields_tv"
-                        android:text="Código de segurança"/>
+                        android:text="CVV"/>
 
-                    <com.github.pinball83.maskededittext.MaskedEditText
+                    <EditText
                         android:id="@+id/et_cod_seguranca"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="number"
-                        app:mask="***"
-                        app:notMaskedSymbol="*"
-                        app:maskIconColor="@color/colorPrimary" />
+                        android:inputType="number"/>
 
                 </LinearLayout>
             </LinearLayout>

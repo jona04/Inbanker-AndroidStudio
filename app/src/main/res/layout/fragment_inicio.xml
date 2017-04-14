@@ -90,7 +90,7 @@
                                 android:id="@+id/relative_layout"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:background="@drawable/round_button"
+                                android:background="@drawable/round_button_color"
                                 android:padding="10dp"
                                 android:layout_centerInParent="true">
 
@@ -145,8 +145,8 @@
 
                                 <Button
                                     android:id="@+id/btn_pedidos_enviados"
-                                    android:layout_width="30dp"
-                                    android:layout_height="30dp"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
                                     android:background="@drawable/icon_btn_inicio_ped_env"/>
 
                             </RelativeLayout>
@@ -201,8 +201,8 @@
 
                                 <Button
                                     android:id="@+id/btn_pagamentos_pedentes"
-                                    android:layout_width="30dp"
-                                    android:layout_height="30dp"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
                                     android:background="@drawable/icon_btn_inicio_pag_pen"/>
 
                             </RelativeLayout>
@@ -258,8 +258,8 @@
 
                                 <Button
                                     android:id="@+id/btn_pedidos_recebidos"
-                                    android:layout_width="30dp"
-                                    android:layout_height="30dp"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
                                     android:background="@drawable/icon_btn_inicio_ped_rec"/>
 
                             </RelativeLayout>
@@ -300,6 +300,7 @@
                 android:background="@drawable/rodape_inicio">
 
                 <ImageView
+                    android:id="@+id/img_logo_inicio"
                     android:layout_width="50dp"
                     android:layout_height="60dp"
                     android:background="@drawable/logo_b"

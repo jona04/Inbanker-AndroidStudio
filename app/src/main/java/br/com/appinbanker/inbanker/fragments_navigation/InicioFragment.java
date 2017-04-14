@@ -1,25 +1,41 @@
 package br.com.appinbanker.inbanker.fragments_navigation;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import android.support.annotation.Nullable;
+import android.support.annotation.IdRes;
+
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
+import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
+import com.github.amlcurran.showcaseview.targets.Target;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,8 +55,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import br.com.appinbanker.inbanker.MinhaConta;
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
+import br.com.appinbanker.inbanker.TelaCadastroMinhaConta;
 import br.com.appinbanker.inbanker.TelaLogin;
 import br.com.appinbanker.inbanker.TelaNotificacoes;
 import br.com.appinbanker.inbanker.adapters.TransacaoEnvAdapter;
@@ -93,10 +111,9 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
     Double juros_mensal;
 
 
+    LinearLayout ll_btn_inicio;
 
-    public InicioFragment() {
-        // Required empty public constructor
-    }
+    public InicioFragment(){}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -106,6 +123,9 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
         setHasOptionsMenu(true);
 
+        getActivity().setTitle("Inicio");
+
+         ll_btn_inicio = (LinearLayout) view.findViewById(R.id.ll_btn_inicio);
         progress_bar_inicio = (ProgressBar) view.findViewById(R.id.progress_bar_inicio);
         badge_notification_ped_rec = (TextView) view.findViewById(R.id.badge_notification_ped_rec);
         badge_notification_pag_pen = (TextView) view.findViewById(R.id.badge_notification_pag_pen);
@@ -115,6 +135,14 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         btn_pedidos_enviados = (Button) view.findViewById(R.id.btn_pedidos_enviados);
         btn_pedidos_recebidos = (Button) view.findViewById(R.id.btn_pedidos_recebidos);
         btn_pagamentos_pendentes = (Button) view.findViewById(R.id.btn_pagamentos_pedentes);
+
+        ImageView img_logo_inicio = (ImageView) view.findViewById(R.id.img_logo_inicio);
+        img_logo_inicio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mensagemIntent("Tutorial","Olá, você deseja visualizar os tutoriais novamente?","Sim","Não");
+            }
+        });
 
         //fazemos uma busca do usuario logando no banco para mostrarmos corretamente as notificações interna nos butons da tela incio
         BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
@@ -185,6 +213,70 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
         return view;
     }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+
+
+        if(AllSharedPreferences.getPreferencesBoolean(AllSharedPreferences.VERIFY_TUTORIAL_INICIO,getActivity())==false) {
+            new ShowcaseView.Builder(getActivity())
+                    .setStyle(R.style.CustomShowcaseTheme)
+                    .withMaterialShowcase()
+                    .setTarget(new ViewTarget(btn_pedir_emprestimo))
+                    .setContentTitle("Fazendo pedido")
+                    .setContentText("Toque no botão 'Pedir Empréstimo' para exibir a lista de amigos disponíveis para você pedir um empréstimo.")
+                    .setShowcaseEventListener(new SimpleShowcaseEventListener() {
+
+                        @Override
+                        public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+                            new ShowcaseView.Builder(getActivity())
+                                    .setStyle(R.style.CustomShowcaseTheme)
+                                    .withMaterialShowcase()
+                                    .setTarget(new ViewTarget(btn_pedidos_enviados))
+                                    .setContentTitle("Visualizar pedidos enviados")
+                                    .setContentText("Toque no botão 'Pedidos Enviados' para exibir a lista de pedidos que foram enviados por você, mas que ainda não foram aceitos por seus amigos.")
+                                    .setShowcaseEventListener(new SimpleShowcaseEventListener() {
+
+                                        @Override
+                                        public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+                                            new ShowcaseView.Builder(getActivity())
+                                                    .setStyle(R.style.CustomShowcaseTheme)
+                                                    .withMaterialShowcase()
+                                                    .setTarget(new ViewTarget(btn_pagamentos_pendentes))
+                                                    .setContentTitle("Visualizar contratos")
+                                                    .setContentText("Toque no botão 'Contratos' para exibir a lista de pedidos que já foram aceitos por você ou por seus amigos, e por tanto já existe um contrato formalizado.")
+                                                    .setShowcaseEventListener(new SimpleShowcaseEventListener() {
+
+                                                        @Override
+                                                        public void onShowcaseViewDidHide(ShowcaseView showcaseView) {
+                                                            new ShowcaseView.Builder(getActivity())
+                                                                    .setStyle(R.style.CustomShowcaseTheme)
+                                                                    .withMaterialShowcase()
+                                                                    .setTarget(new ViewTarget(btn_pedidos_recebidos))
+                                                                    .setContentTitle("Visualizar pedidos recebidos")
+                                                                    .setContentText("Toque no botão 'Pedidos Recebidos' para exibir a lista de pedidos que você recebeu de seus amigos, mas que ainda não foram aceitos por você.")
+                                                                    .build();
+                                                        }
+
+                                                    })
+                                                    .build();
+                                        }
+
+                                    })
+                                    .build();
+                        }
+
+                    })
+                    .build();
+
+
+            AllSharedPreferences.putPreferencesBooleanTrue(AllSharedPreferences.VERIFY_TUTORIAL_INICIO,getActivity());
+
+        }
+    }
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -500,7 +592,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
             Log.i("PagamentoPendente","dias de atraso = "+dias_atraso);
 
-            multa_atraso = Double.parseDouble(trans.getValor())*0.02;
+            multa_atraso = Double.parseDouble(trans.getValor())*0.1;
 
         }
 
@@ -512,6 +604,22 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
         TextView tv_valor_dialog = (TextView) dialog.findViewById(R.id.tv_valor_dialog);
         tv_valor_dialog.setText(valor_formatado);
+
+        et_dialog_senha.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int keyCode, KeyEvent event) {
+                if (keyCode == EditorInfo.IME_ACTION_SEARCH ||
+                        keyCode == EditorInfo.IME_ACTION_DONE ||
+                        event.getAction() == KeyEvent.ACTION_DOWN &&
+                                event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+
+                    esconderTeclado();
+
+                    return true;
+                }
+                return false;
+            }
+        });
 
         btn_recusa_recebimento_dialog = (Button) dialog.findViewById(R.id.btn_recusa_recebimento);
         btn_recusa_recebimento_dialog.setOnClickListener(new View.OnClickListener() {
@@ -630,6 +738,22 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
         TextView tv_valor_dialog = (TextView) dialog.findViewById(R.id.tv_valor_dialog);
         tv_valor_dialog.setText(valor_formatado);
+
+        et_dialog_senha.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int keyCode, KeyEvent event) {
+                if (keyCode == EditorInfo.IME_ACTION_SEARCH ||
+                        keyCode == EditorInfo.IME_ACTION_DONE ||
+                        event.getAction() == KeyEvent.ACTION_DOWN &&
+                                event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+
+                    esconderTeclado();
+
+                    return true;
+                }
+                return false;
+            }
+        });
 
         btn_recusa_recebimento_dialog = (Button) dialog.findViewById(R.id.btn_recusa_recebimento);
         btn_recusa_recebimento_dialog.setOnClickListener(new View.OnClickListener() {
@@ -894,6 +1018,37 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
                 getActivity().startActivity(it);
                 //para encerrar a activity atual e todos os parent
                 getActivity().finishAffinity();
+            }
+        });
+        mensagem.show();
+    }
+
+    public void esconderTeclado() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+        inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+    }
+
+    public void mensagemIntent(String titulo,String corpo,String botao_positivo,String botao_neutro)
+    {
+        AlertDialog.Builder mensagem = new AlertDialog.Builder(getActivity());
+        mensagem.setTitle(titulo);
+        mensagem.setMessage(corpo);
+        mensagem.setNeutralButton(botao_neutro,null);
+        mensagem.setPositiveButton(botao_positivo,new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                AllSharedPreferences.putPreferencesBooleanFalse(AllSharedPreferences.VERIFY_TUTORIAL_INICIO,getActivity());
+                AllSharedPreferences.putPreferencesBooleanFalse(AllSharedPreferences.VERIFY_TUTORIAL_MENSAGEM,getActivity());
+                AllSharedPreferences.putPreferencesBooleanFalse(AllSharedPreferences.VERIFY_TUTORIAL_NOTIFICACOES,getActivity());
+                AllSharedPreferences.putPreferencesBooleanFalse(AllSharedPreferences.VERIFY_TUTORIAL_PEDIR_LOGAR_FACE,getActivity());
+                AllSharedPreferences.putPreferencesBooleanFalse(AllSharedPreferences.VERIFY_TUTORIAL_PEDIR_LISTA_AMIGOS,getActivity());
+                AllSharedPreferences.putPreferencesBooleanFalse(AllSharedPreferences.VERIFY_TUTORIAL_PAGAMENTO,getActivity());
+                AllSharedPreferences.putPreferencesBooleanFalse(AllSharedPreferences.VERIFY_TUTORIAL_HISTORICO,getActivity());
+
+                Intent it = new Intent(getActivity(),NavigationDrawerActivity.class);
+                startActivity(it);
+                //para encerrar a activity atual e todos os parent
+                getActivity().finish();
             }
         });
         mensagem.show();

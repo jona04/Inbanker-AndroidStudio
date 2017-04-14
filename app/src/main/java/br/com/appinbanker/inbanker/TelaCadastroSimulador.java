@@ -1,5 +1,6 @@
 package br.com.appinbanker.inbanker;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -7,8 +8,12 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -32,6 +37,8 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringEmail;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.util.FunctionUtil;
+import br.com.appinbanker.inbanker.util.Mask;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AddUsuario;
 import br.com.appinbanker.inbanker.webservice.EnviaEmail;
@@ -44,7 +51,7 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
 
     ProgressDialog progress;
 
-    MaskedEditText et_cpf,et_nasc,et_cep;
+    EditText et_cpf,et_nasc,et_cep;
     EditText et_logradouro,et_complemento,et_bairro,et_cidade,et_estado,et_numero,et_nome,et_email,et_senha,et_confirma_senha;
 
     Button btn_cadastrar_continuar_cpf,btn_cadastrar_continuar_endereco,btn_cadastrar_usuario,btn_cadastrar_continuar_senha;
@@ -59,6 +66,11 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
     String id_face;
     String url_img_face;
     Usuario usu_cadastro;
+
+    private TextWatcher cpfMask;
+    private TextWatcher nascMask;
+    private TextWatcher cepMask;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,9 +82,9 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
         id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
         url_img_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE));
 
-        et_cpf = (MaskedEditText) findViewById(R.id.et_cpf);
-        et_nasc = (MaskedEditText) findViewById(R.id.et_nasc);
-        et_cep = (MaskedEditText) findViewById(R.id.et_cep);
+        et_cpf = (EditText) findViewById(R.id.et_cpf);
+        et_nasc = (EditText) findViewById(R.id.et_nasc);
+        et_cep = (EditText) findViewById(R.id.et_cep);
         et_nome = (EditText) findViewById(R.id.et_nome);
 
         et_email = (EditText) findViewById(R.id.et_email);
@@ -82,6 +94,7 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
         radio_sexo_masc = (RadioButton) findViewById(R.id.radio_sexo_masc);
         radio_sexo_fem = (RadioButton) findViewById(R.id.radio_sexo_fem);
         radio_op = (RadioGroup) findViewById(R.id.radio_op);
+        checkbox_termos_uso = (CheckBox) findViewById(R.id.checkbox_termos_uso);
 
         btn_ver_termos_uso = (Button) findViewById(R.id.btn_ver_termos_uso);
         btn_ver_politica_privacidade = (Button) findViewById(R.id.btn_ver_politica_privacidade);
@@ -102,6 +115,47 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
         et_cidade = (EditText) findViewById(R.id.et_cidade) ;
         et_estado =(EditText) findViewById(R.id.et_estado) ;
 
+        cpfMask = Mask.insert("###.###.###-##", et_cpf);
+        et_cpf.addTextChangedListener(cpfMask);
+
+        nascMask = Mask.insert("##/##/####", et_nasc);
+        et_nasc.addTextChangedListener(nascMask);
+
+        cepMask = Mask.insert("#####-###", et_cep);
+        et_cep.addTextChangedListener(cepMask);
+
+        et_confirma_senha.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int keyCode, KeyEvent event) {
+                if (keyCode == EditorInfo.IME_ACTION_SEARCH ||
+                        keyCode == EditorInfo.IME_ACTION_DONE ||
+                        event.getAction() == KeyEvent.ACTION_DOWN &&
+                                event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+
+                    esconderTeclado();
+
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        et_complemento.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int keyCode, KeyEvent event) {
+                if (keyCode == EditorInfo.IME_ACTION_SEARCH ||
+                        keyCode == EditorInfo.IME_ACTION_DONE ||
+                        event.getAction() == KeyEvent.ACTION_DOWN &&
+                                event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+
+                    esconderTeclado();
+
+                    return true;
+                }
+                return false;
+            }
+        });
+
         btn_ver_termos_uso.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -118,7 +172,7 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
             @Override
             public void onClick(View view) {
 
-                boolean valida_cpf = Validador.isCPF(et_cpf.getUnmaskedText().toString());
+                boolean valida_cpf = Validador.isCPF(Mask.unmask(et_cpf.getText().toString()).toString());
                 if(!valida_cpf){
                     et_cpf.setError("CPF Inválido");
                     et_cpf.setFocusable(true);
@@ -173,11 +227,11 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
         progress = ProgressDialog.show(TelaCadastroSimulador.this, "Verificando Dados",
                 "Olá, esse processo pode demorar alguns segundos...", true);
 
-        new VerificaCPF(et_cpf.getUnmaskedText(),this).execute();
+        new VerificaCPF(Mask.unmask(et_cpf.getText().toString()),this).execute();
     }
 
     public void verificaCpfReceita(){
-        new VerificaCpfReceita(this,et_cpf.getUnmaskedText()).execute();
+        new VerificaCpfReceita(this,Mask.unmask(et_cpf.getText().toString())).execute();
 
 
     }
@@ -185,7 +239,7 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
     public void verificaEndereco(){
 
         if(verificaCEP()) {
-            new VerificaCEP(this, et_cep.getUnmaskedText()).execute();
+            new VerificaCEP(this, Mask.unmask(et_cep.getText().toString())).execute();
 
             progress = ProgressDialog.show(TelaCadastroSimulador.this, "Verificando Endereço",
                     "Olá, esse processo pode demorar alguns segundos...", true);
@@ -238,9 +292,10 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
                 btn_cadastrar_continuar_senha.setVisibility(View.VISIBLE);
             } catch (Exception e) {
                 Log.i("Script", "" + e);
+                mensagem("Endereço","Olá, endereço não foi encontrado, verifique o CEP e tente novamente","Ok");
             }
         }else{
-
+            mensagem("Endereço","Olá, endereço não foi encontrado, verifique o CEP e tente novamente","Ok");
         }
 
     }
@@ -284,7 +339,7 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
     public boolean verificaCEP(){
         boolean campos_ok = true;
 
-        boolean cep_valido = Validador.validateNotNull(et_cep.getUnmaskedText());
+        boolean cep_valido = Validador.validateNotNull(Mask.unmask(et_cep.getText().toString()));
         if(!cep_valido){
             et_cep.setError("CEP vazio");
             et_cep.setFocusable(true);
@@ -351,9 +406,17 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
             campos_ok = false;
         }
 
-        boolean idade = Validador.validateNotNull(et_nasc.getUnmaskedText().toString());
+        boolean idade = Validador.validateNotNull(Mask.unmask(et_nasc.getText().toString()).toString());
         if(!idade){
             et_nasc.setError("Campo Vazio");
+            et_nasc.setFocusable(true);
+            et_nasc.requestFocus();
+
+            campos_ok = false;
+        }
+
+        if(Mask.unmask(et_nasc.getText().toString()).toString().length() < 7){
+            et_nasc.setError("Complete o campo");
             et_nasc.setFocusable(true);
             et_nasc.requestFocus();
 
@@ -405,7 +468,7 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
 
                 Endereco end = new Endereco();
                 end.setBairro(et_bairro.getText().toString());
-                end.setCep(et_cep.getUnmaskedText());
+                end.setCep(Mask.unmask(et_cep.getText().toString()));
                 end.setCidade(et_cidade.getText().toString());
                 end.setComplemento(et_complemento.getText().toString());
                 end.setEstado(et_estado.getText().toString());
@@ -415,8 +478,8 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
 
                 usu_cadastro.setNome(removerAcentos(et_nome.getText().toString()));
                 usu_cadastro.setEmail(et_email.getText().toString());
-                usu_cadastro.setSenha(et_senha.getText().toString());
-                usu_cadastro.setCpf(et_cpf.getUnmaskedText());
+                usu_cadastro.setSenha(FunctionUtil.md5(et_senha.getText().toString()));
+                usu_cadastro.setCpf(Mask.unmask(et_cpf.getText().toString()));
                 usu_cadastro.setIdade(et_nasc.getText().toString());
                 usu_cadastro.setSexo(String.valueOf(opcaoSexo()));
 
@@ -445,8 +508,6 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
     @Override
     public void retornoStringWebService(String msg) {
 
-        progress.dismiss();
-
         String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,TelaCadastroSimulador.this);
         String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,TelaCadastroSimulador.this);
 
@@ -463,8 +524,8 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
                 crud.deletaRegistro(cpf);
 
                 //ordem de parametros - nome,email,cpf,senha,id_face,email_face,nome_face,url_img_face
-                String resultado = crud.insereDado(et_nome.getText().toString(), et_email.getText().toString(), et_cpf.getUnmaskedText(),
-                        et_senha.getText().toString(), id_face, url_img_face,token,device_id);
+                String resultado = crud.insereDado(et_nome.getText().toString(), et_email.getText().toString(), Mask.unmask(et_cpf.getText().toString()),
+                        FunctionUtil.md5(et_senha.getText().toString()), id_face, url_img_face,token,device_id);
                 Log.i("Banco SQLITE", "cadastro normal resultado = " + resultado);
 
                 //salva no firebase
@@ -476,12 +537,24 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
                 direcionarNavigation();
 
             } else {
+                progress.dismiss();
                 mensagem("Houve um erro!", "Olá, parece que houve um problema de conexão. Favor tente novamente!", "Ok");
             }
         }else{
+            progress.dismiss();
             mensagem("Houve um erro!", "Olá, parece que houve um problema de conexão. Favor tente novamente!", "Ok");
         }
 
+    }
+
+    public void direcionarNavigation(){
+        progress.dismiss();
+        //Intent it = new Intent(TelaCadastroSimulador.this, NavigationDrawerActivity.class);
+        //startActivity(it);
+
+        //para encerrar a activity atual e todos os parent
+        //finishAffinity();
+        finish();
     }
 
     public void dialog_termos_uso(){
@@ -510,13 +583,6 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
             }
         });
         dialog.show();
-    }
-    public void direcionarNavigation(){
-        Intent it = new Intent(TelaCadastroSimulador.this, NavigationDrawerActivity.class);
-        startActivity(it);
-
-        //para encerrar a activity atual e todos os parent
-        finishAffinity();
     }
 
     public void mensagem(String titulo,String corpo,String botao)
@@ -551,5 +617,10 @@ public class TelaCadastroSimulador extends AppCompatActivity implements WebServi
             progress.dismiss();
             mensagem("Houve um erro!","Olá, parece que houve um problema de conexao. Favor tente novamente!","Ok");
         }
+    }
+    public void esconderTeclado() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+        inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
     }
 }

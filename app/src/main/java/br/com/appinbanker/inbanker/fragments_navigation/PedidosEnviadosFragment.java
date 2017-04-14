@@ -6,13 +6,20 @@ import android.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.joanzapata.iconify.widget.IconButton;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -42,7 +49,6 @@ public class PedidosEnviadosFragment extends Fragment implements WebServiceRetur
 
     private BancoControllerUsuario crud;
     private Cursor cursor;
-    private String cpf;
 
     private LinearLayout progress_lista_pedidos_enviados;
 
@@ -65,6 +71,10 @@ public class PedidosEnviadosFragment extends Fragment implements WebServiceRetur
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_pedidos_enviados, container, false);
+
+        setHasOptionsMenu(true);
+
+        getActivity().setTitle("Pedidos Enviados");
 
         progress_lista_pedidos_enviados = (LinearLayout) view.findViewById(R.id.progress_lista_pedidos_enviados);
 
@@ -102,6 +112,22 @@ public class PedidosEnviadosFragment extends Fragment implements WebServiceRetur
 
         return view;
 
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Do something that differs the Activity's menu here
+        super.onCreateOptionsMenu(menu, inflater);
+
+        View menuNotificacao = menu.findItem(R.id.menu_notificacao).getActionView();
+        IconButton iconButtonMessages = (IconButton) menuNotificacao.findViewById(R.id.iconButton);
+        TextView itemMessagesBadgeTextView = (TextView) menuNotificacao.findViewById(R.id.badge_textView);
+        iconButtonMessages.setVisibility(View.GONE);
+        itemMessagesBadgeTextView.setVisibility(View.GONE);
+
+        View menuChat = menu.findItem(R.id.menu_email).getActionView();
+        IconButton iconButtonChat = (IconButton) menuChat.findViewById(R.id.iconButton);
+        iconButtonChat.setVisibility(View.GONE);
     }
 
     public void retornoUsuarioWebService(Usuario usu){
@@ -152,9 +178,17 @@ public class PedidosEnviadosFragment extends Fragment implements WebServiceRetur
 
     @Override
     public void retornoObterHora(String hoje){
+        Collections.sort(listDataHeader, new CustomComparator());
         listAdapter = new TransacaoEnvAdapter(getActivity(),listDataHeader, listDataChild,hoje);
         // setting list adapter
         expListView.setAdapter(listAdapter);
+    }
+
+    public class CustomComparator implements Comparator<Transacao> {// may be it would be Model
+        @Override
+        public int compare(Transacao obj1, Transacao obj2) {
+            return obj2.getDataPedido().compareTo(obj1.getDataPedido());// compare two objects
+        }
     }
 
     public void mensagem()

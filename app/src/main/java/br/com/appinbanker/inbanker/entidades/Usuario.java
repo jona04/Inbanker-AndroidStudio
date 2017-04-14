@@ -36,6 +36,9 @@ public class Usuario {
     @JsonProperty("sexo")
     private String sexo;
 
+    @JsonProperty("adicionado_em")
+    private String adicionado_em;
+
     @JsonProperty("cartaoPagamento")
     private List<CartaoPagamento> cartao_pagamento;
 
@@ -160,4 +163,13 @@ public class Usuario {
     public String getUrl_face() {
         return url_face;
     }
+
+    public String getAdicionado_em() {
+        return adicionado_em;
+    }
+
+    public void setAdicionado_em(String adicionado_em) {
+        this.adicionado_em = adicionado_em;
+    }
+
 }

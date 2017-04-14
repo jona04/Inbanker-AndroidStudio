@@ -21,6 +21,15 @@ public class AllSharedPreferences extends Activity {
     //public static final String ID_FACE = "id_face";
     //public static final String CPF = "cpf";
 
+    public static final String VERIFY_TUTORIAL_INICIO = "verify_tutorial_inicio";
+    public static final String VERIFY_TUTORIAL_MENSAGEM = "verify_tutorial_mensagem";
+    public static final String VERIFY_TUTORIAL_NOTIFICACOES = "verify_tutorial_notificacoes";
+    public static final String VERIFY_TUTORIAL_PEDIR_LOGAR_FACE = "verify_tutorial_pedir_logar_face";
+    public static final String VERIFY_TUTORIAL_PEDIR_LISTA_AMIGOS = "verify_tutorial_pedir_lista_amigos";
+    public static final String VERIFY_TUTORIAL_PAGAMENTO = "verify_tutorial_pagamento";
+    public static final String VERIFY_TUTORIAL_HISTORICO = "verify_tutorial_historico";
+    public static final String VERIFY_TUTORIAL_SIMULADOR = "verify_tutorial_simulador";
+
     public static void putPreferences(String name, String item, Context classe){
 
         try {
@@ -39,6 +48,37 @@ public class AllSharedPreferences extends Activity {
         }catch (Exception e){
             Log.i("Excpetion","Erro putPreferences ="+e);
             return "";
+        }
+    }
+
+    public static void putPreferencesBooleanTrue(String name, Context classe){
+
+        try {
+            SharedPreferences pref_local = classe.getSharedPreferences(PREFS_LOCAL, Context.MODE_PRIVATE);
+            pref_local.edit().putBoolean(name, true).apply();
+        }catch (Exception e){
+            Log.i("Excpetion","Erro putPreferences ="+e);
+        }
+    }
+
+    public static void putPreferencesBooleanFalse(String name, Context classe){
+
+        try {
+            SharedPreferences pref_local = classe.getSharedPreferences(PREFS_LOCAL, Context.MODE_PRIVATE);
+            pref_local.edit().putBoolean(name, false).apply();
+        }catch (Exception e){
+            Log.i("Excpetion","Erro putPreferences ="+e);
+        }
+    }
+
+    public static boolean getPreferencesBoolean(String name, Context classe){
+
+        try {
+            SharedPreferences pref_local = classe.getSharedPreferences(PREFS_LOCAL, Context.MODE_PRIVATE);
+            return pref_local.getBoolean(name,false);
+        }catch (Exception e){
+            Log.i("Excpetion","Erro putPreferences ="+e);
+            return false;
         }
     }
 

@@ -6,13 +6,20 @@ import android.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.joanzapata.iconify.widget.IconButton;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -62,6 +69,10 @@ public class PagamentosPendentesFragment extends Fragment implements WebServiceR
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_pagamentos, container, false);
 
+        setHasOptionsMenu(true);
+
+        getActivity().setTitle("Contratos");
+
         progress_lista_pagamentos = (LinearLayout) view.findViewById(R.id.progress_lista_pagamentos);
 
         msg_lista_pagamentos = (RelativeLayout) view.findViewById(R.id.msg_lista_pagamentos);
@@ -96,6 +107,22 @@ public class PagamentosPendentesFragment extends Fragment implements WebServiceR
         });
 
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Do something that differs the Activity's menu here
+        super.onCreateOptionsMenu(menu, inflater);
+
+        View menuNotificacao = menu.findItem(R.id.menu_notificacao).getActionView();
+        IconButton iconButtonMessages = (IconButton) menuNotificacao.findViewById(R.id.iconButton);
+        TextView itemMessagesBadgeTextView = (TextView) menuNotificacao.findViewById(R.id.badge_textView);
+        iconButtonMessages.setVisibility(View.GONE);
+        itemMessagesBadgeTextView.setVisibility(View.GONE);
+
+        View menuChat = menu.findItem(R.id.menu_email).getActionView();
+        IconButton iconButtonChat = (IconButton) menuChat.findViewById(R.id.iconButton);
+        iconButtonChat.setVisibility(View.GONE);
     }
 
     public void retornoUsuarioWebService(Usuario usu){
@@ -149,9 +176,19 @@ public class PagamentosPendentesFragment extends Fragment implements WebServiceR
 
     @Override
     public void retornoObterHora(String hoje){
+
+        Collections.sort(listDataHeader, new CustomComparator());
         listAdapter = new TransacaoPendenteAdapter(getActivity(),listDataHeader, listDataChild,hoje);
         // setting list adapter
         expListView.setAdapter(listAdapter);
+
+    }
+
+    public class CustomComparator implements Comparator<Transacao> {// may be it would be Model
+        @Override
+        public int compare(Transacao obj1, Transacao obj2) {
+            return obj2.getDataPedido().compareTo(obj1.getDataPedido());// compare two objects
+        }
     }
 
     public void mensagem()
@@ -164,8 +201,6 @@ public class PagamentosPendentesFragment extends Fragment implements WebServiceR
     }
 
     private void setValue(List<Transacao> forums) {
-
-        Transacao f = new Transacao();
 
         listDataHeader = new ArrayList<Transacao>();
         listDataChild = new HashMap<String,Transacao>();

@@ -10,19 +10,23 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
+
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.util.AllSharedPreferences;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.EnviaEmailMensagem;
 
 public class TelaEnviaMensagem extends AppCompatActivity implements WebServiceReturnString {
 
     private ProgressDialog progress;
-    private TextView nome_usuario;
     private Button btn_enviar_mensagem;
-    private EditText et_mensagem,et_email;
+    private EditText et_mensagem,et_email,et_titulo_mensagem,nome_usuario;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,8 +48,9 @@ public class TelaEnviaMensagem extends AppCompatActivity implements WebServiceRe
 
         et_email = (EditText) findViewById(R.id.et_email);;
         btn_enviar_mensagem = (Button) findViewById(R.id.btn_enviar_mensagem);
-        nome_usuario = (TextView) findViewById(R.id.nome_usuario);
+        nome_usuario = (EditText) findViewById(R.id.nome_usuario);
         et_mensagem = (EditText) findViewById(R.id.et_mensagem);
+        et_titulo_mensagem = (EditText) findViewById(R.id.et_titulo_mensagem);
 
         et_email.setText(email);
         nome_usuario.setText(nome_usu_logado);
@@ -54,13 +59,25 @@ public class TelaEnviaMensagem extends AppCompatActivity implements WebServiceRe
             @Override
             public void onClick(View view) {
                 if(clickEnviaMensagem()) {
-                    new EnviaEmailMensagem(usu, et_mensagem.getText().toString(), TelaEnviaMensagem.this).execute();
+                    new EnviaEmailMensagem(usu, et_mensagem.getText().toString(),et_titulo_mensagem.getText().toString(), TelaEnviaMensagem.this).execute();
 
                     progress = ProgressDialog.show(TelaEnviaMensagem.this, "Enviando Mensagem",
                             "Olá, esse processo pode demorar alguns segundos...", true);
                 }
             }
         });
+
+        if(AllSharedPreferences.getPreferencesBoolean(AllSharedPreferences.VERIFY_TUTORIAL_MENSAGEM,this)==false) {
+            new ShowcaseView.Builder(this)
+                    .setStyle(R.style.CustomShowcaseTheme)
+                    .withMaterialShowcase()
+                    .setContentTitle("Entre em contato conosco")
+                    .setContentText("Utilize essa sessão para nos enviar sugestões, reclamações ou qualquer tipo de contato.")
+                    .build();
+
+            AllSharedPreferences.putPreferencesBooleanTrue(AllSharedPreferences.VERIFY_TUTORIAL_MENSAGEM,this);
+
+        }
 
     }
 
@@ -73,6 +90,15 @@ public class TelaEnviaMensagem extends AppCompatActivity implements WebServiceRe
             et_email.setError("Informe Email");
             et_email.setFocusable(true);
             et_email.requestFocus();
+
+            campos_ok = false;
+        }
+
+        boolean dialog_titulo = Validador.validateNotNull(et_titulo_mensagem.getText().toString());
+        if(!dialog_titulo){
+            et_titulo_mensagem.setError("Informe o assunto");
+            et_titulo_mensagem.setFocusable(true);
+            et_titulo_mensagem.requestFocus();
 
             campos_ok = false;
         }

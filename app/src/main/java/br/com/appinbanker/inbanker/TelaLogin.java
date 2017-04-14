@@ -2,10 +2,12 @@ package br.com.appinbanker.inbanker;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -38,6 +40,8 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.util.FunctionUtil;
+import br.com.appinbanker.inbanker.util.Mask;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AtualizaTokenGcm;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
@@ -54,15 +58,19 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
     private EditText et_cpf,et_senha;
     private Button btn_entrar_usuario,btn_esqueceu_senha;
 
-    private ProgressBar progress_bar_entrar,progress_bar_esq_senha;
+    private ProgressBar progress_bar_esq_senha;
+
+    ProgressDialog progress;
 
     private Dialog dialog;
-    private EditText et_dialog_senha;
+    private EditText et_dialog_cpf;
     private Button btn_confirmar_esq_senha;
     private Button btn_voltar_esq_senha;
 
     //dado face
     private String id_face,nome_face,email_face,url_img_face;
+
+    private TextWatcher cpfMask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +101,10 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
                 //chamamos o metedo graphFacebook para obter os dados do usuario logado
                 //passando como parametro o accessToken gerado no login
                 graphFacebook(loginResult.getAccessToken());
-                progress_bar_entrar.setVisibility(View.VISIBLE);
+
+                progress = ProgressDialog.show(TelaLogin.this, "Verificando Dados",
+                        "Olá, esse processo pode demorar alguns segundos...", true);
+
             }
 
             @Override
@@ -110,9 +121,11 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
 
         });
 
-        progress_bar_entrar = (ProgressBar) findViewById(R.id.progress_bar_entrar);
         et_cpf = (EditText) findViewById(R.id.et_entrar_cpf);
         et_senha = (EditText) findViewById(R.id.et_entrar_senha);
+
+        cpfMask = Mask.insert("###.###.###-##", et_cpf);
+        et_cpf.addTextChangedListener(cpfMask);
 
         et_senha.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -155,13 +168,13 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
                 progress_bar_esq_senha = (ProgressBar) dialog.findViewById(R.id.progress_bar_esq_senha);
                 btn_confirmar_esq_senha = (Button) dialog.findViewById(R.id.btn_confirmar_esq_senha);
                 btn_voltar_esq_senha = (Button) dialog.findViewById(R.id.btn_voltar_esq_senha);
-                et_dialog_senha = (EditText) dialog.findViewById(R.id.et_dialog_senha);
+                et_dialog_cpf = (EditText) dialog.findViewById(R.id.et_dialog_cpf);
 
                 btn_confirmar_esq_senha.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         if(clickRecuperaSenha()) {
-                            new BuscaUsuarioCPFAux(et_dialog_senha.getText().toString(),TelaLogin.this, TelaLogin.this).execute();
+                            new BuscaUsuarioCPFAux(et_dialog_cpf.getText().toString(),TelaLogin.this, TelaLogin.this).execute();
                             progress_bar_esq_senha.setVisibility(View.VISIBLE);
                             btn_confirmar_esq_senha.setEnabled(false);
                             btn_voltar_esq_senha.setEnabled(false);
@@ -196,20 +209,20 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
 
         boolean campos_ok = true;
 
-        boolean cpf_valido = Validador.isCPF(et_dialog_senha.getText().toString());
+        boolean cpf_valido = Validador.isCPF(et_dialog_cpf.getText().toString());
         if(!cpf_valido){
-            et_dialog_senha.setError("CPF inválido");
-            et_dialog_senha.setFocusable(true);
-            et_dialog_senha.requestFocus();
+            et_dialog_cpf.setError("CPF inválido");
+            et_dialog_cpf.setFocusable(true);
+            et_dialog_cpf.requestFocus();
 
             campos_ok = false;
         }
 
-        boolean dialog_senha = Validador.validateNotNull(et_dialog_senha.getText().toString());
+        boolean dialog_senha = Validador.validateNotNull(et_dialog_cpf.getText().toString());
         if(!dialog_senha){
-            et_dialog_senha.setError("Informe CPF");
-            et_dialog_senha.setFocusable(true);
-            et_dialog_senha.requestFocus();
+            et_dialog_cpf.setError("Informe CPF");
+            et_dialog_cpf.setFocusable(true);
+            et_dialog_cpf.requestFocus();
 
             campos_ok = false;
         }
@@ -223,7 +236,7 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
 
         boolean campos_ok = true;
 
-        boolean email_valido = Validador.isCPF(et_cpf.getText().toString());
+        boolean email_valido = Validador.isCPF(Mask.unmask(et_cpf.getText().toString()));
         if(!email_valido){
             et_cpf.setError("CPF inválido");
             et_cpf.setFocusable(true);
@@ -243,10 +256,13 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
 
 
         if(campos_ok) {
-            progress_bar_entrar.setVisibility(View.VISIBLE);
+
+            progress = ProgressDialog.show(TelaLogin.this, "Verificando Dados",
+                    "Olá, esse processo pode demorar alguns segundos...", true);
+
             btn_entrar_usuario.setEnabled(false);
 
-            new BuscaUsuarioCPF(et_cpf.getText().toString(), this, this).execute();
+            new BuscaUsuarioCPF(Mask.unmask(et_cpf.getText().toString()), this, this).execute();
         }
 
     }
@@ -256,7 +272,7 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
 
         if(usu != null){
 
-            if(usu.getSenha().equals(et_senha.getText().toString())) {
+            if(usu.getSenha().equals(FunctionUtil.md5(et_senha.getText().toString()))) {
 
                 String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,TelaLogin.this);
                 String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,TelaLogin.this);
@@ -279,6 +295,8 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
                 String resultado = crud.insereDado(usu.getNome(),usu.getEmail(),usu.getCpf(),usu.getSenha(),usu.getId_face(),usu.getUrl_face(),token,device_id);
                 Log.i("Banco SQLITE","resultado login inicio = "+resultado);
 
+                progress.dismiss();
+
                 direcionarNavigationDrawer();
 
 
@@ -287,15 +305,15 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
 
 
                 btn_entrar_usuario.setEnabled(true);
-                progress_bar_entrar.setVisibility(View.GONE);
+                progress.dismiss();
             }
         }else{
 
 
-            mensagem("Houve um erro!","Olá, parece que houve um problema no login ou o seu CPF não está cadastrado. Favor tente novamente!","oK");
+            mensagem("Houve um erro!","Olá, parece que houve um problema no login ou o seu CPF não está cadastrado. Verifique a conexão e tente novamente!","oK");
 
             btn_entrar_usuario.setEnabled(true);
-            progress_bar_entrar.setVisibility(View.GONE);
+            progress.dismiss();
         }
 
 
@@ -347,7 +365,7 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
 
                                 mensagem("Houve um erro!","Ola, parece que tivemos um erro de conexão, por favor tente novamente","OK");
 
-                                progress_bar_entrar.setVisibility(View.GONE);
+                                progress.dismiss();
                             }
                         }
                     });
@@ -357,7 +375,7 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
         catch (Exception e){
             Log.i("Facebook","Exception graph facebook = "+e);
 
-            progress_bar_entrar.setVisibility(View.GONE);
+            progress.dismiss();
         }
     }
 
@@ -401,7 +419,7 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
 
                             mensagem("Houve um erro!","Ola, parece que tivemos um erro de conexão, por favor tente novamente","OK");
 
-                            progress_bar_entrar.setVisibility(View.GONE);
+                            progress.dismiss();
                         }
                     }
                 }
@@ -431,6 +449,8 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
 
     @Override
     public void retornoUsuarioWebServiceFace(Usuario usu) {
+
+        progress.dismiss();
 
         String device_id = AllSharedPreferences.getPreferences(AllSharedPreferences.DEVICE_ID,TelaLogin.this);
         String token = AllSharedPreferences.getPreferences(AllSharedPreferences.TOKEN_GCM,TelaLogin.this);
@@ -472,8 +492,6 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
             direcionarNavigationDrawer();
         }
 
-        progress_bar_entrar.setVisibility(View.GONE);
-
     }
 
     public static String removerAcentos(String str) {
@@ -487,7 +505,6 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
         btn_voltar_esq_senha.setEnabled(true);
         if(result!=null) {
             if (result.equals("feito")){
-
                 mensagem("Nova senha enviada","Olá, uma nova senha foi enviada para seu email cadastrado.","Ok");
             }else{
                 mensagem("Erro mensagem!","Olá, houve um erro no envio da sua senha. Por favor tente novamente.","Ok");

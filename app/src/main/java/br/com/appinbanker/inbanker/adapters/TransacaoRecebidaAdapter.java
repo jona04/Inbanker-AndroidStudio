@@ -248,7 +248,6 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
 
         }
 
-
         //Log.i("Enviados","dias = "+dias+ " - " +hoje);
 
         double juros_mensal = Double.parseDouble(item.getValor()) * (0.00066333 * dias);
@@ -267,7 +266,6 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
 
         int status_transacao = Integer.parseInt(item.getStatus_transacao());
 
-
         switch (status_transacao){
             case Transacao.AGUARDANDO_RESPOSTA:
                 ll_resposta_pedido_child.setVisibility(View.VISIBLE);
@@ -280,9 +278,7 @@ public class TransacaoRecebidaAdapter extends BaseExpandableListAdapter implemen
                 msg_ver_pedido_child.setVisibility(View.VISIBLE);
                 msg_ver_pedido_child.setText("Você esta aguardando que seu amigo(a) " + trans_global.getNome_usu1() + " confirme o recebimento do valor.");
 
-
                 break;
-
         }
 
         btn_aceita_pedido.setOnClickListener(new View.OnClickListener() {

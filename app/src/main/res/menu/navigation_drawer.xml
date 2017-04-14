@@ -9,21 +9,21 @@
         app:showAsAction="always" /> -->
     <item
         android:id="@+id/menu_notificacao"
-        android:orderInCategory="100"
-        android:title="@string/menu_notificacao"
-        app:actionLayout="@layout/badge_menu_layout"
+        android:orderInCategory="300"
+        android:title=""
+        app:actionLayout="@layout/badge_menu_layout_sino"
         app:showAsAction="always"/>
 
     <item
         android:id="@+id/menu_email"
-        android:orderInCategory="100"
-        android:title="@string/menu_notificacao"
-        android:icon="@android:drawable/sym_action_chat"
+        android:orderInCategory="200"
+        android:title=""
+        app:actionLayout="@layout/badge_menu_layout_chat"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/menu_sair"
-        android:orderInCategory="100"
+        android:orderInCategory="300"
         android:title="@string/menu_sair"
         app:showAsAction="always" />
 </menu>

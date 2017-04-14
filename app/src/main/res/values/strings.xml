@@ -11,6 +11,10 @@
     <string name="menu_minha_conta">Minha Conta</string>
     <string name="menu_sair">Sair</string>
 
+    <string name="menu_editar_senha">Alterar senha</string>
+    <string name="menu_editar_dados">Alterar dados pessoais</string>
+    <string name="menu_editar_endereco">Alterar endereço</string>
+
     <string name="tv_data_pedido">Data do pedido: </string>
 
     <string name="app_id">379815145741560</string>
@@ -108,7 +112,7 @@
 \n3.2.2. O InBanker não terá qualquer obrigação de policiar ou fiscalizar os Dados Pessoais ou Dados de Conta fornecidos pelos usuários, mas poderá, ao seu exclusivo critério, excluir as informações que lhe pareçam inverídicas ou ofensivas.
 \n3.2.3. A senha e o Login criados pelo usuário para acesso à sua Conta InBanker são confidenciais e de responsabilidade exclusiva do usuário, que deverá entrar em contato com o InBanker, imediatamente, na hipótese de perda, roubo ou furto de tais dados. O InBanker não recomenda o uso, da mesma senha para diversos sites na internet/propósitos ou a inserção de Dados Pessoais ou Dados de Conta como parte da senha.
 \n3.2.4. O usuário está plenamente ciente e concorda que ao fornecer os seus Dados Pessoais ao InBanker, o usuário autoriza o InBanker a usar o Software para buscar Dados Financeiros Pessoais junto a instituições de proteção de crédito, sempre de maneira automatizada.
-\n3.2.5. Ao aceitar este "Termo e Condições de Uso" o usuário autoriza o InBanker a cobrar, o preço devido equivalente a Taxa de Administração, assim como quaisquer outros valores de tributos/impostos exigidos por lei e obrigatórios para a utilização do serviço InBanker, que serão indicados em tela antes da confirmação da solicitação e que deve ser pago imediatamente após a confirmação do Pedido de Empréstimo pelo usuário, o pagamento será facilitado pela InBanker mediante o método de pagamento indicado na sua Conta, após a confirmação o InBanker enviará um recibo por e-mail.
+\n3.2.5. Ao aceitar este "Termo e Condições de Uso" o usuário autoriza o InBanker a cobrar, o preço devido equivalente a Taxa de Serviço, assim como quaisquer outros valores de tributos/impostos exigidos por lei e obrigatórios para a utilização do serviço InBanker, que serão indicados em tela antes da confirmação da solicitação e que deve ser pago imediatamente após a confirmação do Pedido de Empréstimo pelo usuário, o pagamento será facilitado pela InBanker mediante o método de pagamento indicado na sua Conta, após a confirmação o InBanker enviará um recibo por e-mail.
 \n3.2.5.1. Caso não seja possível compensar a totalidade de um valor devido, seja por motivo de expiração, fundos insuficientes ou outro, o usuário continuará responsável pela totalidade de valores a pagar não cobrados e autoriza o InBanker a continuar a cobrança dos valores por meio de outras formas de pagamento, cuja escolha, ficará a critério do InBanker.
 \n3.2.6. A utilização do Software pelo usuário possui caráter pessoal e intransferível, unicamente para fins lícitos relacionados ao propósito a que o Site e o Aplicativo se destinam, nos termos deste Termo de Uso. Em nenhuma hipótese, o usuário terá acesso ao código fonte do Software ora licenciado, já que o código fonte do Software trata-se de propriedade intelectual do InBanker.
 \n3.3. Os usuários autorizam o InBanker e suas afiliadas, diretores, empregados, agentes e prestadoras de serviços contratadas, a notificar e realizar cobranças em seu nome, incluindo, mas não limitado a, solicitação de inclusão do nome dos mesmos em listas de órgãos de proteção ao crédito, bem como, caso perpetue a divida, requerer a cobrança por meio de ação judicial, resultantes da eventual inadimplência por qualquer das partes, acarretando na violação das condições ora pactuadas.
@@ -166,8 +170,8 @@
 \n11.3. O usuário entende e concorda que, assim que publicada a alteração deste Termo de Uso/Política de Privacidade no Site ou no Aplicativo, o uso do Site e do Aplicativo passarão a ser submetido ao Termo de Uso/Política de Privacidade atualizados.
 \n\n12. DAS LEIS E FORO APLICÁVEIS:
 \n12.1. Este Termo de Uso será interpretado exclusivamente segundo as leis do Brasil.
-\n\n13. DAS TAXAS DE JUROS E TAXAS DE ADMINISTRAÇÃO DO INBANKER:
-\n13.1 Os usuários estarão de pleno acordo com as taxas de juros e administração, como está claramente descrita na tabela abaixo:
+\n\n13. DAS TAXAS DE JUROS E TAXAS DE SERVIÇO DO INBANKER:
+\n13.1 Os usuários estarão de pleno acordo com as taxas de juros e serviço, como está claramente descrita na tabela abaixo:
 
 \n\n14. DISPOSIÇÕES GERAIS:
 \n14.1. Este Termo de Uso não gera nenhum contrato de sociedade, de mandato, franquia ou relação de trabalho entre o InBanker e o usuário, seus parceiros e/ou Anunciantes.
@@ -196,6 +200,7 @@ As cláusulas contratuais deste Termo de Uso foram atualizadas pela última vez 
     <string name="title_activity_simulador_pedido">Simular pedido</string>
     <string name="title_activity_simulador_resultado">Resultado simulação</string>
     <string name="title_activity_minha_conta">Minha Conta</string>
+    <string name="title_activity_inicio">Inicio</string>
     <string name="title_activity_ajuda">Ajuda</string>
     <string name="title_activity_tela_pagamento">Pagamento</string>
 

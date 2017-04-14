@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:background="#fff">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/tv_msg_dialog_cadastro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Utilize os campos abaixo para atualizar seus dados."
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#ccc"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_below="@id/tv_msg_dialog_cadastro"
+            />
+
+        <LinearLayout
+            android:layout_below="@+id/tv_msg_dialog_cadastro"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/size_fields_tv"
+                    android:text="Informe seu CEP:"/>
+                <EditText
+                    android:id="@+id/et_edita_cep"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Informe seu CEP"
+                    android:inputType="number"
+                    android:textColor="#000"
+                    android:imeOptions="actionNext"
+                    android:textSize="13sp"
+                    android:lines="1"/>
+            </LinearLayout>
+
+
+            <EditText
+                android:id="@+id/et_edita_logradouro"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Informe a rua"
+                android:enabled="false"
+                android:textSize="13sp"
+                android:textColor="#000"
+                android:imeOptions="actionNext"
+                android:lines="1"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/size_fields_tv"
+                    android:text="Informe o numero:"/>
+                <EditText
+                    android:id="@+id/et_edita_numero"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint=""
+                    android:inputType="number"
+                    android:textSize="13sp"
+                    android:imeOptions="actionNext"
+                    android:lines="1"
+                    android:textColor="#000"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/size_fields_tv"
+                    android:text="Informe o complemento"/>
+                <EditText
+                    android:id="@+id/et_edita_complemento"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:inputType="text"
+                    android:hint=""
+                    android:lines="1"
+                    android:textColor="#000"/>
+            </LinearLayout>
+            <EditText
+                android:id="@+id/et_edita_bairro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:enabled="false"
+                android:hint="Informe o bairro"
+                android:imeOptions="actionNext"
+                android:lines="1"
+                android:textColor="#000"/>
+
+            <EditText
+                android:id="@+id/et_edita_cidade"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Informe a cidade"
+                android:textSize="13sp"
+                android:enabled="false"
+                android:imeOptions="actionNext"
+                android:lines="1"
+                android:textColor="#000"/>
+
+            <EditText
+                android:id="@+id/et_edita_estado"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Informe o estado"
+                android:enabled="false"
+                android:textSize="13sp"
+                android:imeOptions="actionNext"
+                android:lines="1"
+                android:textColor="#000"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="30dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_cancela_editar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:text="Voltar"
+                    android:textColor="#3e3e3e"
+                    android:textSize="13sp"
+                    />
+
+                <Button
+                    android:id="@+id/btn_atualiza_usuario"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="#3e3e3e"
+                    android:background="@drawable/borda_cinza"
+                    android:layout_marginLeft="20dp"
+                    android:textSize="15sp"
+                    android:padding="10dp"
+                    android:text="Atualizar"
+                    />
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </RelativeLayout>
+</ScrollView>

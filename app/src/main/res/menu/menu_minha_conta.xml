@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_editar_senha"
+        android:orderInCategory="300"
+        android:title="@string/menu_editar_senha"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/menu_editar_dados"
+        android:orderInCategory="200"
+        android:title="@string/menu_editar_dados"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_editar_endereco"
+        android:orderInCategory="200"
+        android:title="@string/menu_editar_endereco"
+        app:showAsAction="never" />
+</menu>

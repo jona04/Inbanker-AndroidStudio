@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="spinner_sexo">
+
+        <item>Feminino</item>
+        <item>Masculino</item>
+
+    </string-array>
+</resources>
