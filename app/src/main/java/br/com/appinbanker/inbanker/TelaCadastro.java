@@ -21,6 +21,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.github.pinball83.maskededittext.MaskedEditText;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import org.json.JSONObject;
 
@@ -34,6 +36,7 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringCPF;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringEmail;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.util.AnalyticsApplication;
 import br.com.appinbanker.inbanker.util.FunctionUtil;
 import br.com.appinbanker.inbanker.util.Mask;
 import br.com.appinbanker.inbanker.util.Validador;
@@ -66,10 +69,19 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
     private TextWatcher nascMask;
     private TextWatcher cepMask;
 
+    private Tracker mTracker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_tela_cadastro);
+
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+
+        mTracker.setScreenName("TelaCadastro");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
         et_cpf = (EditText) findViewById(R.id.et_cpf);
         et_nasc = (EditText) findViewById(R.id.et_nasc);
@@ -147,12 +159,24 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
         btn_ver_termos_uso.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btns_TelaCadastro")
+                        .setAction("Ver_termos_uso")
+                        .build());
+
                 dialog_termos_uso();
             }
         });
         btn_ver_politica_privacidade.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btns_TelaCadastro")
+                        .setAction("ver_politica_privacidade")
+                        .build());
+
                 dialog_politica_privacidade();
             }
         });
@@ -160,8 +184,24 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
             @Override
             public void onClick(View view) {
 
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btns_TelaCadastro")
+                        .setAction("ContinuarCPF")
+                        .build());
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btn_Cadastro_CPF")
+                        .setAction("Click_continuar")
+                        .build());
+
                 boolean valida_cpf = Validador.isCPF(Mask.unmask(et_cpf.getText().toString()));
                 if(!valida_cpf){
+
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("Btn_Cadastro_CPF")
+                            .setAction("Error_cpf_invalido")
+                            .build());
+
                     et_cpf.setError("CPF Inválido");
                     et_cpf.setFocusable(true);
                     et_cpf.requestFocus();
@@ -176,6 +216,12 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
         btn_cadastrar_continuar_endereco.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btns_TelaCadastro")
+                        .setAction("ContinuarEndereco")
+                        .build());
+
                 verificaEndereco();
             }
         });
@@ -184,6 +230,11 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
         btn_cadastrar_continuar_senha.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btns_TelaCadastro")
+                        .setAction("ContinuarSenha")
+                        .build());
 
                 progress = ProgressDialog.show(TelaCadastro.this, "Verificando Dados",
                         "Olá, esse processo pode demorar alguns segundos...", true);
@@ -204,6 +255,12 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
         btn_cadastrar_usuario.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btns_TelaCadastro")
+                        .setAction("Cadastrar")
+                        .build());
+
                 verificaEmail();
 
             }
@@ -307,8 +364,20 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
             }
 
             if(nome.equals(null) || nome.equals("null")){
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btn_Cadastro_CPF")
+                        .setAction("cpf_nao_encontrado_receita")
+                        .build());
+
                 mensagem("CPF","Olá, o CPF não foi encontrado, verifique o número informado e tente novamente","Ok");
             }else {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btn_Cadastro_CPF")
+                        .setAction("cpf_encontrado_receita")
+                        .build());
+
                 //informacoes referente ao nome cpf
                 ll_et_nome.setVisibility(View.VISIBLE);
                 et_nome.setText(nome);
@@ -320,6 +389,12 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
                 btn_cadastrar_continuar_endereco.setVisibility(View.VISIBLE);
             }
         }else{
+
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("Btn_Cadastro_CPF")
+                    .setAction("cpf_nao_encontrado_na_receita")
+                    .build());
+
             mensagem("CPF","Olá, o CPF não foi encontrado, verifique o número informado e tente novamente","Ok");
        }
 
@@ -518,6 +593,11 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
                 //envia email para usuario recem cadastro
                 new EnviaEmail(usu_cadastro).execute();
 
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btns_TelaCadastro")
+                        .setAction("Usuario_cadastro_redirecionado")
+                        .build());
+
                 direcionarNavigationDrawer();
 
             } else {
@@ -592,8 +672,19 @@ public class TelaCadastro extends AppCompatActivity implements WebServiceReturnC
             if(result.equals("vazio")) {
                 //realiza cadastro
 
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btn_Cadastro_CPF")
+                        .setAction("cpf_nao_existe_no_banco_mongo")
+                        .build());
+
                 verificaCpfReceita();
             }else{
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btn_Cadastro_CPF")
+                        .setAction("Error_ja_existe_no_banco_mongo")
+                        .build());
+
                 //erro
                 progress.dismiss();
                 mensagem("CPF já existe!","Olá, o CPF informado já existe. Por favor tente outro!","Ok");

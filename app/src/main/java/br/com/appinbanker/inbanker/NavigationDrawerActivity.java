@@ -1,12 +1,12 @@
 package br.com.appinbanker.inbanker;
 
-import android.app.FragmentManager;
+import android.support.v4.app.FragmentManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -24,6 +24,9 @@ import android.widget.TextView;
 
 import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.joanzapata.iconify.widget.IconButton;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
@@ -41,6 +44,7 @@ import br.com.appinbanker.inbanker.fragments_navigation.PedidosRecebidosFragment
 import br.com.appinbanker.inbanker.fragments_navigation.PedirEmprestimoFragment;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.util.AnalyticsApplication;
 import br.com.appinbanker.inbanker.webservice.AtualizaTokenGcm;
 
 public class NavigationDrawerActivity extends AppCompatActivity
@@ -59,6 +63,12 @@ public class NavigationDrawerActivity extends AppCompatActivity
     Fragment fragment = null;
     Class fragmentClass;
 
+    //private FirebaseAnalytics mFirebaseAnalytics;
+
+    String nome_usu_logado;
+
+    private Tracker mTracker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -69,6 +79,13 @@ public class NavigationDrawerActivity extends AppCompatActivity
         setContentView(R.layout.activity_navigation_drawer);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_navigation_drawer); //app_bar_navigation_drawer.xml
         setSupportActionBar(toolbar);
+
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getApplicationContext();
+        mTracker = application.getDefaultTracker();
+
+        // Obtain the FirebaseAnalytics instance.
+        //mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout); //activity_navigation_drawer.xml
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -95,7 +112,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
 
         if(cursor.getCount() > 0) {
             String url = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.URL_IMG_FACE));
-            String nome_usu_logado = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME));
+            nome_usu_logado = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME));
 
             TextView tv_nome_usu = (TextView) header.findViewById(R.id.tv_nome_usu_logado);
             tv_nome_usu.setText(nome_usu_logado);
@@ -147,7 +164,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
                 try {
                     fragmentClass = InicioFragment.class;
                     fragment = (Fragment) fragmentClass.newInstance();
-                    FragmentManager fragmentManager = getFragmentManager();
+                    FragmentManager fragmentManager = getSupportFragmentManager();
                     fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
                 }catch (Exception e){
                     Log.e("Excpetion","Botao voltar navgation excetopn = "+e);
@@ -190,8 +207,12 @@ public class NavigationDrawerActivity extends AppCompatActivity
         iconButtonMessages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //esconde badge
-                Log.i("Script","some bagde menu cartinha");
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Toolbar")
+                        .setAction("TelaNotificacoes")
+                        .setLabel(nome_usu_logado)
+                        .build());
 
                 Intent it = new Intent(NavigationDrawerActivity.this,TelaNotificacoes.class);
                 startActivity(it);
@@ -201,6 +222,19 @@ public class NavigationDrawerActivity extends AppCompatActivity
         iconButtonChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                Log.i("Script","some bagde menu TelaEnviaMensagem");
+
+                /*Bundle params = new Bundle();
+                params.putString("menu", "Fale COnosco Cartinha");
+                params.putString("nome_usu", nome_usu_logado);
+                mFirebaseAnalytics.logEvent("menu_toolbar_top", params);*/
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Toolbar")
+                        .setAction("TelaEnviaMensagem")
+                        .setLabel(nome_usu_logado)
+                        .build());
 
                 Intent it = new Intent(NavigationDrawerActivity.this,TelaEnviaMensagem.class);
                 startActivity(it);
@@ -250,36 +284,157 @@ public class NavigationDrawerActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
+        Bundle bundle = new Bundle();
+        Bundle params = new Bundle();
+
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_inicio:
+
+                /*bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "NavigationDraw");
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, nome_usu_logado);
+                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "InicioFragment");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);*/
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("NavigationDraw")
+                        .setAction("InicioFragment")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
+
                 fragmentClass = InicioFragment.class;
                 break;
             case R.id.nav_pedir_emprestimo:
+                /*bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "NavigationDraw");
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, nome_usu_logado);
+                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "PedirEmprestimoFragment");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);*/
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("NavigationDraw")
+                        .setAction("PedirEmprestimoFragment")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
+
                 fragmentClass = PedirEmprestimoFragment.class;
                 break;
             case R.id.nav_pedidos_enviados:
+
+                /*bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "NavigationDraw");
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, nome_usu_logado);
+                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "PedidosEnviadosFragment");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);*/
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("NavigationDraw")
+                        .setAction("PedidosEnviadosFragment")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
                 fragmentClass = PedidosEnviadosFragment.class;
                 break;
             case R.id.nav_pagamento:
+
+                /*Bundle bundle2 = new Bundle();
+                bundle2.putString(FirebaseAnalytics.Param.ITEM_ID, "NavigationDraw");
+                bundle2.putString(FirebaseAnalytics.Param.ITEM_NAME, nome_usu_logado);
+                bundle2.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "PagamentosPendentesFragment");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);*/
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("NavigationDraw")
+                        .setAction("ContratosFragment")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
+
                 fragmentClass = PagamentosPendentesFragment.class;
                 break;
             case R.id.nav_pedidos_recebidos:
+
+                /*bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "NavigationDraw");
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, nome_usu_logado);
+                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "PedidosRecebidosFragment");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);*/
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("NavigationDraw")
+                        .setAction("PedidosRecebidosFragment")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
                 fragmentClass = PedidosRecebidosFragment.class;
                 break;
             case R.id.nav_historico:
+
+                /*params.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "HistoricoFragment");
+                params.putString(FirebaseAnalytics.Param.ITEM_ID, nome_usu_logado);
+                mFirebaseAnalytics.logEvent("menu_drawer_1", params);*/
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("NavigationDraw")
+                        .setAction("HistoricoFragment")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
                 fragmentClass = HistoricoFragment.class;
                 break;
             case R.id.nav_minha_conta:
+
+                /*bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "NavigationDraw");
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, nome_usu_logado);
+                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "MinhaConta");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);*/
+
+
+                /*params.putString(FirebaseAnalytics.Param.ITEM_ID, nome_usu_logado);
+                params.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "MinhaConta");
+                mFirebaseAnalytics.logEvent("menu_drawer_1", params);*/
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("NavigationDraw")
+                        .setAction("MinhaConta")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
                 Intent intent = new Intent(this,MinhaConta.class);
                 startActivity(intent);
                 break;
             case R.id.nav_ajuda:
+
+                /*bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "NavigationDraw");
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, nome_usu_logado);
+                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Ajuda");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);*/
+
+                /*params.putString(FirebaseAnalytics.Param.ITEM_ID, nome_usu_logado);
+                params.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Ajuda");
+                mFirebaseAnalytics.logEvent("menu_drawer_1", params);*/
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("NavigationDraw")
+                        .setAction("Ajuda")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
                 Intent intent2 = new Intent(this,Ajuda.class);
                 startActivity(intent2);
                 break;
             case R.id.nav_sair:
+
+                /*bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "NavigationDraw");
+                bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, nome_usu_logado);
+                bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Sair");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);*/
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("NavigationDraw")
+                        .setAction("Sair")
+                        .setLabel(nome_usu_logado)
+                        .build());
 
                 //fragment qualquer para nao dar erro do try
                 fragmentClass = InicioFragment.class;
@@ -298,7 +453,7 @@ public class NavigationDrawerActivity extends AppCompatActivity
             e.printStackTrace();
         }
 
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
 
 

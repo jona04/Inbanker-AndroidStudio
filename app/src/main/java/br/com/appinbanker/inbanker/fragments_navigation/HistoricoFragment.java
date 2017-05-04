@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -21,6 +21,8 @@ import android.widget.TextView;
 
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.joanzapata.iconify.widget.IconButton;
 
 import java.util.ArrayList;
@@ -37,6 +39,7 @@ import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.util.AnalyticsApplication;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioHistoricoCPF;
 
 public class HistoricoFragment extends Fragment{
@@ -55,6 +58,8 @@ public class HistoricoFragment extends Fragment{
     private LinearLayout progress_lista_historico;
 
     private RelativeLayout msg_lista_historico;
+
+    private Tracker mTracker;
 
     public HistoricoFragment() {
         // Required empty public constructor
@@ -76,6 +81,13 @@ public class HistoricoFragment extends Fragment{
         setHasOptionsMenu(true);
 
         getActivity().setTitle("Histórico");
+
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
+
+        mTracker.setScreenName("HistoricoFragment");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
         progress_lista_historico = (LinearLayout) view.findViewById(R.id.progress_lista_historico);
 

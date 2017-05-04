@@ -3,7 +3,7 @@ package br.com.appinbanker.inbanker.fragments_navigation;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.joanzapata.iconify.widget.IconButton;
 
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringHora;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.util.AnalyticsApplication;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.ObterHora;
 
@@ -55,6 +58,7 @@ public class PedidosRecebidosFragment extends Fragment implements WebServiceRetu
 
     private RelativeLayout msg_lista_pedidos;
 
+    private Tracker mTracker;
 
     public PedidosRecebidosFragment() {
         // Required empty public constructor
@@ -75,6 +79,13 @@ public class PedidosRecebidosFragment extends Fragment implements WebServiceRetu
         setHasOptionsMenu(true);
 
         getActivity().setTitle("Pedidos Recebidos");
+
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
+
+        mTracker.setScreenName("PedidosRecebidosFragment");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
         progress_lista_pedidos_recebidos = (LinearLayout) view.findViewById(R.id.progress_lista_pedidos_recebidos);
 

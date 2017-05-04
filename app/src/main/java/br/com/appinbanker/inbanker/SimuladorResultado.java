@@ -18,6 +18,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.makeramen.roundedimageview.RoundedTransformationBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
@@ -43,6 +45,7 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.util.AnalyticsApplication;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioFace;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 import br.com.appinbanker.inbanker.webservice.ObterHora;
@@ -50,7 +53,7 @@ import br.com.appinbanker.inbanker.webservice.ObterHora;
 public class SimuladorResultado extends AppCompatActivity implements WebServiceReturnStringHora,WebServiceReturnUsuarioFace {
 
     double valor;
-    String id,nome,vencimento,url_img;
+    String id,nome,vencimento,url_img,nome_usu_logado;
     int dias;
     TextView tv_nome,tv_valor,tv_vencimento,tv_dias_pagamento,tv_juros_mes,tv_valor_total,tv_valor_juros,tv_valor_servico;
     Transacao trans;
@@ -65,10 +68,20 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
     private Usuario usu_add_trasacao;
 
+    private Tracker mTracker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_simulador_resultado);
+
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+
+        mTracker.setScreenName("SimuladorResultado");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
 
         trans = new Transacao();
 
@@ -88,6 +101,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         //Log.i("Script","Valor valor ="+valor);
         */
 
+        nome_usu_logado = it.getStringExtra("nome_usu_logado");
         id = it.getStringExtra("id");
         nome = removerAcentos(it.getStringExtra("nome"));
         vencimento = it.getStringExtra("vencimento");
@@ -172,15 +186,52 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
             @Override
             public void onClick(View v) {
 
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("SimuladorResultado")
+                        .setAction("Click_fazer_pedido_simulador")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Ciclo_pedido")
+                        .setAction("Click_fazer_pedido_simulador")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
+
                 BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
                 Cursor cursor = crud.carregaDados();
                 String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
                 //se usuario nao tiver o cpf cadastrado, mostramos o dialog para cadastrar, se nao continuamos o pedido mostramos o dialog de senha
                 if(cpf.equals("")){
 
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("SimuladorResultado")
+                            .setAction("usuario_nao_possui_cadastro_simulador")
+                            .setLabel(nome_usu_logado)
+                            .build());
+
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("Ciclo_pedido")
+                            .setAction("usuario_possui_cadastro_simulador")
+                            .setLabel(nome_usu_logado)
+                            .build());
+
                     mensagemIntent("Cadastro","Olá, você ainda não possui cadastro no InBanker. Deseja cadastrar-se?","Sim","Não");
 
                 }else {
+
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("SimuladorResultado")
+                            .setAction("usuario_possui_cadastro_simulador")
+                            .setLabel(nome_usu_logado)
+                            .build());
+
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("Ciclo_pedido")
+                            .setAction("usuario_possui_cadastro_simulador")
+                            .setLabel(nome_usu_logado)
+                            .build());
 
                     buscaUsuarioFace();
 
@@ -215,6 +266,19 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
         if(usu != null) {
             if(usu.getCpf().equals("")){
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("SimuladorResultado")
+                        .setAction("usuario_ainda_nao_completou_o_cadastro")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Ciclo_pedido")
+                        .setAction("usuario_ainda_nao_completou_o_cadastro")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
                 mensagem("Falha no envio!", "Olá, seu amigo(a) "+usu.getNome()+" ainda não completou o cadastro. Solicite que ele vá em configurações e atualize seus dados.", "Ok");
 
                 //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
@@ -244,6 +308,19 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         Log.i("Script","Result hora = "+hoje);
         if(hoje!=null) {
             if (hoje.equals("error")) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("SimuladorResultado")
+                        .setAction("Parece_que_houve_erro_conexao_hora")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Ciclo_pedido")
+                        .setAction("Parece_que_houve_erro_conexao_hora")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
                 mensagem("Houve um erro!", "Parece que houve um erro de conexão, por favor tente novamente.", "Ok");
 
                 //habilitamos novamente o botao de fazer pedido e tiramos da tela o progress bar
@@ -252,6 +329,18 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
 
             } else {
                 Log.i("SimuladorResultado","Hora seridor = "+hoje);
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("SimuladorResultado")
+                        .setAction("Pedido_verificado_para_pagamento")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Ciclo_pedido")
+                        .setAction("Pedido_verificado_para_pagamento")
+                        .setLabel(nome_usu_logado)
+                        .build());
 
                 //pegamos o token do usuario para usar na notificação
                 token_user2 = usu_add_trasacao.getToken_gcm();
@@ -290,6 +379,7 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
                 it.putExtra("transacao",trans);
                 it.putExtra("token_user2",token_user2);
                 it.putExtra("email_user2",email_user2);
+                it.putExtra("nome_usu_logado",nome_usu_logado);
                 startActivity(it);
             }
         }else{
@@ -322,6 +412,19 @@ public class SimuladorResultado extends AppCompatActivity implements WebServiceR
         mensagem.setNeutralButton(botao_neutro,null);
         mensagem.setPositiveButton(botao_positivo,new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("SimuladorResultado")
+                        .setAction("click_positivo_cadastrar_usuario_simulador")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Ciclo_pedido")
+                        .setAction("click_positivo_cadastrar_usuario_simulador")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
                 Intent it = new Intent(SimuladorResultado.this,TelaCadastroSimulador.class);
                 startActivity(it);
                 //para encerrar a activity atual e todos os parent

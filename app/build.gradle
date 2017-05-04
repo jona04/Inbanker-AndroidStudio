@@ -7,8 +7,8 @@ android {
         applicationId "br.com.appinbanker.inbanker"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 26
-        versionName "0.3.5"
+        versionCode 33
+        versionName "0.4.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
@@ -61,6 +61,10 @@ dependencies {
     compile 'com.joanzapata.iconify:android-iconify-fontawesome:2.1.+' //icon badge menu
 
     compile 'com.github.amlcurran.showcaseview:library:5.4.3'
+
+    compile 'it.neokree:MaterialTabs:0.11' // aba tela inicial
+
+    compile 'com.google.android.gms:play-services-analytics:9.6.1' // google analytics tracking
 }
 
 apply plugin: 'com.google.gms.google-services'

@@ -1,0 +1,58 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context="br.com.appinbanker.inbanker.fragments_navigation.InicioFragment">
+
+        <RelativeLayout
+            android:id="@+id/ll_saldo_inicio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:orientation="vertical">
+
+
+
+                <LinearLayout
+                    android:id="@+id/ll_total_receber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_below="@+id/ll_total_pagar"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="180dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="18sp"
+                        android:textColor="@color/colorPrimaryLight"
+                        android:fontFamily="sans-serif-thin"
+                        android:textAlignment="center"
+                        android:text="Total a Receber: "/>
+
+                    <TextView
+                        android:id="@+id/tv_aba_receber"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="26sp"
+                        android:textColor="@color/colorPrimaryLight"
+                        android:fontFamily="sans-serif-thin"
+                        android:layout_gravity="center"
+                        android:textAlignment="center"
+                        android:text="R$ 0,00"/>
+
+                </LinearLayout>
+            </LinearLayout>
+
+        </RelativeLayout>
+
+</ScrollView>

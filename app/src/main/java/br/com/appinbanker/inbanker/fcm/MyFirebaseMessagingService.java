@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import java.util.Map;
+
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
 import br.com.appinbanker.inbanker.entidades.Transacao;
@@ -67,6 +69,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 Log.i("Notificatio","Excepition = "+e);
             }
         }
+
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
@@ -142,6 +145,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         it.putExtra("menu_item",menu_item);
 
         it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        it.addFlags(Intent.FLAG_FROM_BACKGROUND);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, it,
                 PendingIntent.FLAG_ONE_SHOT);
 
@@ -178,7 +182,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         //tempo vibrando, dormindo, vibrando, dormindo
         notificationBuilder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000});
 
-
         Log.i("Notification Menu","Menu item = divida ");
 
         Intent it = new Intent(this,NavigationDrawerActivity.class);
@@ -190,7 +193,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationBuilder.setContentIntent(pendingIntent);
 
         notificationManager.notify(0, notificationBuilder.build());
-
 
     }
 }

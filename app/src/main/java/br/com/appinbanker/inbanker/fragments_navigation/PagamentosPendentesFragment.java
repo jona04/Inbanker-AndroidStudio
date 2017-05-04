@@ -2,7 +2,7 @@ package br.com.appinbanker.inbanker.fragments_navigation;
 
 import android.database.Cursor;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +15,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.joanzapata.iconify.widget.IconButton;
 
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnStringHora;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
+import br.com.appinbanker.inbanker.util.AnalyticsApplication;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.ObterHora;
 
@@ -48,6 +51,8 @@ public class PagamentosPendentesFragment extends Fragment implements WebServiceR
     private BancoControllerUsuario crud;
     private Cursor cursor;
     private String cpf;
+
+    private Tracker mTracker;
 
     private LinearLayout progress_lista_pagamentos;
 
@@ -72,6 +77,13 @@ public class PagamentosPendentesFragment extends Fragment implements WebServiceR
         setHasOptionsMenu(true);
 
         getActivity().setTitle("Contratos");
+
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
+
+        mTracker.setScreenName("ContratosFragment");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
         progress_lista_pagamentos = (LinearLayout) view.findViewById(R.id.progress_lista_pagamentos);
 

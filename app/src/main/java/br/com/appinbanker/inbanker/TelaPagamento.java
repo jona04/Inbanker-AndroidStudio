@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.github.pinball83.maskededittext.MaskedEditText;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import org.json.JSONObject;
 
@@ -49,6 +51,7 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.util.AnalyticsApplication;
 import br.com.appinbanker.inbanker.util.Mask;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AddCartaoUsuario;
@@ -80,8 +83,7 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
     //String mes_validade;
     //String ano_validade;
     Transacao trans;
-    String token_user2;
-    String email_user2;
+    String token_user2,email_user2,nome_usu_logado;
 
     boolean mesmo_cartao;
 
@@ -96,17 +98,25 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
     private TextWatcher validadeMask;
     private TextWatcher codMask;
 
+    private Tracker mTracker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_tela_pagamento);
 
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+
+        mTracker.setScreenName("TelaPagamento");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
         Intent it = getIntent();
         trans = (Transacao) it.getExtras().getSerializable("transacao");
         token_user2 = it.getStringExtra("token_user2");
         email_user2 = it.getStringExtra("email_user2");
-
-
+        nome_usu_logado = it.getStringExtra("nome_usu_logado");
 
         Locale ptBr = new Locale("pt", "BR");
         NumberFormat nf = NumberFormat.getCurrencyInstance(ptBr);
@@ -253,21 +263,38 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
         }
     }
 
-    public void desabilitaBtn(){
-        btn_pagamento.setEnabled(false);
-    }
-    public void habilitaBtn(){
-        btn_pagamento.setEnabled(true);
-    }
     public void realizarPagamento(View view){
         Log.i("Script","btn ralizzar pagamento");
 
-        desabilitaBtn();
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("TelaPagamento")
+                .setAction("Click_realiza_pagamento")
+                .setLabel(nome_usu_logado)
+                .build());
+
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("Ciclo_pedido")
+                .setAction("Click_realiza_pagamento")
+                .setLabel(nome_usu_logado)
+                .build());
+
 
         progress = ProgressDialog.show(TelaPagamento.this, "Verificando Dados",
                 "Olá, esse processo pode demorar alguns segundos...", true);
 
         if(mesmo_cartao){
+
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("TelaPagamento")
+                    .setAction("realiza_pagamento_mesmo_cartao")
+                    .setLabel(nome_usu_logado)
+                    .build());
+
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("Ciclo_pedido")
+                    .setAction("realiza_pagamento_mesmo_cartao")
+                    .setLabel(nome_usu_logado)
+                    .build());
 
             // Usually this can be a field rather than a method variable
             Random rand = new Random();
@@ -293,6 +320,19 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
         }else {
 
             if(checkCamposCartao()) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("TelaPagamento")
+                        .setAction("realiza_pagamento_outro_cartao")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Ciclo_pedido")
+                        .setAction("realiza_pagamento_outro_cartao")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
 
                 Log.i("String",trans.getValor_servico());
 
@@ -348,9 +388,34 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
 
                     if (retornoPagamento.getReturn_Status().equals("3")) {
                         progress.dismiss();
+
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("TelaPagamento")
+                                .setAction("autorizacao_negada")
+                                .setLabel(nome_usu_logado)
+                                .build());
+
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("Ciclo_pedido")
+                                .setAction("autorizacao_negada")
+                                .setLabel(nome_usu_logado)
+                                .build());
+
                         mensagem("Autorização negada", "Olá, seu cartão foi recusado, por favor revise seus dados.", "Ok");
                     } else if (retornoPagamento.getReturn_Status().equals("1")) {
                         //mensagem("Transação autorizada", "Pedido enviado, aguarde a resposta de seu amigo(a) " + trans.getNome_usu2(), "Ok");
+
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("TelaPagamento")
+                                .setAction("autorizacao_permitida")
+                                .setLabel(nome_usu_logado)
+                                .build());
+
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("Ciclo_pedido")
+                                .setAction("autorizacao_permitida")
+                                .setLabel(nome_usu_logado)
+                                .build());
 
                         //adicionamos o retorno em transacoes, no banco mongodb
                         trans.setPagamento(retornoPagamento);
@@ -358,27 +423,75 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
                         new AddTransacao(trans, TelaPagamento.this).execute();
 
                     } else {
+
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("TelaPagamento")
+                                .setAction("error_critico_pagamento")
+                                .setLabel(nome_usu_logado)
+                                .build());
+
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("Ciclo_pedido")
+                                .setAction("error_critico_pagamento")
+                                .setLabel(nome_usu_logado)
+                                .build());
+
                         progress.dismiss();
                         mensagem("Erro crítico!", "Parece que houve um erro de pagamento, por favor tente novamente.", "Ok");
                         //mensagem("Autorização negada", jsonObj.getString("error"), "Ok");
                         progress.dismiss();
-                        habilitaBtn();
                     }
                 }else{
+
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("TelaPagamento")
+                            .setAction("autorizacao_negada_json")
+                            .setLabel(nome_usu_logado)
+                            .build());
+
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("Ciclo_pedido")
+                            .setAction("autorizacao_negada_json")
+                            .setLabel(nome_usu_logado)
+                            .build());
+
                     mensagem("Autorização negada", jsonObj.getString("error"), "Ok");
                     progress.dismiss();
-                    habilitaBtn();
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("TelaPagamento")
+                        .setAction("error_critico_digito_ou_conexao")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Ciclo_pedido")
+                        .setAction("error_critico_digito_ou_conexao")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
                 progress.dismiss();
-                habilitaBtn();
                 mensagem("Erro crítico!", "Verifique se o nome foi digitado corretamente ou se existe conexão. Se o erro persistir por favor entre em contato conosco.", "Ok");
             }
 
         }else{
-            habilitaBtn();
+
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("TelaPagamento")
+                    .setAction("error_critico_conexao")
+                    .setLabel(nome_usu_logado)
+                    .build());
+
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("Ciclo_pedido")
+                    .setAction("error_critico_conexao")
+                    .setLabel(nome_usu_logado)
+                    .build());
+
             progress.dismiss();
             mensagem("Erro crítico!", "Parece que houve um erro de conexão, por favor tente novamente.", "Ok");
 
@@ -396,6 +509,18 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
         if(result!=null) {
             if (result.equals("sucesso_edit")) {
                 if(!token_user2.equals("")) {
+
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("TelaPagamento")
+                            .setAction("pagamento_ok_pedido_enviado")
+                            .setLabel(nome_usu_logado)
+                            .build());
+
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("Ciclo_pedido")
+                            .setAction("pagamento_ok_pedido_enviado")
+                            .setLabel(nome_usu_logado)
+                            .build());
 
                     CartaoPagamento cp = new CartaoPagamento();
                     cp.setToken_cartao(retornoPagamento.getToken());
@@ -420,12 +545,51 @@ public class TelaPagamento extends AppCompatActivity implements WebServiceReturn
                     //aletar e redirecionamento para tela inicial
                     mensagemIntent("InBanker", "Pedido enviado, aguarde a resposta de seu amigo(a) " + trans.getNome_usu2(), "Ok");
                 }else{
+
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("TelaPagamento")
+                            .setAction("pagamento_ok_pedido_enviado_usuario_deslogado")
+                            .setLabel(nome_usu_logado)
+                            .build());
+
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("Ciclo_pedido")
+                            .setAction("pagamento_ok_pedido_enviado_usuario_deslogado")
+                            .setLabel(nome_usu_logado)
+                            .build());
+
                     mensagemIntent("InBanker","Pedido enviado! Porém recomendamos entrar em contato pessoalmente com seu amigo(a) "+trans.getNome_usu2()+". Pois ele não receberá notifição de aviso por não estar logado.", "Ok");
                 }
             } else {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("TelaPagamento")
+                        .setAction("pagamento_ok_error_conexao1")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Ciclo_pedido")
+                        .setAction("pagamento_ok_error_conexao1")
+                        .setLabel(nome_usu_logado)
+                        .build());
+
                 mensagem("Houve um erro!", "Parece que houve um erro de conexão, por favor tente novamente.", "Ok");
             }
         }else{
+
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("TelaPagamento")
+                    .setAction("pagamento_ok_error_conexao2")
+                    .setLabel(nome_usu_logado)
+                    .build());
+
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("Ciclo_pedido")
+                    .setAction("pagamento_ok_error_conexao2")
+                    .setLabel(nome_usu_logado)
+                    .build());
+
             mensagem("Houve um erro!", "Parece que houve um erro de conexão, por favor tente novamente.", "Ok");
         }
 

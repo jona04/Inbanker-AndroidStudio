@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -44,6 +44,8 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.joanzapata.iconify.widget.IconButton;
@@ -79,6 +81,7 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.util.AnalyticsApplication;
 import br.com.appinbanker.inbanker.util.MaskMoney;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.AtualizaUsuario;
@@ -104,6 +107,10 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
     private boolean usuario_logado = false;
 
     String id_face,nome_face,url_face;
+
+    private Tracker mTracker;
+
+    private String nome_usu_logado_analytics = "";
 
     //private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
     //private DatabaseReference usuarioReferencia = databaseReference.child("usuarios");
@@ -134,6 +141,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                     //utilizamos para deixar a lista no modo hide
                     usuario_logado = false;
                 } else {
+
                     Log.i("Facebook","logado accestoken = "+AccessToken.getCurrentAccessToken());
 
                     BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
@@ -147,6 +155,7 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                         //pb.setVisibility(View.GONE);
 
                     }else {
+
                         //utilizamos para deixar a lista no modo hide
                         usuario_logado = true;
                         graphFacebook(AccessToken.getCurrentAccessToken());
@@ -163,9 +172,20 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
         getActivity().setTitle("Pedir Empréstimo");
 
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
+
+        mTracker.setScreenName("PedirEmprestimoFragment");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
         msg_lista_amigos = (LinearLayout) view.findViewById(R.id.msg_lista_amigos);
         pb = (LinearLayout) view.findViewById(R.id.progress_lista_amigos);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.rv_list_amigos);
+
+        //fazemos uma busca do usuario logando no banco para mostrarmos corretamente o traking analytics
+        BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
+        Cursor cursor = crud.carregaDados();
 
         //se usuario nao estiver logado, escondemos a lista de amigos
         if(!usuario_logado) {
@@ -175,6 +195,11 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
             //mostramos novamente a barra de carregar e a lista de amigos
             mRecyclerView.setVisibility(View.VISIBLE);
             pb.setVisibility(View.VISIBLE);
+            if(cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF)) != null && cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF)).equals(""))
+                nome_usu_logado_analytics = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME))+"_face";
+            else
+                nome_usu_logado_analytics = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME));
+
         }
 
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
@@ -196,6 +221,12 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.i("Facebook", "onSuceess - loingResult= "+loginResult);
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("PedirEmprestimoFragment")
+                        .setAction("CLick_login_facebook")
+                        .setLabel(nome_usu_logado_analytics)
+                        .build());
 
                 //mostramos novamente a barra de carregar e a lista de amigos
                 mRecyclerView.setVisibility(View.VISIBLE);
@@ -399,16 +430,17 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
 
             }else{
                 //continua
-                confirmarUsuarioLogadoFace();
+                confirmarUsuarioLogadoFace(usu.getNome());
+
             }
         }else{
             //continua
-            confirmarUsuarioLogadoFace();
+            confirmarUsuarioLogadoFace(usu.getNome());
         }
 
     }
 
-    public void confirmarUsuarioLogadoFace(){
+    public void confirmarUsuarioLogadoFace(final String nome_usu){
 
         Log.i("PedirEmprestimo","Confirmar usuario logado face no me = "+nome_face);
 
@@ -443,6 +475,12 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
             @Override
             public void onClick(View view) {
 
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("PedirEmprestimoFragment")
+                        .setAction("CLick_nao_confirma_usuario_login_facebook")
+                        .setLabel(nome_usu_logado_analytics)
+                        .build());
+
                 //faz o logout do usuario logado facebook
                 LoginManager.getInstance().logOut();
 
@@ -457,6 +495,12 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
             @Override
             public void onClick(View v) {
 
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("PedirEmprestimoFragment")
+                        .setAction("CLick_confirma_usuario_login_facebook")
+                        .setLabel(nome_usu_logado_analytics)
+                        .build());
+
                 BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
                 Cursor cursor = crud.carregaDados();
                 String id_face_logado = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
@@ -467,6 +511,11 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                     listaAmigos();
                 }
 
+
+                if(!nome_usu.equals(""))
+                    nome_usu_logado_analytics = nome_usu;
+                else
+                    nome_usu_logado_analytics = nome_face+"_face";
 
                 dialog.dismiss();
             }
@@ -573,6 +622,18 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
     @Override
     public void onClickListener(View view, final int position) {
 
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("PedirEmprestimoFragment")
+                .setAction("CLick_amigo_lista_facebook")
+                .setLabel(nome_usu_logado_analytics)
+                .build());
+
+        mTracker.send(new HitBuilders.EventBuilder()
+                .setCategory("Ciclo_pedido")
+                .setAction("CLick_amigo_lista_facebook")
+                .setLabel(nome_usu_logado_analytics)
+                .build());
+
         final Dialog dialog = new Dialog(getActivity(),R.style.AppThemeDialog);
         dialog.setContentView(R.layout.dialog_simulador_pedido);
         dialog.setTitle("Simulador Pedido");
@@ -586,6 +647,13 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if ( (actionId == EditorInfo.IME_ACTION_DONE) || ((event.getKeyCode() == KeyEvent.KEYCODE_ENTER) && (event.getAction() == KeyEvent.ACTION_DOWN ))){
                     //Log.i("Script","apertou eba");
+
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("Ciclo_pedido")
+                            .setAction("escolheu_valor")
+                            .setLabel(nome_usu_logado_analytics)
+                            .build());
+
                     esconderTeclado();
                     mostraCalendario();
                     return true;
@@ -633,6 +701,19 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         btn_voltar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("PedirEmprestimoFragment")
+                        .setAction("CLick_cancelar_verificar_pedido_lista_amigo")
+                        .setLabel(nome_usu_logado_analytics)
+                        .build());
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Ciclo_pedido")
+                        .setAction("CLick_cancelar_verificar_pedido_lista_amigo")
+                        .setLabel(nome_usu_logado_analytics)
+                        .build());
+
                 dialog.dismiss();
             }
         });
@@ -640,6 +721,18 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
         btn_verificar.setOnClickListener(new View.OnClickListener() {
              @Override
              public void onClick(View v) {
+
+                 mTracker.send(new HitBuilders.EventBuilder()
+                         .setCategory("PedirEmprestimoFragment")
+                         .setAction("CLick_verificar_pedido_lista_amigo")
+                         .setLabel(nome_usu_logado_analytics)
+                         .build());
+
+                 mTracker.send(new HitBuilders.EventBuilder()
+                         .setCategory("Ciclo_pedido")
+                         .setAction("CLick_verificar_pedido_lista_amigo")
+                         .setLabel(nome_usu_logado_analytics)
+                         .build());
 
                  String valor_normal = MaskMoney.removeMask(et_valor.getText().toString());
 
@@ -668,6 +761,18 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                      if (Double.parseDouble(valor_normal_) > 19.99){
                          if (Double.parseDouble(valor_normal_) < 1001) {
 
+                             mTracker.send(new HitBuilders.EventBuilder()
+                                     .setCategory("PedirEmprestimoFragment")
+                                     .setAction("pedido_verificado_lista_amigo")
+                                     .setLabel(nome_usu_logado_analytics)
+                                     .build());
+
+                             mTracker.send(new HitBuilders.EventBuilder()
+                                     .setCategory("Ciclo_pedido")
+                                     .setAction("pedido_verificado_lista_amigo")
+                                     .setLabel(nome_usu_logado_analytics)
+                                     .build());
+
                              DateTimeFormatter fmt = DateTimeFormat.forPattern("dd/MM/YYYY");
                              DateTime hoje = new DateTime();
                              DateTime vencimento = fmt.parseDateTime(et_calendario.getText().toString());
@@ -682,16 +787,43 @@ public class PedirEmprestimoFragment extends Fragment implements RecyclerViewOnC
                              b.putString("valor", valor_normal);
                              b.putString("url_img", mList.get(position).getPicture().getData().getUrl());
                              b.putString("vencimento", et_calendario.getText().toString());
+                             b.putString("nome_usu_logado",nome_usu_logado_analytics);
                              b.putInt("dias", dias_pagamento);
                              it.putExtras(b);
                              startActivity(it);
 
                              dialog.dismiss();
                          } else {
+
+                             mTracker.send(new HitBuilders.EventBuilder()
+                                     .setCategory("PedirEmprestimoFragment")
+                                     .setAction("valor_maior_que_1000")
+                                     .setLabel(nome_usu_logado_analytics)
+                                     .build());
+
+                             mTracker.send(new HitBuilders.EventBuilder()
+                                     .setCategory("Ciclo_pedido")
+                                     .setAction("valor_maior_que_1000")
+                                     .setLabel(nome_usu_logado_analytics)
+                                     .build());
+
                              //Log.i("Scrip", "valor normal = " + valor_normal_);
                              mensagem("InBanker", "Olá, no momento só é permitido valores menores ou igual R$ 1.000,00. Por favor insira um valor menor.", "Ok");
                          }
                     }else{
+
+                         mTracker.send(new HitBuilders.EventBuilder()
+                                 .setCategory("PedirEmprestimoFragment")
+                                 .setAction("valor_menor_que_20")
+                                 .setLabel(nome_usu_logado_analytics)
+                                 .build());
+
+                         mTracker.send(new HitBuilders.EventBuilder()
+                                 .setCategory("Ciclo_pedido")
+                                 .setAction("valor_menor_que_20")
+                                 .setLabel(nome_usu_logado_analytics)
+                                 .build());
+
                          mensagem("InBanker", "Olá, no momento só é permitido valores maiores ou igual a R$ 20,00. Por favor insira um valor maior.", "Ok");
 
                      }

@@ -20,6 +20,11 @@ import android.widget.TextView;
 
 import android.graphics.Paint;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
+import br.com.appinbanker.inbanker.util.AnalyticsApplication;
+
 public class SlideInicial extends AppCompatActivity {
 
     private ViewPager viewPager;
@@ -29,10 +34,19 @@ public class SlideInicial extends AppCompatActivity {
     private int[] layouts;
     private Button btnSingnIn, btnSingnUp;
 
+    private Tracker mTracker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_slide_inicial);
+
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+
+        mTracker.setScreenName("SlideInicial");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         dotsLayout = (LinearLayout) findViewById(R.id.layoutDots);
@@ -61,6 +75,12 @@ public class SlideInicial extends AppCompatActivity {
         btnSingnIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("SlideInicial")
+                        .setAction("Entrar")
+                        .build());
+
                 Intent it = new Intent(SlideInicial.this,TelaLogin.class);
                 startActivity(it);
             }
@@ -69,6 +89,12 @@ public class SlideInicial extends AppCompatActivity {
         btnSingnUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("SlideInicial")
+                        .setAction("Cadastrar")
+                        .build());
+
                 Intent it = new Intent(SlideInicial.this,TelaCadastro.class);
                 startActivity(it);
             }

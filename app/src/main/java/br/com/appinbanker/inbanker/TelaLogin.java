@@ -28,6 +28,8 @@ import com.facebook.HttpMethod;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import org.json.JSONObject;
 
@@ -40,6 +42,7 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuarioFace;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.util.AnalyticsApplication;
 import br.com.appinbanker.inbanker.util.FunctionUtil;
 import br.com.appinbanker.inbanker.util.Mask;
 import br.com.appinbanker.inbanker.util.Validador;
@@ -72,6 +75,8 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
 
     private TextWatcher cpfMask;
 
+    private Tracker mTracker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +86,13 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
         callbackManager = CallbackManager.Factory.create();
 
         setContentView(R.layout.layout_tela_login);
+
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+
+        mTracker.setScreenName("TelaLogin");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
         //faz o logout do usuario logado facebook
         LoginManager.getInstance().logOut();
@@ -96,6 +108,12 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btns_TelaLogin")
+                        .setAction("Login_Facebook")
+                        .build());
+
                 Log.i("Facebook", "onSuceess - loingResult= "+loginResult);
 
                 //chamamos o metedo graphFacebook para obter os dados do usuario logado
@@ -136,6 +154,11 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
                                 event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
 
 
+                    mTracker.send(new HitBuilders.EventBuilder()
+                            .setCategory("Btns_TelaLogin")
+                            .setAction("Login_Senha")
+                            .build());
+
                     clickLogin();
 
                     //dialog.dismiss();
@@ -151,6 +174,11 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
             @Override
             public void onClick(View v) {
 
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btns_TelaLogin")
+                        .setAction("Login_Senha")
+                        .build());
+
                 clickLogin();
 
                 //dialog.dismiss();
@@ -161,6 +189,12 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
         btn_esqueceu_senha.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btns_TelaLogin")
+                        .setAction("Esqueceu_Senha")
+                        .build());
+
                 dialog = new Dialog(TelaLogin.this,R.style.AppThemeDialog);
                 dialog.setContentView(R.layout.dialog_esqueceu_senha);
                 dialog.setTitle("Solicitar nova senha");
@@ -173,11 +207,28 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
                 btn_confirmar_esq_senha.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("Btns_TelaLogin")
+                                .setAction("Click_confirma_esqueceu_senha")
+                                .build());
+
                         if(clickRecuperaSenha()) {
+
+                            mTracker.send(new HitBuilders.EventBuilder()
+                                    .setCategory("Btns_TelaLogin")
+                                    .setAction("SUCCESS_Click_confirma_esqueceu_senha")
+                                    .build());
+
                             new BuscaUsuarioCPFAux(et_dialog_cpf.getText().toString(),TelaLogin.this, TelaLogin.this).execute();
                             progress_bar_esq_senha.setVisibility(View.VISIBLE);
                             btn_confirmar_esq_senha.setEnabled(false);
                             btn_voltar_esq_senha.setEnabled(false);
+                        }else{
+                            mTracker.send(new HitBuilders.EventBuilder()
+                                    .setCategory("Btns_TelaLogin")
+                                    .setAction("ERROR_Click_confirma_esqueceu_senha")
+                                    .build());
                         }
                     }
                 });
@@ -185,6 +236,12 @@ public class TelaLogin extends AppCompatActivity implements WebServiceReturnUsua
                 btn_voltar_esq_senha.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+
+                        mTracker.send(new HitBuilders.EventBuilder()
+                                .setCategory("Btns_TelaLogin")
+                                .setAction("Click_voltar_esqueceu_senha")
+                                .build());
+
                         dialog.dismiss();
                     }
                 });

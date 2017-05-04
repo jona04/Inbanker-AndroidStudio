@@ -13,12 +13,15 @@ import android.widget.TextView;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import br.com.appinbanker.inbanker.entidades.Usuario;
 import br.com.appinbanker.inbanker.interfaces.WebServiceReturnString;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.util.AnalyticsApplication;
 import br.com.appinbanker.inbanker.util.Validador;
 import br.com.appinbanker.inbanker.webservice.EnviaEmailMensagem;
 
@@ -27,10 +30,20 @@ public class TelaEnviaMensagem extends AppCompatActivity implements WebServiceRe
     private ProgressDialog progress;
     private Button btn_enviar_mensagem;
     private EditText et_mensagem,et_email,et_titulo_mensagem,nome_usuario;
+
+    private Tracker mTracker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_tela_envia_mensagem);
+
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getApplication();
+        mTracker = application.getDefaultTracker();
+
+        mTracker.setScreenName("TelaEnviaMensagem");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
 
         BancoControllerUsuario crud = new BancoControllerUsuario(getBaseContext());
         Cursor cursor = crud.carregaDados();
@@ -58,6 +71,12 @@ public class TelaEnviaMensagem extends AppCompatActivity implements WebServiceRe
         btn_enviar_mensagem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("TelaEnviaMensagem")
+                        .setAction("Click_Btn_envia_mensagem")
+                        .build());
+
                 if(clickEnviaMensagem()) {
                     new EnviaEmailMensagem(usu, et_mensagem.getText().toString(),et_titulo_mensagem.getText().toString(), TelaEnviaMensagem.this).execute();
 
@@ -121,11 +140,29 @@ public class TelaEnviaMensagem extends AppCompatActivity implements WebServiceRe
         progress.dismiss();
         if(result!=null) {
             if (result.equals("feito")){
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("TelaEnviaMensagem")
+                        .setAction("Mensagem_enviada_sucesso")
+                        .build());
+
                 mensagem("Mensagem enviada!","Olá, sua mensagem foi enviada com sucesso.","Ok");
             }else{
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("TelaEnviaMensagem")
+                        .setAction("error envio da sua mensagem")
+                        .build());
+
                 mensagem("Erro mensagem!","Olá, houve um erro no envio da sua mensagem. Por favor tente novamente.","Ok");
             }
         }else{
+
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("TelaEnviaMensagem")
+                    .setAction("tivemos um problema de conexão")
+                    .build());
+
             mensagem("Erro conexão!","Olá, parece que tivemos um problema de conexão. Por favor tente novamente.","Ok");
         }
     }

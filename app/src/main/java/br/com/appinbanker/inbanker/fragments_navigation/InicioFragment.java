@@ -2,16 +2,18 @@ package br.com.appinbanker.inbanker.fragments_navigation;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.os.Parcelable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -29,13 +31,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import android.support.annotation.Nullable;
-import android.support.annotation.IdRes;
 
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.SimpleShowcaseEventListener;
-import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
-import com.github.amlcurran.showcaseview.targets.Target;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,7 +46,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.joanzapata.iconify.widget.IconButton;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.Days;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -55,14 +56,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import br.com.appinbanker.inbanker.MinhaConta;
 import br.com.appinbanker.inbanker.NavigationDrawerActivity;
 import br.com.appinbanker.inbanker.R;
-import br.com.appinbanker.inbanker.TelaCadastroMinhaConta;
 import br.com.appinbanker.inbanker.TelaLogin;
 import br.com.appinbanker.inbanker.TelaNotificacoes;
-import br.com.appinbanker.inbanker.adapters.TransacaoEnvAdapter;
-import br.com.appinbanker.inbanker.adapters.TransacaoRecebidaAdapter;
 import br.com.appinbanker.inbanker.entidades.AlteraPagamento;
 import br.com.appinbanker.inbanker.entidades.Historico;
 import br.com.appinbanker.inbanker.entidades.KeyAccountPagamento;
@@ -75,6 +72,8 @@ import br.com.appinbanker.inbanker.interfaces.WebServiceReturnUsuario;
 import br.com.appinbanker.inbanker.sqlite.BancoControllerUsuario;
 import br.com.appinbanker.inbanker.sqlite.CriandoBanco;
 import br.com.appinbanker.inbanker.util.AllSharedPreferences;
+import br.com.appinbanker.inbanker.util.AnalyticsApplication;
+import br.com.appinbanker.inbanker.util.FunctionUtil;
 import br.com.appinbanker.inbanker.webservice.AlteraPagamentoService;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPF;
 import br.com.appinbanker.inbanker.webservice.BuscaUsuarioCPFAux;
@@ -83,8 +82,11 @@ import br.com.appinbanker.inbanker.webservice.EditaTransacaoResposta;
 import br.com.appinbanker.inbanker.webservice.EnviaEmailTrans;
 import br.com.appinbanker.inbanker.webservice.EnviaNotificacao;
 import br.com.appinbanker.inbanker.webservice.ObterHora;
+import it.neokree.materialtabs.MaterialTab;
+import it.neokree.materialtabs.MaterialTabHost;
+import it.neokree.materialtabs.MaterialTabListener;
 
-public class InicioFragment extends Fragment implements WebServiceReturnStringHora,WebServiceReturnUsuario,WebServiceReturnString,WebServiceReturnStringPagamento {
+public class InicioFragment extends Fragment implements WebServiceReturnStringHora,WebServiceReturnUsuario,WebServiceReturnString,WebServiceReturnStringPagamento,MaterialTabListener {
 
     TextView badge_notification_ped_rec,badge_notification_pag_pen,badge_notification_ped_env;
 
@@ -98,6 +100,9 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
     Transacao trans_global;
 
     private Transacao trans_global_ped_receb,trans_global_ped_env;
+
+    List<Transacao> list_trans_contrato_receber,list_trans_contrato_pagar;
+    double total_receber = 0,total_pagar = 0;
 
     private DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
     private DatabaseReference usuarioReferencia = databaseReference.child("usuarios");
@@ -113,7 +118,22 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
     LinearLayout ll_btn_inicio;
 
+    MaterialTabHost tabHost;
+    ViewPager pager;
+    ViewPagerAdapter pagerAdapter;
+
+    private Resources res;
+
+    //private FirebaseAnalytics mFirebaseAnalytics;
+
     public InicioFragment(){}
+
+    //utilizada para verificar se a tela existe
+    boolean hasStop = false;
+
+    private Tracker mTracker;
+
+    private String nome_usu_logado_analytics;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -122,10 +142,32 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         View view = inflater.inflate(R.layout.fragment_inicio, container, false);
 
         setHasOptionsMenu(true);
-
         getActivity().setTitle("Inicio");
 
-         ll_btn_inicio = (LinearLayout) view.findViewById(R.id.ll_btn_inicio);
+        // Obtain the shared Tracker instance.
+        AnalyticsApplication application = (AnalyticsApplication) getActivity().getApplication();
+        mTracker = application.getDefaultTracker();
+
+        mTracker.setScreenName("InicioFragment");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
+        // Obtain the FirebaseAnalytics instance.
+        //mFirebaseAnalytics = FirebaseAnalytics.getInstance(getActivity());
+
+        res = this.getResources();
+
+        list_trans_contrato_receber = new ArrayList<>();
+        list_trans_contrato_pagar = new ArrayList<>();;
+
+        tabHost = (MaterialTabHost) view.findViewById(R.id.tabHost);
+        pager = (ViewPager) view.findViewById(R.id.pager);
+        // init view pager
+        pagerAdapter = new ViewPagerAdapter(getActivity().getSupportFragmentManager());
+
+        //chamamos tabhost na criacao da tela para gerar estrutura copleta com tabs e titulos
+        geraTabHost();
+
+       ll_btn_inicio = (LinearLayout) view.findViewById(R.id.ll_btn_inicio);
         progress_bar_inicio = (ProgressBar) view.findViewById(R.id.progress_bar_inicio);
         badge_notification_ped_rec = (TextView) view.findViewById(R.id.badge_notification_ped_rec);
         badge_notification_pag_pen = (TextView) view.findViewById(R.id.badge_notification_pag_pen);
@@ -147,8 +189,10 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         //fazemos uma busca do usuario logando no banco para mostrarmos corretamente as notificações interna nos butons da tela incio
         BancoControllerUsuario crud = new BancoControllerUsuario(getActivity());
         Cursor cursor = crud.carregaDados();
+
         try {
             String cpf = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.CPF));
+            nome_usu_logado_analytics = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.NOME));
             //String id_face = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.ID_FACE));
             if(!cpf.equals("")) {
                 new BuscaUsuarioCPF(cpf,getActivity(),this).execute();
@@ -161,6 +205,13 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         btn_pedir_emprestimo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btn_Fragment_Inicio")
+                        .setAction("Pedir_Emprestimo")
+                        .setLabel(nome_usu_logado_analytics)
+                        .build());
+
                 Intent it = new Intent(getActivity(),NavigationDrawerActivity.class);
                 Bundle b = new Bundle();
                 b.putInt("menu_item", NavigationDrawerActivity.MENU_PEDIR_EMPRESTIMO);
@@ -175,6 +226,12 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
             @Override
             public void onClick(View v) {
 
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btn_Fragment_Inicio")
+                        .setAction("Pedidos_Enviados")
+                        .setLabel(nome_usu_logado_analytics)
+                        .build());
+
                 Intent it = new Intent(getActivity(),NavigationDrawerActivity.class);
                 Bundle b = new Bundle();
                 b.putInt("menu_item", NavigationDrawerActivity.MENU_PEDIDOS_ENVIADOS);
@@ -188,6 +245,12 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
             @Override
             public void onClick(View v) {
 
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btn_Fragment_Inicio")
+                        .setAction("Pedidos_Recebidos")
+                        .setLabel(nome_usu_logado_analytics)
+                        .build());
+
                 Intent it = new Intent(getActivity(),NavigationDrawerActivity.class);
                 Bundle b = new Bundle();
                 b.putInt("menu_item", NavigationDrawerActivity.MENU_PEDIDOS_RECEBIDOS);
@@ -200,6 +263,12 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         btn_pagamentos_pendentes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Btn_Fragment_Inicio")
+                        .setAction("Contratos")
+                        .setLabel(nome_usu_logado_analytics)
+                        .build());
 
                 Intent it = new Intent(getActivity(),NavigationDrawerActivity.class);
                 Bundle b = new Bundle();
@@ -246,7 +315,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
                                                     .withMaterialShowcase()
                                                     .setTarget(new ViewTarget(btn_pagamentos_pendentes))
                                                     .setContentTitle("Visualizar contratos")
-                                                    .setContentText("Toque no botão 'Contratos' para exibir a lista de pedidos que já foram aceitos por você ou por seus amigos, e por tanto já existe um contrato formalizado.")
+                                                    .setContentText("Toque no botão 'Contratos' para exibir a lista de pedidos que já foram aceitos por você ou por seus amigos, e portanto já existe um contrato formalizado.")
                                                     .setShowcaseEventListener(new SimpleShowcaseEventListener() {
 
                                                         @Override
@@ -304,14 +373,21 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
         itemMessagesBadgeTextView.setText(String.valueOf(count));
 
-        IconButton iconButtonMessages = (IconButton) menuNotificacao.findViewById(R.id.iconButton);
+        IconButton iconButtonNotify = (IconButton) menuNotificacao.findViewById(R.id.iconButton);
         //iconButtonMessages.setText("30");
 
-        iconButtonMessages.setOnClickListener(new View.OnClickListener() {
+        iconButtonNotify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //esconde badge
-                Log.i("Script","some bagde menu cartinha");
+                //Log.i("Script","some bagde menu cartinha");
+
+                mTracker.send(new HitBuilders.EventBuilder()
+                        .setCategory("Toolbar")
+                        .setAction("TelaNotificacoes")
+                        .setLabel(nome_usu_logado_analytics)
+                        .build());
+
 
                 Intent it = new Intent(getActivity(),TelaNotificacoes.class);
                 startActivity(it);
@@ -334,7 +410,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
                 int count_notify = 0;
 
                 count_notify = usu.getNotificacaoContrato().size();
-                Log.i("Script","count_notify 0 = "+count_notify);
+                //Log.i("Script","count_notify 0 = "+count_notify);
 
                 if(!AllSharedPreferences.getPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA,getActivity()).equals("")) {
                     if(!AllSharedPreferences.getPreferences(AllSharedPreferences.VERIFY_NOTIFY_CARTA,getActivity()).equals("")) {
@@ -359,7 +435,6 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
                     Log.i("Script","count_notify 2 = "+count_notify);
                     AllSharedPreferences.putPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA, String.valueOf(count_notify), getActivity());
                     AllSharedPreferences.putPreferences(AllSharedPreferences.COUNT_NOTIFY_CARTA_AUX, String.valueOf(count_notify), getActivity());
-
                 }
             }
 
@@ -380,12 +455,12 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
                         //foi constatado que o usuario possui alerta de suas transacoes enviadas
                         //precisamos obter a data hoje atual servidor
                         new ObterHora(this).execute();
-
                     }
-                    if(status >= 3 && status <= 5)
+                    if(status >= 3 && status <= 5) {
                         count_pag_pen++;
+                        list_trans_contrato_pagar.add(usu.getTransacoes_enviadas().get(i));
+                    }
                 }
-
             }
 
             if(usu.getTransacoes_recebidas() != null) {
@@ -398,7 +473,6 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
                         count_trans_rec++;
                     if(status == 4) {
 
-
                         //usuario global usado somente aqui
                         trans_global_ped_receb = usu.getTransacoes_recebidas().get(i);
 
@@ -408,16 +482,18 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
                     }
 
-
-                    if(status ==3 || status == 5)
+                    if(status ==3 || status == 5) {
                         count_pag_pen++;
+                        list_trans_contrato_receber.add(usu.getTransacoes_recebidas().get(i));
+                    }
                 }
-
             }
 
             if(count_pag_pen >0){
                 badge_notification_pag_pen.setVisibility(View.VISIBLE);
                 badge_notification_pag_pen.setText(String.valueOf(count_pag_pen));
+
+                new ObterHora(this).execute();
             }
             if(count_trans_env >0){
                 badge_notification_ped_env.setVisibility(View.VISIBLE);
@@ -427,8 +503,6 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
                 badge_notification_ped_rec.setVisibility(View.VISIBLE);
                 badge_notification_ped_rec.setText(String.valueOf(count_trans_rec));
             }
-
-
 
         }else{
 
@@ -455,13 +529,113 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
         if(trans_global_ped_env != null)
             dialogTransEnviadas(trans_global_ped_env,hoje);
-        else
+        else if(trans_global_ped_receb != null)
             dialogTransRecebidas(trans_global_ped_receb,hoje);
+
+        if(list_trans_contrato_receber != null) {
+            for (int i = 0; i < list_trans_contrato_receber.size(); i++) {
+                //calculamos a diferença de dias entre a data atual ate a data do pedido para calcularmos o juros
+                DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+                DateTimeFormatter dtfOut = DateTimeFormat.forPattern("dd/MM/yyyy");
+
+                DateTime data_pedido_parse_utc = fmt.parseDateTime(list_trans_contrato_receber.get(i).getDataPedido());
+                DateTime hoje_parse_utc = fmt.parseDateTime(hoje_string);
+                DateTime vencimento_parse_utc = fmt.parseDateTime(list_trans_contrato_receber.get(i).getVencimento());
+
+                String data_pedido_parse_string = dtfOut.print(data_pedido_parse_utc);
+                String hoje_parse_string = dtfOut.print(hoje_parse_utc);
+                String vencimento_parse_string = dtfOut.print(vencimento_parse_utc);
+
+                DateTime data_pedido_parse = dtfOut.parseDateTime(data_pedido_parse_string);
+                DateTime hoje_parse = dtfOut.parseDateTime(hoje_parse_string);
+                DateTime vencimento_parse = dtfOut.parseDateTime(vencimento_parse_string);
+
+                //calculamos o total de dias para mostramos na tela inicial antes do usuario-2 aceitar ou recusar o pedido recebido
+                Days d = Days.daysBetween(data_pedido_parse, hoje_parse);
+                int dias = d.getDays();
+
+                Double multa_atraso = 0.0;
+                Double juros_mora = 0.0;
+                if (hoje_parse.isAfter(vencimento_parse)) {
+
+                    //alteramos o valor de dias para até a data limite do vencimento
+                    //pois a partir daqui será adicionado um novo valor de juros, juros mora referente aos dias que ultrapssou o vencimento
+                    d = Days.daysBetween(data_pedido_parse, vencimento_parse);
+                    dias = d.getDays();
+
+                    Days d_atraso = Days.daysBetween(vencimento_parse, hoje_parse);
+                    int dias_atraso = d_atraso.getDays();
+
+                    juros_mora = Double.parseDouble(list_trans_contrato_receber.get(i).getValor()) * (0.00099667 * dias_atraso);
+
+                    multa_atraso = Double.parseDouble(list_trans_contrato_receber.get(i).getValor()) * 0.1;
+                }
+
+                double juros_mensal = Double.parseDouble(list_trans_contrato_receber.get(i).getValor()) * (0.00066333 * dias);
+                double valor_total = juros_mora + multa_atraso + juros_mensal + Double.parseDouble(list_trans_contrato_receber.get(i).getValor());
+
+                total_receber += valor_total;
+                Log.i("Script","valor total aba pagar na aba frag 4 = "+total_receber);
+            }
+
+            //geramos tabhost apos receber o valor total a receber
+            geraTabHost();
+        }
+        if(list_trans_contrato_pagar != null) {
+            for (int i = 0; i < list_trans_contrato_pagar.size(); i++) {
+                //calculamos a diferença de dias entre a data atual ate a data do pedido para calcularmos o juros
+                DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+                DateTimeFormatter dtfOut = DateTimeFormat.forPattern("dd/MM/yyyy");
+
+                DateTime data_pedido_parse_utc = fmt.parseDateTime(list_trans_contrato_pagar.get(i).getDataPedido());
+                DateTime hoje_parse_utc = fmt.parseDateTime(hoje_string);
+                DateTime vencimento_parse_utc = fmt.parseDateTime(list_trans_contrato_pagar.get(i).getVencimento());
+
+                String data_pedido_parse_string = dtfOut.print(data_pedido_parse_utc);
+                String hoje_parse_string = dtfOut.print(hoje_parse_utc);
+                String vencimento_parse_string = dtfOut.print(vencimento_parse_utc);
+
+                DateTime data_pedido_parse = dtfOut.parseDateTime(data_pedido_parse_string);
+                DateTime hoje_parse = dtfOut.parseDateTime(hoje_parse_string);
+                DateTime vencimento_parse = dtfOut.parseDateTime(vencimento_parse_string);
+
+                //calculamos o total de dias para mostramos na tela inicial antes do usuario-2 aceitar ou recusar o pedido recebido
+                Days d = Days.daysBetween(data_pedido_parse, hoje_parse);
+                int dias = d.getDays();
+
+                Double multa_atraso = 0.0;
+                Double juros_mora = 0.0;
+                if (hoje_parse.isAfter(vencimento_parse)) {
+
+                    //alteramos o valor de dias para até a data limite do vencimento
+                    //pois a partir daqui será adicionado um novo valor de juros, juros mora referente aos dias que ultrapssou o vencimento
+                    d = Days.daysBetween(data_pedido_parse, vencimento_parse);
+                    dias = d.getDays();
+
+                    Days d_atraso = Days.daysBetween(vencimento_parse, hoje_parse);
+                    int dias_atraso = d_atraso.getDays();
+
+                    juros_mora = Double.parseDouble(list_trans_contrato_pagar.get(i).getValor()) * (0.00099667 * dias_atraso);
+
+                    multa_atraso = Double.parseDouble(list_trans_contrato_pagar.get(i).getValor()) * 0.1;
+                }
+
+                double juros_mensal = Double.parseDouble(list_trans_contrato_pagar.get(i).getValor()) * (0.00066333 * dias);
+                double valor_total = juros_mora + multa_atraso + juros_mensal + Double.parseDouble(list_trans_contrato_pagar.get(i).getValor());
+
+                total_pagar += valor_total;
+                Log.i("Script","valor total aba pagar 3 = "+total_pagar);
+            }
+
+            //geramos tabhost apos receber o valor total a pagar
+            geraTabHost();
+        }
+
     }
 
 
 
-    public void obterDadosUsuarioFireBase(String cpf) {
+    /*public void obterDadosUsuarioFireBase(String cpf) {
 
         DatabaseReference trans_enviadas = usuarioReferencia.child(cpf);
         trans_enviadas.addValueEventListener(new ValueEventListener() {
@@ -483,9 +657,9 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
             }
         });
 
-    }
+    }*/
 
-    public void atualizaBadges(Usuario usu){
+    /*public void atualizaBadges(Usuario usu){
         int count_trans_env = 0;
         int count_trans_rec = 0;
         int count_pag_pen = 0;
@@ -494,10 +668,13 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
             for(int i = 0; i < usu.getTransacoes_enviadas().size(); i ++){
                 int status = Integer.parseInt(usu.getTransacoes_enviadas().get(i).getStatus_transacao());
-                if(status <=1 )
+                if(status <=1 ) {
                     count_trans_env++;
-                if(status >= 3 && status <= 5)
+                }
+                if(status >= 3 && status <= 5) {
                     count_pag_pen++;
+                    trans_global_contrato.add(usu.getTransacoes_enviadas().get(i));
+                }
             }
 
         }
@@ -527,7 +704,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
         }
 
         progress_bar_inicio.setVisibility(View.INVISIBLE);
-    }
+    }*/
 
     public void mensagem(String titulo,String corpo,String botao)
     {
@@ -632,7 +809,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
                 String senha = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.SENHA));
 
-                if (senha.equals(et_dialog_senha.getText().toString())) {
+                if (senha.equals(FunctionUtil.md5(et_dialog_senha.getText().toString()))) {
 
                     trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_RECUSADA));
                     trans.setId_recibo("");
@@ -677,7 +854,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
                 String senha = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.SENHA));
 
-                if (senha.equals(et_dialog_senha.getText().toString())) {
+                if (senha.equals(FunctionUtil.md5(et_dialog_senha.getText().toString()))) {
 
                     trans.setStatus_transacao(String.valueOf(Transacao.RESP_QUITACAO_SOLICITADA_CONFIRMADA));
                     trans.setData_recusada("");
@@ -765,7 +942,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
                 String senha = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.SENHA));
 
-                if (senha.equals(et_dialog_senha.getText().toString())) {
+                if (senha.equals(FunctionUtil.md5(et_dialog_senha.getText().toString()))) {
 
                     desabilitaBotoes();
 
@@ -811,7 +988,7 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
 
                 String senha = cursor.getString(cursor.getColumnIndexOrThrow(CriandoBanco.SENHA));
 
-                if (senha.equals(et_dialog_senha.getText().toString())) {
+                if (senha.equals(FunctionUtil.md5(et_dialog_senha.getText().toString()))) {
 
                     desabilitaBotoes();
 
@@ -1052,5 +1229,134 @@ public class InicioFragment extends Fragment implements WebServiceReturnStringHo
             }
         });
         mensagem.show();
+    }
+
+    public void geraTabHost(){
+
+        if(!hasStop) {
+            pager.setAdapter(pagerAdapter);
+            pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+                @Override
+                public void onPageSelected(int position) {
+                    // when user do a swipe the selected tab change
+                    tabHost.setSelectedNavigationItem(position);
+
+                }
+            });
+
+            // insert all tabs from pagerAdapter data
+            for (int i = 0; i < pagerAdapter.getCount(); i++) {
+                tabHost.addTab(
+                        tabHost.newTab()
+                                .setText(pagerAdapter.getPageTitle(i))
+                                .setTabListener(this)
+                );
+
+            }
+        }
+
+    }
+
+
+    @Override
+    public void onTabSelected(MaterialTab tab) {
+        //Log.i("Script","tab.getPosition() = "+tab.getPosition());
+        pager.setCurrentItem(tab.getPosition());
+
+        if(tab.getPosition() == 0){
+            /*Bundle params = new Bundle();
+            params.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "A Receber");
+            mFirebaseAnalytics.logEvent("tab_inicio_valores", params);*/
+
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("Tab_inicio_valores")
+                    .setAction("A Receber")
+                    .setLabel(nome_usu_logado_analytics)
+                    .build());
+
+        }
+        if(tab.getPosition() == 1){
+            /*Bundle params = new Bundle();
+            params.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "A Pagar");
+            mFirebaseAnalytics.logEvent("tab_inicio_valores", params);*/
+
+            mTracker.send(new HitBuilders.EventBuilder()
+                    .setCategory("Tab_inicio_valores")
+                    .setAction("A Pagar")
+                    .setLabel(nome_usu_logado_analytics)
+                    .build());
+
+        }
+
+
+
+    }
+
+    @Override
+    public void onTabReselected(MaterialTab tab) {
+
+    }
+
+    @Override
+    public void onTabUnselected(MaterialTab tab) {
+
+    }
+
+    private class ViewPagerAdapter extends FragmentStatePagerAdapter {
+
+        public ViewPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        public Fragment getItem(int num) {
+
+            Fragment frag = new FragmentAbaReceber();
+            Bundle bundle=new Bundle();
+            switch (num){
+                case 0:
+                    frag = new FragmentAbaReceber();
+                    bundle.putDouble("total", total_receber);
+                    frag.setArguments(bundle);
+                    break;
+                case 1:
+                    frag = new FragmentAbaPagar();
+                    bundle.putDouble("total", total_pagar);
+                    frag.setArguments(bundle);
+                    break;
+            }
+            return frag;
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            //return "Sezione " + position;
+
+            switch(position) {
+                case 0: return "A Receber";
+                case 1: return "A Pagar";
+                default: return "";
+            }
+        }
+    }
+
+    private Drawable getIcon(int position) {
+        switch(position) {
+            case 0:
+                return res.getDrawable(R.drawable.ic_menu_send);
+            case 1:
+                return res.getDrawable(R.drawable.ic_menu_share);
+        }
+        return null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        hasStop=true;
     }
 }

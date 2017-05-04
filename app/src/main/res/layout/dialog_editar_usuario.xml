@@ -75,7 +75,7 @@
                 android:id="@+id/et_edita_nasc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="dd/mm/aaaa"
+                android:hint="Nascimento  - dd/mm/aaaa"
                 android:inputType="number"
                 android:textSize="13sp"
                 android:imeOptions="actionNext"
